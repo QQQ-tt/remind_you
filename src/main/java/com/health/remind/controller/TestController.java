@@ -1,10 +1,13 @@
 package com.health.remind.controller;
 
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.health.remind.config.CommonMethod;
 import com.health.remind.config.R;
 import com.health.remind.entity.Test;
 import com.health.remind.pojo.dto.TestDTO;
 import com.health.remind.pojo.dto.TestEntityDTO;
+import com.health.remind.scheduler.ScheduledExecutor;
 import com.health.remind.service.TestService;
 import com.health.remind.util.RedisUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -60,5 +63,12 @@ public class TestController {
         RedisUtils.setObject("TestController:test:testRedis", testService.getById(id));
         Test object = RedisUtils.getObject("TestController:test:testRedis", Test.class);
         return R.success(object);
+    }
+
+    @Operation(summary = "测试任务")
+    @GetMapping("/task")
+    public R<String> testTask() {
+        ScheduledExecutor.putTestTask(IdWorker.getId(), CommonMethod.getMap());
+        return R.success("ok");
     }
 }
