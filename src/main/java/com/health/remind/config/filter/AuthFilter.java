@@ -1,0 +1,46 @@
+package com.health.remind.config.filter;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import com.health.remind.config.CommonMethod;
+import com.health.remind.config.enums.UserInfo;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
+/**
+ * @author qtx
+ * @since 2024/11/26 12:45
+ */
+@Slf4j
+@WebFilter("/*")
+public class AuthFilter extends OncePerRequestFilter {
+
+
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+        CommonMethod.initialize();
+        CommonMethod.setUserId(request.getHeader(UserInfo.USER_ID.toString()));
+        String userName = request.getHeader(UserInfo.USER_NAME.toString());
+        if (userName != null && userName.contains("%")) {
+            userName = URLDecoder.decode(userName, StandardCharsets.UTF_8);
+        }
+        CommonMethod.setUserName(userName);
+        CommonMethod.setTenantId(request.getHeader(UserInfo.tenant_id.toString()));
+        if (!request.getRequestURI()
+                .equals("/")) {
+            log.info("用户信息:{}", CommonMethod.getMap());
+            log.info("请求地址:{},请求ip:{}", request.getRequestURI(), request.getRemoteAddr());
+        }
+        filterChain.doFilter(request, response);
+        CommonMethod.clear();
+    }
+}
