@@ -1,6 +1,7 @@
 create table test
 (
-    id          bigint           null,
+    id          bigint           not null
+        primary key,
     name        varchar(50)      null,
     old_name    varchar(50)      null,
     num         int              null,

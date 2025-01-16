@@ -7,7 +7,7 @@ import com.health.remind.config.R;
 import com.health.remind.entity.Test;
 import com.health.remind.pojo.dto.TestDTO;
 import com.health.remind.pojo.dto.TestEntityDTO;
-import com.health.remind.scheduler.ScheduledExecutor;
+import com.health.remind.scheduler.DelayScheduledExecutor;
 import com.health.remind.service.TestService;
 import com.health.remind.util.RedisUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,7 +68,7 @@ public class TestController {
     @Operation(summary = "测试任务")
     @GetMapping("/task")
     public R<String> testTask() {
-        ScheduledExecutor.putTestTask(IdWorker.getId(), CommonMethod.getMap());
+        DelayScheduledExecutor.putTestTask(IdWorker.getId(), CommonMethod.getMap());
         return R.success("ok");
     }
 }

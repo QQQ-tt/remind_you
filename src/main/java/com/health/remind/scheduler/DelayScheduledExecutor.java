@@ -19,12 +19,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 延时衰减轮询
+ *
  * @author qtx
  * @since 2025/1/14 17:16
  */
 @Slf4j
 @Component
-public class ScheduledExecutor {
+public class DelayScheduledExecutor {
 
     // 存储需要查询的订单任务队列
     private final static BlockingQueue<OrderTask> orderQueue = new LinkedBlockingQueue<>();
@@ -104,7 +106,6 @@ public class ScheduledExecutor {
                         .get(), task.getLastExecutionTime());
             } else {
                 log.error("test订单支付查询失败，且放入队列失败");
-
             }
         }
     }
