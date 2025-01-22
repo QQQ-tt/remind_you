@@ -1,5 +1,6 @@
 package com.health.remind;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -14,6 +15,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class RemindYouApplication {
 
     public static void main(String[] args) {
-        org.springframework.boot.SpringApplication.run(RemindYouApplication.class, args);
+        SpringApplication.run(RemindYouApplication.class, args);
     }
 }
