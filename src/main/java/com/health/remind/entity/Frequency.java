@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * <p>
  * 频率
@@ -44,4 +46,7 @@ public class Frequency extends BaseEntity {
     @Schema(description = "是否启用")
     @TableField("status")
     private Boolean status;
+
+    @TableField(exist = false)
+    private List<FrequencyDetail> frequencyDetailList;
 }

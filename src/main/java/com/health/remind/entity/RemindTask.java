@@ -42,7 +42,7 @@ public class RemindTask extends BaseEntity {
     @TableField("end_time")
     private LocalDateTime endTime;
 
-    @Schema(description = "提醒次数")
+    @Schema(description = "提醒次数(计算得出)")
     @TableField("num")
     private Integer num;
 
