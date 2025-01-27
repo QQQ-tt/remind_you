@@ -7,6 +7,7 @@ import com.health.remind.pay.enums.TimeEnum;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -16,6 +17,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,7 +33,11 @@ public class DelayScheduledExecutor {
     // 存储需要查询的订单任务队列
     private final static BlockingQueue<OrderTask> orderQueue = new LinkedBlockingQueue<>();
     // 调度线程池
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(100);
+    private final ScheduledExecutorService scheduler;
+
+    public DelayScheduledExecutor(ScheduledExecutorService scheduler) {
+        this.scheduler = scheduler;
+    }
 
     @SneakyThrows
     public static void putTestTask(Long taskId, Map<UserInfo, String> commonMethod) {
