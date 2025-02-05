@@ -11,6 +11,7 @@ import lombok.Getter;
 @Getter
 public enum FrequencyTypeEnum {
 
+    UNKNOWN(-1, "未使用"),
     NATURAL_WEEK(0, "自然周"),
     LOGIC_WEEK(1, "逻辑周");
 

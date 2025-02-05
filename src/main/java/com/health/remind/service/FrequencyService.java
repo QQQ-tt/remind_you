@@ -36,9 +36,17 @@ public interface FrequencyService extends IService<Frequency> {
     List<FrequencyVO> listFrequency();
 
     /**
+     * 获取频率信息
+     *
+     * @param id 频次id
+     * @return 频率信息
+     */
+    FrequencyVO getFrequency(Long id);
+
+    /**
      * 保存或更新频率信息
      *
-     * @param frequencyVO 频率信息
+     * @param dto 频率信息
      * @return 是否保存成功
      */
     boolean saveOrUpdateFrequency(FrequencyDTO dto);

@@ -1,5 +1,6 @@
 package com.health.remind.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.Cursor;
@@ -56,6 +57,26 @@ public class RedisUtils {
         }
         try {
             return mapper.readValue(json, clazz);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to deserialize object", e);
+        }
+    }
+
+    /**
+     * 从 Redis 中获取 JSON 字符串并转换为对象
+     *
+     * @param key   键
+     * @param tTypeReference 对象类型
+     * @param <T>   泛型类型
+     * @return 对象
+     */
+    public static <T> T getObject(String key, TypeReference<T> tTypeReference) {
+        String json = get(key);
+        if (json == null) {
+            return null;
+        }
+        try {
+            return mapper.readValue(json, tTypeReference);
         } catch (Exception e) {
             throw new RuntimeException("Failed to deserialize object", e);
         }
@@ -497,7 +518,8 @@ public class RedisUtils {
         for (int i = 0; i < items.length; i++) {
             itemStrings[i] = String.valueOf(items[i]);
         }
-        redisTemplate.opsForHash().delete(key, (Object) itemStrings);
+        redisTemplate.opsForHash()
+                .delete(key, (Object) itemStrings);
     }
 
     /**

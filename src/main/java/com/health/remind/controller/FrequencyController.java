@@ -52,6 +52,12 @@ public class FrequencyController {
         return R.success(frequencyService.listFrequency());
     }
 
+    @Operation(summary = "查询详情")
+    @GetMapping("/getFrequency")
+    public R<FrequencyVO> getFrequency(@RequestParam Long id) {
+        return R.success(frequencyService.getFrequency(id));
+    }
+
     @Operation(summary = "新增或修改")
     @PostMapping("/saveOrUpdateFrequency")
     public R<Boolean> saveOrUpdateFrequency(@RequestBody @Valid FrequencyDTO frequencyVO) {

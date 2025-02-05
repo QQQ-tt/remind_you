@@ -3,13 +3,21 @@ package com.health.remind.pojo.vo;
 import com.health.remind.common.enums.FrequencyEnum;
 import com.health.remind.common.enums.FrequencyTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * @author QQQtx
  * @since 2025/2/5 13:06
  */
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class FrequencyVO {
 
     private Long id;
@@ -37,4 +45,7 @@ public class FrequencyVO {
 
     @Schema(description = "是否启用")
     private Boolean status;
+
+    @Schema(description = "频次详情")
+    private List<FrequencyDetailVO> frequencyDetailList;
 }

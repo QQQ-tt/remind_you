@@ -37,7 +37,7 @@ public class FrequencyDetailController {
 
     @Operation(summary = "分页查询")
     @PostMapping("/pageFrequencyDetail")
-    public R<Page<FrequencyDetailVO>> pageFrequencyDetail(@RequestBody FrequencyDetailPageDTO dto) {
+    public R<Page<FrequencyDetailVO>> pageFrequencyDetail(@RequestBody @Valid FrequencyDetailPageDTO dto) {
         return R.success(frequencyDetailService.pageFrequencyDetail(dto));
     }
 

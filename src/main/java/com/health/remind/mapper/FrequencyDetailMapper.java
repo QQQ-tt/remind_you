@@ -9,6 +9,8 @@ import com.health.remind.pojo.vo.FrequencyDetailVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * <p>
  * 频次详情表(时间明细表) Mapper 接口
@@ -22,4 +24,6 @@ public interface FrequencyDetailMapper extends BaseMapper<FrequencyDetail> {
 
     Page<FrequencyDetailVO> selectPageFrequencyDetail(Page<FrequencyDetail> page,
                                                       @Param(Constants.WRAPPER) LambdaQueryWrapper<FrequencyDetail> wrapper);
+
+    List<FrequencyDetailVO> selectListByFrequencyId(@Param("frequencyId") Long frequencyId);
 }

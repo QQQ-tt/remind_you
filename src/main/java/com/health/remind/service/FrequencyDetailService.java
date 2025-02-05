@@ -7,6 +7,8 @@ import com.health.remind.pojo.dto.FrequencyDetailDTO;
 import com.health.remind.pojo.dto.FrequencyDetailPageDTO;
 import com.health.remind.pojo.vo.FrequencyDetailVO;
 
+import java.util.List;
+
 /**
  * <p>
  * 频次详情表(时间明细表) 服务类
@@ -24,6 +26,14 @@ public interface FrequencyDetailService extends IService<FrequencyDetail> {
      * @return 分页集合
      */
     Page<FrequencyDetailVO> pageFrequencyDetail(FrequencyDetailPageDTO dto);
+
+    /**
+     * 根据id查询频次详情
+     *
+     * @param frequencyId 频次id
+     * @return 频次详情
+     */
+    List<FrequencyDetailVO> getFrequencyDetail(Long frequencyId);
 
     /**
      * 新增或修改频次详情
