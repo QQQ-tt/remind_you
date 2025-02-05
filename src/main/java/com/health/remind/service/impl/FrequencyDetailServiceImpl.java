@@ -12,7 +12,6 @@ import com.health.remind.pojo.dto.FrequencyDetailDTO;
 import com.health.remind.pojo.dto.FrequencyDetailPageDTO;
 import com.health.remind.pojo.vo.FrequencyDetailVO;
 import com.health.remind.service.FrequencyDetailService;
-import lombok.val;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -35,13 +34,16 @@ public class FrequencyDetailServiceImpl extends ServiceImpl<FrequencyDetailMappe
                 Wrappers.lambdaQuery(FrequencyDetail.class)
                         .eq(FrequencyDetail::getFrequencyId, dto.getFrequencyId())
                         .orderByDesc(BaseEntity::getCreateTime));
-        page.getRecords().forEach(this::setFrequencyTimeString);
+        page.getRecords()
+                .forEach(this::setFrequencyTimeString);
         return page;
     }
 
     @Override
     public List<FrequencyDetailVO> getFrequencyDetail(Long frequencyId) {
-        return baseMapper.selectListByFrequencyId(frequencyId);
+        List<FrequencyDetailVO> list = baseMapper.selectListByFrequencyId(frequencyId);
+        list.forEach(this::setFrequencyTimeString);
+        return list;
     }
 
     @Override
