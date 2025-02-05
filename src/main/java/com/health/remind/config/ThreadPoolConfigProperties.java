@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2024/11/26 12:47
  */
 @ConfigurationProperties(prefix = "reb.thread.pool")

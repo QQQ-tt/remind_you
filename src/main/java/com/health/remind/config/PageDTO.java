@@ -2,15 +2,15 @@ package com.health.remind.config;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
+import lombok.Setter;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2023/8/31 11:36
  */
-@Data
+@Setter
 public class PageDTO<T> {
 
     private Long pageNo;

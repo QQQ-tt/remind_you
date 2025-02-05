@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2025/1/27 16:31
  */
 public class DoNothing extends AbstractStrategy {

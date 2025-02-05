@@ -1,7 +1,7 @@
 package com.health.remind.config.enums;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2024/11/26 11:11
  */
 public enum UserInfo {

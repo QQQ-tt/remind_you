@@ -1,7 +1,7 @@
 package com.health.remind.scheduler;
 
 import com.health.remind.config.enums.UserInfo;
-import com.health.remind.pay.enums.QueryEnum;
+import com.health.remind.wx.enums.QueryEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2025/1/6 16:43
  */
 @Data

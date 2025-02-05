@@ -4,7 +4,7 @@ import com.health.remind.entity.Frequency;
 import com.health.remind.entity.RemindTask;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2025/1/27 15:55
  */
 public interface FrequencyStrategy {

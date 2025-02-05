@@ -9,7 +9,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2024/11/26 12:57
  */
 @Component

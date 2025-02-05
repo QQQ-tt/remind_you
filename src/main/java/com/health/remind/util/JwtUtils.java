@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2022/8/30
  */
 @Data
@@ -36,7 +36,7 @@ public class JwtUtils {
     private static final long EXPIRATION_TIME = 864_000_000;
 
     // 签发人
-    private static final String ISSUER = "qtx";
+    private static final String ISSUER = "QQQtx";
 
 
     /**

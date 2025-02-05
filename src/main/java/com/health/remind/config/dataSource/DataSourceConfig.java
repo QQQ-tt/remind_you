@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2023/11/9 18:32
  */
 @Configuration

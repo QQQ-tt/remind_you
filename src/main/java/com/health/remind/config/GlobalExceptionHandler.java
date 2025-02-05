@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2024/12/12 9:39
  */
 @Slf4j
@@ -45,7 +45,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataException.class)
     public R<String> dataException(DataException e) {
         log.warn("业务异常:{}", e.getMessage());
-        return R.failed(e.getMessage());
+        String msg = !e.getMsg()
+                .isEmpty() ? ":" + e.getMsg() : "";
+        return R.failed(e.getMessage() + msg);
     }
 
     @ExceptionHandler(Exception.class)

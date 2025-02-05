@@ -1,4 +1,4 @@
-package com.health.remind.pay.config;
+package com.health.remind.wx.config;
 
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.http.HttpInputMessage;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2025/1/14 17:42
  */
 public class TextPlainMessageConverter extends AbstractHttpMessageConverter<Object> {

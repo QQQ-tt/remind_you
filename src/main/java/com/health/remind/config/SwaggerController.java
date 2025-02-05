@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2024/12/12 12:42
  */
 @RestController

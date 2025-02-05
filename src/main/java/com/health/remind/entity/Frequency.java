@@ -2,11 +2,17 @@ package com.health.remind.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.health.remind.common.enums.FrequencyEnum;
+import com.health.remind.common.enums.FrequencyTypeEnum;
 import com.health.remind.config.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -19,6 +25,8 @@ import java.util.List;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("frequency")
 @Schema(name = "Frequency", description = "频率")
 public class Frequency extends BaseEntity {
@@ -26,6 +34,14 @@ public class Frequency extends BaseEntity {
     @Schema(description = "频次名称")
     @TableField("frequency_name")
     private String frequencyName;
+
+    @Schema(description = "频次编码")
+    @TableField("frequency_code")
+    private String frequencyCode;
+
+    @Schema(description = "频次描述")
+    @TableField("frequency_desc")
+    private String frequencyDesc;
 
     @Schema(description = "频次数目")
     @TableField("frequency_number")
@@ -37,16 +53,39 @@ public class Frequency extends BaseEntity {
 
     @Schema(description = "周期单位")
     @TableField("cycle_unit")
-    private String cycleUnit;
+    private FrequencyEnum cycleUnit;
 
     @Schema(description = "开始方式:0自然周,1逻辑周")
     @TableField("type")
-    private Integer type;
+    private FrequencyTypeEnum type;
 
     @Schema(description = "是否启用")
     @TableField("status")
     private Boolean status;
 
+    @Schema(description = "来源")
+    @TableField("source")
+    private String source;
+
+    @Schema(description = "等级")
+    @TableField("level")
+    private Integer level;
+
     @TableField(exist = false)
     private List<FrequencyDetail> frequencyDetailList;
+
+    @Builder
+    public Frequency(Long id, Long createId, String createName, LocalDateTime createTime, Long updateId, String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag, String frequencyName, String frequencyCode, String frequencyDesc, Integer frequencyNumber, Integer frequencyCycle, FrequencyEnum cycleUnit, FrequencyTypeEnum type, Boolean status, String source, Integer level) {
+        super(id, createId, createName, createTime, updateId, updateName, updateTime, tenantId, deleteFlag);
+        this.frequencyName = frequencyName;
+        this.frequencyCode = frequencyCode;
+        this.frequencyDesc = frequencyDesc;
+        this.frequencyNumber = frequencyNumber;
+        this.frequencyCycle = frequencyCycle;
+        this.cycleUnit = cycleUnit;
+        this.type = type;
+        this.status = status;
+        this.source = source;
+        this.level = level;
+    }
 }

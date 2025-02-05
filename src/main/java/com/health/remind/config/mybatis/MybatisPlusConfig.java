@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2022/10/30 17:11
  */
 @Configuration

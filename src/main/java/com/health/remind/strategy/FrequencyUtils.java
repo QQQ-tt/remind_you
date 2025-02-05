@@ -3,7 +3,7 @@ package com.health.remind.strategy;
 import org.springframework.stereotype.Component;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2025/1/27 16:42
  */
 @Component

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2024/11/26 11:10
  */
 public class CommonMethod {

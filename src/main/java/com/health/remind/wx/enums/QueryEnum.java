@@ -1,7 +1,7 @@
-package com.health.remind.pay.enums;
+package com.health.remind.wx.enums;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2025/1/14 17:20
  */
 public enum QueryEnum {

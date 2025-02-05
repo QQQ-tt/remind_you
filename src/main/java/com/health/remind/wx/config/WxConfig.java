@@ -1,4 +1,4 @@
-package com.health.remind.pay.config;
+package com.health.remind.wx.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2025/1/14 17:43
  */
 @Configuration

@@ -3,7 +3,7 @@ package com.health.remind.config.enums;
 import lombok.Getter;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2025/1/14 10:15
  */
 @Getter
@@ -20,7 +20,11 @@ public enum DataEnums {
     /**
      * 入参数据异常
      */
-    DATA_IS_ABNORMAL("入参数据异常", 205);
+    DATA_IS_ABNORMAL("入参数据异常", 205),
+    /**
+     * 数据重复
+     */
+    DATA_REPEAT("数据重复", 206);
 
     /**
      * 提示

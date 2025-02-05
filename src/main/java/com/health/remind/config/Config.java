@@ -25,7 +25,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2024/11/26
  */
 @Configuration

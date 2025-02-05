@@ -6,7 +6,7 @@ import com.health.remind.strategy.AbstractStrategy;
 import org.springframework.stereotype.Component;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2025/1/27 16:08
  */
 @Component

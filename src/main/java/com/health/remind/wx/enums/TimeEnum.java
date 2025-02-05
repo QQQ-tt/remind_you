@@ -1,4 +1,4 @@
-package com.health.remind.pay.enums;
+package com.health.remind.wx.enums;
 
 import lombok.Getter;
 
@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 /**
  * 衰减时间间隔，总计30分钟
  *
- * @author qtx
+ * @author QQQtx
  * @since 2025/1/14 17:20
  */
 @Getter

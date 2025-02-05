@@ -1,7 +1,7 @@
 package com.health.remind.strategy;
 
 /**
- * @author qtx
+ * @author QQQtx
  * @since 2025/1/27 16:27
  */
 public abstract class AbstractStrategy implements FrequencyStrategy {

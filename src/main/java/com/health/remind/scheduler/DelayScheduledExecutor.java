@@ -2,28 +2,25 @@ package com.health.remind.scheduler;
 
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.UserInfo;
-import com.health.remind.pay.enums.QueryEnum;
-import com.health.remind.pay.enums.TimeEnum;
+import com.health.remind.wx.enums.QueryEnum;
+import com.health.remind.wx.enums.TimeEnum;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
  * 延时衰减轮询
  *
- * @author qtx
+ * @author QQQtx
  * @since 2025/1/14 17:16
  */
 @Slf4j
