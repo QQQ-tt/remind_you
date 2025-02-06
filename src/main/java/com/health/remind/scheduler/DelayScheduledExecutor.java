@@ -13,8 +13,10 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -29,6 +31,8 @@ public class DelayScheduledExecutor {
 
     // 存储需要查询的订单任务队列
     private final static BlockingQueue<OrderTask> orderQueue = new LinkedBlockingQueue<>();
+    // 存储任务ID和对应的ScheduledFuture
+    private final static ConcurrentHashMap<Long, ScheduledFuture<?>> futureMap = new ConcurrentHashMap<>();
     // 调度线程池
     private final ScheduledExecutorService scheduler;
 
@@ -67,7 +71,9 @@ public class DelayScheduledExecutor {
                         .get() == 0) {
                     executeTask(task);
                 } else {
-                    scheduler.schedule(() -> executeTask(task), delay, TimeUnit.MILLISECONDS);
+                    ScheduledFuture<?> schedule = scheduler.schedule(() -> executeTask(task), delay,
+                            TimeUnit.MILLISECONDS);
+                    futureMap.put(task.getId(), schedule);
                 }
             } else {
                 log.error("无法获取时间间隔,循环结束，任务ID: {}", task.getId());
@@ -77,8 +83,22 @@ public class DelayScheduledExecutor {
         }
     }
 
+    /**
+     * 取消任务
+     *
+     * @param taskId 任务id
+     */
+    public static void cancelTask(Long taskId) {
+        ScheduledFuture<?> future = futureMap.get(taskId);
+        if (future != null) {
+            future.cancel(true);
+            futureMap.remove(taskId);
+        }
+    }
+
     private void executeTask(OrderTask task) {
         try {
+            futureMap.remove(task.getId());
             task.setLastExecutionTime(LocalDateTime.now());
             switch (task.getQueryEnum()) {
                 case pay -> processPaymentQuery(task);
