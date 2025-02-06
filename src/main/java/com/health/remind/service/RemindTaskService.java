@@ -26,6 +26,14 @@ public interface RemindTaskService extends IService<RemindTask> {
     Page<RemindTaskVO> pageTaskByUserId(RemindTaskPageDTO dto);
 
     /**
+     * 获取任务详情
+     *
+     * @param id 任务id
+     * @return 任务详情
+     */
+    RemindTaskVO getTaskById(Long id);
+
+    /**
      * 保存或更新任务
      *
      * @param task 任务

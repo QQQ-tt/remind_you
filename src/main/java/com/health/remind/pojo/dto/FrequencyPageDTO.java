@@ -1,5 +1,6 @@
 package com.health.remind.pojo.dto;
 
+import com.health.remind.common.enums.FrequencyEnum;
 import com.health.remind.config.PageDTO;
 import com.health.remind.entity.Frequency;
 import lombok.Data;
@@ -14,5 +15,7 @@ import lombok.EqualsAndHashCode;
 public class FrequencyPageDTO extends PageDTO<Frequency> {
 
     private String frequencyName;
+
+    private FrequencyEnum cycleUnit;
 
 }

@@ -2,10 +2,14 @@ package com.health.remind.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.health.remind.common.enums.FrequencyEnum;
 import com.health.remind.config.BaseEntity;
 import java.time.LocalDateTime;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -18,6 +22,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("remind_task")
 @Schema(name = "RemindTask", description = "提醒任务")
 public class RemindTask extends BaseEntity {
@@ -42,6 +48,10 @@ public class RemindTask extends BaseEntity {
     @TableField("end_time")
     private LocalDateTime endTime;
 
+    @Schema(description = "推送次数")
+    @TableField("push_num")
+    private Integer pushNum;
+
     @Schema(description = "提醒次数(计算得出)")
     @TableField("num")
     private Integer num;
@@ -62,10 +72,28 @@ public class RemindTask extends BaseEntity {
     @TableField("advance_num")
     private Integer advanceNum;
 
-    @Schema(description = "单位:分钟,小时,天,周")
-    @TableField("unit")
-    private String unit;
+    @Schema(description = "提前时间单位:分钟,小时,天,周")
+    @TableField("cycle_unit")
+    private FrequencyEnum cycleUnit;
 
     @TableField("frequency_id")
     private Long frequencyId;
+
+    @Builder
+    public RemindTask(Long id, Long createId, String createName, LocalDateTime createTime, Long updateId, String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag, String name, Integer type, LocalDateTime remindTime, LocalDateTime startTime, LocalDateTime endTime, Integer pushNum, Integer num, String remark, Boolean isRemind, Integer remindType, Integer advanceNum, FrequencyEnum cycleUnit, Long frequencyId) {
+        super(id, createId, createName, createTime, updateId, updateName, updateTime, tenantId, deleteFlag);
+        this.name = name;
+        this.type = type;
+        this.remindTime = remindTime;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.pushNum = pushNum;
+        this.num = num;
+        this.remark = remark;
+        this.isRemind = isRemind;
+        this.remindType = remindType;
+        this.advanceNum = advanceNum;
+        this.cycleUnit = cycleUnit;
+        this.frequencyId = frequencyId;
+    }
 }

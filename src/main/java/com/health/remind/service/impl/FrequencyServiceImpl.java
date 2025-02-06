@@ -102,7 +102,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
                         .eq(Frequency::getFrequencyCode, dto.getFrequencyCode())));
         if (count == 0) {
             removeRedis();
-            return saveOrUpdate(Frequency.builder()
+            Frequency frequency = Frequency.builder()
                     .frequencyName(dto.getFrequencyName())
                     .frequencyCode(dto.getFrequencyCode())
                     .frequencyDesc(dto.getFrequencyDesc())
@@ -114,7 +114,10 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
                     .level(dto.getLevel())
                     .source(StringUtils.isBlank(dto.getSource()) ? dto.getSource() : CommonMethod.getUserId()
                             .toString())
-                    .build());
+                    .build();
+            boolean savedOrUpdate = saveOrUpdate(frequency);
+            dto.setId(frequency.getId());
+            return savedOrUpdate;
         }
         throw new DataException(DataEnums.DATA_REPEAT, "频率名称或编码重复");
     }

@@ -12,4 +12,6 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class RemindTaskPageDTO extends PageDTO<RemindTask> {
+
+    private String name;
 }

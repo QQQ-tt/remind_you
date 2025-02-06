@@ -2,4 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.health.remind.mapper.RemindTaskMapper">
 
+    <select id="selectPageTask" resultType="com.health.remind.pojo.vo.RemindTaskVO">
+        select id, name, push_num
+        from remind_task ${ew.customSqlSegment}
+    </select>
+    <select id="selectOneById" resultType="com.health.remind.pojo.vo.RemindTaskVO">
+        select rt.id, rt.name, rt.type, rt.remind_time, rt.start_time, rt.end_time, rt.push_num, rt.num, rt.remark,
+        rt.is_remind, rt.remind_type, rt.advance_num, rt.cycle_unit, rt.frequency_id, f.id as, f.name as frequency_name
+        from remind_task rt
+        left join frequency f on rt.frequency_id = f.id
+        where rt.delete_flag = false and id = #{id}
+        <if test="userId != null">
+            and rt.create_id = #{userId}
+        </if>
+    </select>
 </mapper>
