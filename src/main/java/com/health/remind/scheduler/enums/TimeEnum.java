@@ -1,4 +1,4 @@
-package com.health.remind.wx.enums;
+package com.health.remind.scheduler.enums;
 
 import lombok.Getter;
 

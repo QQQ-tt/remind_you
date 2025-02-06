@@ -7,7 +7,10 @@ import com.health.remind.config.R;
 import com.health.remind.entity.Test;
 import com.health.remind.pojo.dto.TestDTO;
 import com.health.remind.pojo.dto.TestEntityDTO;
+import com.health.remind.scheduler.DelayAttenuationScheduledExecutor;
 import com.health.remind.scheduler.DelayScheduledExecutor;
+import com.health.remind.scheduler.ScheduledBase;
+import com.health.remind.scheduler.enums.ScheduledEnum;
 import com.health.remind.service.TestService;
 import com.health.remind.util.RedisUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -65,10 +70,27 @@ public class TestController {
         return R.success(object);
     }
 
-    @Operation(summary = "测试任务")
-    @GetMapping("/task")
-    public R<String> testTask() {
-        DelayScheduledExecutor.putTestTask(IdWorker.getId(), CommonMethod.getMap());
+    @Operation(summary = "测试衰减轮询任务")
+    @GetMapping("/testDelayAttenuationTask")
+    public R<Long> testDelayAttenuationScheduledTask() {
+        long id = IdWorker.getId();
+        DelayAttenuationScheduledExecutor.putTestTask(id, CommonMethod.getMap());
+        return R.success(id);
+    }
+
+    @Operation(summary = "测试延时任务")
+    @GetMapping("/testDelayTask")
+    public R<Long> testDelayScheduledTask() {
+        long id = IdWorker.getId();
+        DelayScheduledExecutor.putTestTask(id, LocalDateTime.now()
+                .plusMinutes(1), CommonMethod.getMap());
+        return R.success(id);
+    }
+
+    @Operation(summary = "取消任务")
+    @GetMapping("/cancelTask")
+    public R<String> cancelTask(@RequestParam Long taskId, @RequestParam ScheduledEnum scheduledEnum) {
+        ScheduledBase.cancelTask(taskId, scheduledEnum);
         return R.success("ok");
     }
 }

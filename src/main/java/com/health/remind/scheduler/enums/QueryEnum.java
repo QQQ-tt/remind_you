@@ -1,9 +1,9 @@
-package com.health.remind.wx.enums;
+package com.health.remind.scheduler.enums;
 
 /**
  * @author QQQtx
  * @since 2025/1/14 17:20
  */
 public enum QueryEnum {
-    pay, refund, test;
+    none, pay, refund, test;
 }

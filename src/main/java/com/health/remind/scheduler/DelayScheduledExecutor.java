@@ -1,9 +1,7 @@
 package com.health.remind.scheduler;
 
-import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.UserInfo;
-import com.health.remind.wx.enums.QueryEnum;
-import com.health.remind.wx.enums.TimeEnum;
+import com.health.remind.scheduler.entity.DelayTask;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -11,28 +9,22 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 延时衰减轮询
+ * 单一延时
  *
  * @author QQQtx
- * @since 2025/1/14 17:16
+ * @since 2025/2/6 13:03
  */
 @Slf4j
 @Component
-public class DelayScheduledExecutor {
+public class DelayScheduledExecutor extends ScheduledBase {
 
-    // 存储需要查询的订单任务队列
-    private final static BlockingQueue<OrderTask> orderQueue = new LinkedBlockingQueue<>();
-    // 存储任务ID和对应的ScheduledFuture
-    private final static ConcurrentHashMap<Long, ScheduledFuture<?>> futureMap = new ConcurrentHashMap<>();
     // 调度线程池
     private final ScheduledExecutorService scheduler;
 
@@ -41,9 +33,9 @@ public class DelayScheduledExecutor {
     }
 
     @SneakyThrows
-    public static void putTestTask(Long taskId, Map<UserInfo, String> commonMethod) {
+    public static void putTestTask(Long taskId, LocalDateTime executeTime, Map<UserInfo, String> commonMethod) {
         log.info("添加任务:{}", taskId);
-        orderQueue.put(new OrderTask(taskId, QueryEnum.test, commonMethod));
+        delayScheduledExecutorQueue.put(new DelayTask(taskId, executeTime, commonMethod));
     }
 
     @PostConstruct
@@ -55,81 +47,28 @@ public class DelayScheduledExecutor {
     private void processTasks() {
         try {
             // 获取队列中的任务
-            OrderTask task = orderQueue.poll();
+            DelayTask task = delayScheduledExecutorQueue.poll();
             if (task == null) {
                 return;
             }
-
-            LocalDateTime lastExecutionTime = task.getLastExecutionTime();
-            Integer minute = TimeEnum.getSort(task.getAttemptCount()
-                    .get());
-            if (minute != null) {
-                LocalDateTime nextExecutionTime = lastExecutionTime.plusSeconds(minute);
-                long delay = Duration.between(LocalDateTime.now(), nextExecutionTime)
-                        .toMillis();
-                if (delay <= 0 || task.getAttemptCount()
-                        .get() == 0) {
-                    executeTask(task);
-                } else {
-                    ScheduledFuture<?> schedule = scheduler.schedule(() -> executeTask(task), delay,
-                            TimeUnit.MILLISECONDS);
-                    futureMap.put(task.getId(), schedule);
-                }
+            LocalDateTime executeTime = task.getExecuteTime();
+            long delay = Duration.between(LocalDateTime.now(), executeTime)
+                    .toMillis();
+            if (delay <= 0) {
+                executeTask(task);
             } else {
-                log.error("无法获取时间间隔,循环结束，任务ID: {}", task.getId());
+                ScheduledFuture<?> schedule = scheduler.schedule(() -> executeTask(task), delay,
+                        TimeUnit.MILLISECONDS);
+                delayScheduledExecutorFutureMap.put(task.getId(), schedule);
             }
         } catch (Exception e) {
             log.error("处理任务时发生错误", e);
         }
     }
 
-    /**
-     * 取消任务
-     *
-     * @param taskId 任务id
-     */
-    public static void cancelTask(Long taskId) {
-        ScheduledFuture<?> future = futureMap.get(taskId);
-        if (future != null) {
-            future.cancel(true);
-            futureMap.remove(taskId);
-        }
-    }
-
-    private void executeTask(OrderTask task) {
-        try {
-            futureMap.remove(task.getId());
-            task.setLastExecutionTime(LocalDateTime.now());
-            switch (task.getQueryEnum()) {
-                case pay -> processPaymentQuery(task);
-                case refund -> processRefundQuery(task);
-                case test -> testQuery(task);
-                default -> throw new IllegalArgumentException("无效的任务类型");
-            }
-            task.getAttemptCount()
-                    .incrementAndGet();
-        } catch (Exception e) {
-            log.error("执行任务时发生错误，任务ID: {}", task.getId(), e);
-        }
-    }
-
-    private void processRefundQuery(OrderTask task) {
-    }
-
-    private void processPaymentQuery(OrderTask task) {
-    }
-
-    private void testQuery(OrderTask task) {
-        CommonMethod.setMap(task.getCommonMethod());
-        if (task.getAttemptCount()
-                .get() < 6) {
-            boolean offer = orderQueue.offer(task);
-            if (offer) {
-                log.info("test放入队列成功:{},次数:{},时间:{}", task.getId(), task.getAttemptCount()
-                        .get(), task.getLastExecutionTime());
-            } else {
-                log.error("test订单支付查询失败，且放入队列失败");
-            }
-        }
+    private void executeTask(DelayTask task) {
+        long between = ChronoUnit.SECONDS.between(task.getLastExecutionTime(), LocalDateTime.now());
+        log.info("执行任务:{}，执行间隔:{}秒", task.getId(), between);
+        delayScheduledExecutorFutureMap.remove(task.getId());
     }
 }
