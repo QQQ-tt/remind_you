@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -34,7 +36,6 @@ public class DelayScheduledExecutor extends ScheduledBase {
 
     @SneakyThrows
     public static void putTestTask(Long taskId, LocalDateTime executeTime, Map<UserInfo, String> commonMethod) {
-        log.info("添加任务:{}", taskId);
         delayScheduledExecutorQueue.put(new DelayTask(taskId, executeTime, commonMethod));
     }
 
@@ -47,20 +48,23 @@ public class DelayScheduledExecutor extends ScheduledBase {
     private void processTasks() {
         try {
             // 获取队列中的任务
-            DelayTask task = delayScheduledExecutorQueue.poll();
-            if (task == null) {
+            List<DelayTask> list = new ArrayList<>();
+            delayScheduledExecutorQueue.drainTo(list);
+            if (list.isEmpty()) {
                 return;
             }
-            LocalDateTime executeTime = task.getExecuteTime();
-            long delay = Duration.between(LocalDateTime.now(), executeTime)
-                    .toMillis();
-            if (delay <= 0) {
-                executeTask(task);
-            } else {
-                ScheduledFuture<?> schedule = scheduler.schedule(() -> executeTask(task), delay,
-                        TimeUnit.MILLISECONDS);
-                delayScheduledExecutorFutureMap.put(task.getId(), schedule);
-            }
+            list.forEach(task -> {
+                LocalDateTime executeTime = task.getExecuteTime();
+                long delay = Duration.between(LocalDateTime.now(), executeTime)
+                        .toMillis();
+                if (delay <= 0) {
+                    executeTask(task);
+                } else {
+                    ScheduledFuture<?> schedule = scheduler.schedule(() -> executeTask(task), delay,
+                            TimeUnit.MILLISECONDS);
+                    delayScheduledExecutorFutureMap.put(task.getId(), schedule);
+                }
+            });
         } catch (Exception e) {
             log.error("处理任务时发生错误", e);
         }

@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -25,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-public class DelayAttenuationScheduledExecutor extends ScheduledBase{
+public class DelayAttenuationScheduledExecutor extends ScheduledBase {
 
     // 调度线程池
     private final ScheduledExecutorService scheduler;
@@ -36,7 +38,6 @@ public class DelayAttenuationScheduledExecutor extends ScheduledBase{
 
     @SneakyThrows
     public static void putTestTask(Long taskId, Map<UserInfo, String> commonMethod) {
-        log.info("添加任务:{}", taskId);
         delayAttenuationScheduledExecutorQueue.put(new DelayTask(taskId, QueryEnum.test, commonMethod));
     }
 
@@ -49,29 +50,31 @@ public class DelayAttenuationScheduledExecutor extends ScheduledBase{
     private void processTasks() {
         try {
             // 获取队列中的任务
-            DelayTask task = delayAttenuationScheduledExecutorQueue.poll();
-            if (task == null) {
+            List<DelayTask> list = new ArrayList<>();
+            delayAttenuationScheduledExecutorQueue.drainTo(list);
+            if (list.isEmpty()) {
                 return;
             }
-
-            LocalDateTime lastExecutionTime = task.getLastExecutionTime();
-            Integer minute = TimeEnum.getSort(task.getAttemptCount()
-                    .get());
-            if (minute != null) {
-                LocalDateTime nextExecutionTime = lastExecutionTime.plusSeconds(minute);
-                long delay = Duration.between(LocalDateTime.now(), nextExecutionTime)
-                        .toMillis();
-                if (delay <= 0 || task.getAttemptCount()
-                        .get() == 0) {
-                    executeTask(task);
+            list.forEach(task -> {
+                LocalDateTime lastExecutionTime = task.getLastExecutionTime();
+                Integer minute = TimeEnum.getSort(task.getAttemptCount()
+                        .get());
+                if (minute != null) {
+                    LocalDateTime nextExecutionTime = lastExecutionTime.plusSeconds(minute);
+                    long delay = Duration.between(LocalDateTime.now(), nextExecutionTime)
+                            .toMillis();
+                    if (delay <= 0 || task.getAttemptCount()
+                            .get() == 0) {
+                        executeTask(task);
+                    } else {
+                        ScheduledFuture<?> schedule = scheduler.schedule(() -> executeTask(task), delay,
+                                TimeUnit.MILLISECONDS);
+                        delayAttenuationScheduledExecutorFutureMap.put(task.getId(), schedule);
+                    }
                 } else {
-                    ScheduledFuture<?> schedule = scheduler.schedule(() -> executeTask(task), delay,
-                            TimeUnit.MILLISECONDS);
-                    delayAttenuationScheduledExecutorFutureMap.put(task.getId(), schedule);
+                    log.error("无法获取时间间隔,循环结束，任务ID: {}", task.getId());
                 }
-            } else {
-                log.error("无法获取时间间隔,循环结束，任务ID: {}", task.getId());
-            }
+            });
         } catch (Exception e) {
             log.error("处理任务时发生错误", e);
         }
