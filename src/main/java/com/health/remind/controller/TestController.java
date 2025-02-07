@@ -93,4 +93,22 @@ public class TestController {
         ScheduledBase.cancelTask(taskId, scheduledEnum);
         return R.success("ok");
     }
+
+    @Operation(summary = "判断任务是否存在")
+    @GetMapping("/containsTask")
+    public R<Boolean> containsTask(@RequestParam Long taskId, @RequestParam ScheduledEnum scheduledEnum) {
+        return R.success(ScheduledBase.containsTask(taskId, scheduledEnum));
+    }
+
+    @Operation(summary = "获取等待任务数量")
+    @GetMapping("/getTaskSize")
+    public R<Integer> getTaskSize(@RequestParam ScheduledEnum scheduledEnum) {
+        return R.success(ScheduledBase.getTaskSize(scheduledEnum));
+    }
+
+    @Operation(summary = "获取安排任务数量")
+    @GetMapping("/getFutureSize")
+    public R<Integer> getFutureSize(@RequestParam ScheduledEnum scheduledEnum) {
+        return R.success(ScheduledBase.getFutureSize(scheduledEnum));
+    }
 }

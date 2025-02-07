@@ -67,8 +67,10 @@ public class DelayScheduledExecutor extends ScheduledBase {
     }
 
     private void executeTask(DelayTask task) {
+        long start = System.currentTimeMillis();
         long between = ChronoUnit.SECONDS.between(task.getLastExecutionTime(), LocalDateTime.now());
-        log.info("执行任务:{}，执行间隔:{}秒", task.getId(), between);
         delayScheduledExecutorFutureMap.remove(task.getId());
+        long end = System.currentTimeMillis();
+        log.info("执行任务:{},延时间隔:{}秒,任务执行时间:{}毫秒", task.getId(), between, end - start);
     }
 }
