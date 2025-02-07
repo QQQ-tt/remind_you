@@ -111,4 +111,10 @@ public class TestController {
     public R<Integer> getFutureSize(@RequestParam ScheduledEnum scheduledEnum) {
         return R.success(ScheduledBase.getFutureSize(scheduledEnum));
     }
+
+    @Operation(summary = "测试redis锁")
+    @GetMapping("/testRedisLock")
+    public R<String> testRedisLock(@RequestParam String key) {
+        return R.success(testService.testRedisLock(key));
+    }
 }

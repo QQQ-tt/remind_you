@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
+import com.health.remind.config.lock.RedisLock;
 import com.health.remind.entity.Test;
 import com.health.remind.mapper.TestMapper;
 import com.health.remind.pojo.dto.TestDTO;
@@ -43,5 +44,16 @@ public class TestServiceImpl extends ServiceImpl<TestMapper, Test> implements Te
                     .build());
         }
         throw new DataException(DataEnums.DATA_IS_ABNORMAL);
+    }
+
+    @RedisLock(lockPrefix = "testRedisLock", lockParameter = "#key")
+    @Override
+    public String testRedisLock(String key) {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return key;
     }
 }

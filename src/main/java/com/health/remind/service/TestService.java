@@ -31,4 +31,12 @@ public interface TestService extends IService<Test> {
      * @return 结果
      */
     boolean saveOrUpdateTest(TestEntityDTO dto);
+
+    /**
+     * 测试redis锁
+     *
+     * @param key 随机字符串
+     * @return 结果
+     */
+    String testRedisLock(String key);
 }

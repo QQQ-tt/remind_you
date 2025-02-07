@@ -24,7 +24,11 @@ public enum DataEnums {
     /**
      * 数据重复
      */
-    DATA_REPEAT("数据重复", 206);
+    DATA_REPEAT("数据重复", 206),
+    /**
+     * 系统繁忙
+     */
+    SYSTEM_BUSY("系统繁忙", 500);
 
     /**
      * 提示

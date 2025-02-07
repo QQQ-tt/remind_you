@@ -1,6 +1,6 @@
-package com.health.remind.config;
+package com.health.remind.config.exception;
 
-import com.health.remind.config.exception.DataException;
+import com.health.remind.config.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.web.bind.MethodArgumentNotValidException;
