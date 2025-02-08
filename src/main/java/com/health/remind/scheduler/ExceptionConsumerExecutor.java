@@ -21,9 +21,9 @@ public class ExceptionConsumerExecutor {
 
     private final ThreadPoolExecutor threadPoolExecutor;
 
-    public ExceptionConsumerExecutor(ExceptionLogService exceptionLogService, ThreadPoolExecutor threadPoolExecutor, ThreadPoolExecutor threadPoolExecutor1) {
+    public ExceptionConsumerExecutor(ExceptionLogService exceptionLogService, ThreadPoolExecutor threadPoolExecutor) {
         this.exceptionLogService = exceptionLogService;
-        this.threadPoolExecutor = threadPoolExecutor1;
+        this.threadPoolExecutor = threadPoolExecutor;
     }
 
     public void putTask(ExceptionTask exceptionTask) {

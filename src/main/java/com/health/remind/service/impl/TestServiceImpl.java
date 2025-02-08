@@ -50,7 +50,7 @@ public class TestServiceImpl extends ServiceImpl<TestMapper, Test> implements Te
     @Override
     public String testRedisLock(String key) {
         try {
-            Thread.sleep(5000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
