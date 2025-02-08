@@ -38,6 +38,26 @@ public class CommonMethod {
                 .get(UserInfo.USER_ID));
     }
 
+    public static String getUrl() {
+        return mapThreadLocal.get()
+                .get(UserInfo.URL);
+    }
+
+    public static String getParameter() {
+        return mapThreadLocal.get()
+                .get(UserInfo.PARAMETER);
+    }
+
+    public static void setParameter(String parameter) {
+        mapThreadLocal.get()
+                .put(UserInfo.PARAMETER, parameter);
+    }
+
+    public static void setUrl(String url) {
+        mapThreadLocal.get()
+                .put(UserInfo.URL, url);
+    }
+
     public static void setToken(String token) {
         mapThreadLocal.get()
                 .put(UserInfo.TOKEN, token);

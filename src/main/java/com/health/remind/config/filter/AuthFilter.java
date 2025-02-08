@@ -38,7 +38,11 @@ public class AuthFilter extends OncePerRequestFilter {
         if (!request.getRequestURI()
                 .equals("/")) {
             log.info("用户信息:{}", CommonMethod.getMap());
-            log.info("请求地址:{},请求ip:{}", request.getRequestURI(), request.getRemoteAddr());
+            String requestURI = request.getRequestURI();
+            String remoteAddr = request.getRemoteAddr();
+            CommonMethod.setUrl(remoteAddr + requestURI);
+            CommonMethod.setParameter(request.getQueryString());
+            log.info("请求地址:{},请求ip:{}", requestURI, remoteAddr);
         }
         filterChain.doFilter(request, response);
         CommonMethod.clear();

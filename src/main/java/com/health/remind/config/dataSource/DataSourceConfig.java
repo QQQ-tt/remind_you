@@ -52,7 +52,7 @@ public class DataSourceConfig {
 
         GlobalConfig.DbConfig dbConfig = new GlobalConfig.DbConfig();
         dbConfig.setIdType(IdType.ASSIGN_ID);
-        dbConfig.setLogicDeleteField("delete");
+        dbConfig.setLogicDeleteField("delete_flag");
         dbConfig.setLogicDeleteValue("1");
         dbConfig.setLogicNotDeleteValue("0");
         globalConfig.setDbConfig(dbConfig);

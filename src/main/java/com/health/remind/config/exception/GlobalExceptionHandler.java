@@ -1,6 +1,8 @@
 package com.health.remind.config.exception;
 
 import com.health.remind.config.R;
+import com.health.remind.scheduler.ExceptionConsumerExecutor;
+import com.health.remind.scheduler.entity.ExceptionTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +22,12 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private final ExceptionConsumerExecutor exceptionConsumerExecutor;
+
+    public GlobalExceptionHandler(ExceptionConsumerExecutor exceptionConsumerExecutor) {
+        this.exceptionConsumerExecutor = exceptionConsumerExecutor;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public R<List<String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         log.error("参数校验异常", ex);
@@ -27,18 +36,39 @@ public class GlobalExceptionHandler {
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
+        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
+                .exceptionName(ex.getClass()
+                        .getName())
+                .level(1)
+                .message(errors.toString())
+                .stackTrace(Arrays.toString(ex.getStackTrace()))
+                .build());
         return R.failed(errors);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public R<String> methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         log.error("异常信息:", e);
+        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
+                .exceptionName(e.getClass()
+                        .getName())
+                .level(1)
+                .message(e.getMessage())
+                .stackTrace(Arrays.toString(e.getStackTrace()))
+                .build());
         return R.failed(e.getMessage());
     }
 
     @ExceptionHandler(NullPointerException.class)
     public R<String> nullException(NullPointerException e) {
         log.error("空指针异常", e);
+        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
+                .exceptionName(e.getClass()
+                        .getName())
+                .level(2)
+                .message(e.getMessage())
+                .stackTrace(Arrays.toString(e.getStackTrace()))
+                .build());
         return R.failed("空指针异常");
     }
 
@@ -47,12 +77,26 @@ public class GlobalExceptionHandler {
         log.warn("业务异常:{}", e.getMessage());
         String msg = !e.getMsg()
                 .isEmpty() ? ":" + e.getMsg() : "";
+        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
+                .exceptionName(e.getClass()
+                        .getName())
+                .level(2)
+                .message(e.getMessage() + msg)
+                .stackTrace(Arrays.toString(e.getStackTrace()))
+                .build());
         return R.failed(e.getMessage() + msg);
     }
 
     @ExceptionHandler(Exception.class)
     public R<String> exception(Exception e) {
         log.error("系统异常", e);
+        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
+                .exceptionName(e.getClass()
+                        .getName())
+                .level(3)
+                .message(e.getMessage())
+                .stackTrace(Arrays.toString(e.getStackTrace()))
+                .build());
         return R.failed(e.getMessage());
     }
 }
