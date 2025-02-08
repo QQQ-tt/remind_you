@@ -46,7 +46,7 @@ public class TestServiceImpl extends ServiceImpl<TestMapper, Test> implements Te
         throw new DataException(DataEnums.DATA_IS_ABNORMAL);
     }
 
-    @RedisLock(lockPrefix = "testRedisLock", lockParameter = "#key")
+    @RedisLock(lockParameter = "#key")
     @Override
     public String testRedisLock(String key) {
         try {

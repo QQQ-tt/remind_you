@@ -1,5 +1,7 @@
 package com.health.remind.config.lock;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +18,13 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -58,18 +62,26 @@ public class RedisLockAspect {
         // 获取锁
         RLock lock = redissonClient.getLock(lockName);
         try {
-            if (lock.tryLock(lockWait, autoUnlockTime, TimeUnit.SECONDS)) {
+            boolean b = lock.tryLock(lockWait, autoUnlockTime, TimeUnit.MILLISECONDS);
+            if (b) {
                 log.info("{}: 加锁成功", lockName);
                 return joinPoint.proceed();
             } else {
                 return tryLockWithRetry(joinPoint, lock, lockName, retryNum, retryWait, lockWait, autoUnlockTime);
             }
-        } catch (Throwable throwable) {
-            log.error("分布式锁发生异常, 锁名: {}, 异常: {}", lockName, throwable.getMessage(), throwable);
-            throw throwable;
+        } catch (DataException e) {
+            log.error("自定义发生异常, 锁名: {}, 异常: {}", lockName, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("分布式锁发生异常, 锁名: {}, 异常: {}", lockName, e.getMessage());
+            throw e;
         } finally {
-            lock.unlock();
-            log.info("{}: 释放锁成功", lockName);
+            if (lock.isHeldByCurrentThread()) {  // 确保当前线程持有锁再释放
+                lock.unlock();
+                log.info("{}: 释放锁成功", lockName);
+            } else {
+                log.warn("{}: 当前线程没有持有锁, 不会释放锁", lockName);
+            }
         }
     }
 
@@ -78,7 +90,6 @@ public class RedisLockAspect {
             log.info("{} 已被锁定, 无重试", lockName);
             throw new DataException(DataEnums.SYSTEM_BUSY);
         }
-
         int failCount = 1;
         while (failCount <= retryNum) {
             Thread.sleep(retryWait);
@@ -93,23 +104,31 @@ public class RedisLockAspect {
         throw new DataException(DataEnums.SYSTEM_BUSY);
     }
 
-    private Map<String, Object> getAnnotationArgs(ProceedingJoinPoint proceeding, RedisLock redisLock) {
-        MethodSignature methodSignature = (MethodSignature) proceeding.getSignature();
+    private Map<String, Object> getAnnotationArgs(ProceedingJoinPoint joinPoint, RedisLock redisLock) {
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+        Method method = methodSignature.getMethod();
         List<String> paramNames = Arrays.asList(methodSignature.getParameterNames());
-        List<Object> paramValues = Arrays.asList(proceeding.getArgs());
+        List<Object> paramValues = Arrays.asList(joinPoint.getArgs());
 
         EvaluationContext context = new StandardEvaluationContext();
         for (int i = 0; i < paramNames.size(); i++) {
             context.setVariable(paramNames.get(i), paramValues.get(i));
         }
-
         String lockParameterValue = Objects.requireNonNull(
                         spelExpressionParser.parseExpression(redisLock.lockParameter())
                                 .getValue(context))
                 .toString();
+        String lockPrefix = redisLock.lockPrefix();
+        if (StringUtils.isBlank(redisLock.lockPrefix())) {
+            lockPrefix = method.getName();
+        }
+        return getStringObjectMap(redisLock, lockPrefix, lockParameterValue);
+    }
 
+    private static Map<String, Object> getStringObjectMap(RedisLock redisLock, String lockPrefix, String lockParameterValue) {
         Map<String, Object> result = new HashMap<>();
-        result.put(RedisLockConstants.LOCK_NAME, redisLock.lockPrefix() + ":" + lockParameterValue);
+        result.put(RedisLockConstants.LOCK_NAME,
+                lockPrefix + ":" + CommonMethod.getTenantId() + ":" + lockParameterValue);
         result.put(RedisLockConstants.LOCK_WAIT, redisLock.lockWait());
         result.put(RedisLockConstants.AUTO_UNLOCK_TIME, redisLock.autoUnlockTime());
         result.put(RedisLockConstants.RETRY_NUM, redisLock.retryNum());
