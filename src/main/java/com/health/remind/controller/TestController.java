@@ -81,16 +81,20 @@ public class TestController {
 
     @Operation(summary = "测试延时任务")
     @GetMapping("/testDelayTask")
-    public R<Long> testDelayScheduledTask() {
+    public R<Long> testDelayScheduledTask(@RequestParam(required = false) Integer num) {
         long id = IdWorker.getId();
+        int randomNum = (int)(Math.random() * 10) + 1;
+        if (num != null) {
+            randomNum = num;
+        }
         DelayScheduledExecutor.putTestTask(id, LocalDateTime.now()
-                .plusMinutes(1), CommonMethod.getMap());
+                .plusMinutes(randomNum), CommonMethod.getMap());
         return R.success(id);
     }
 
     @Operation(summary = "取消任务")
     @GetMapping("/cancelTask")
-    public R<String> cancelTask(@RequestParam Long taskId, @RequestParam ScheduledEnum scheduledEnum) {
+    public R<String> cancelTask(@RequestParam(required = false) Long taskId, @RequestParam ScheduledEnum scheduledEnum) {
         ScheduledBase.cancelTask(taskId, scheduledEnum);
         return R.success("ok");
     }

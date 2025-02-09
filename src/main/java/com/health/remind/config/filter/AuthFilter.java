@@ -1,5 +1,7 @@
 package com.health.remind.config.filter;
 
+import com.health.remind.config.CommonMethod;
+import com.health.remind.config.enums.UserInfo;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebFilter;
@@ -7,8 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import com.health.remind.config.CommonMethod;
-import com.health.remind.config.enums.UserInfo;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -37,12 +37,11 @@ public class AuthFilter extends OncePerRequestFilter {
         CommonMethod.setTenantId(request.getHeader(UserInfo.tenant_id.toString()));
         if (!request.getRequestURI()
                 .equals("/")) {
-            log.info("用户信息:{}", CommonMethod.getMap());
             String requestURI = request.getRequestURI();
             String remoteAddr = request.getRemoteAddr();
             CommonMethod.setUrl(remoteAddr + requestURI);
             CommonMethod.setParameter(request.getQueryString());
-            log.info("请求地址:{},请求ip:{}", requestURI, remoteAddr);
+            log.info("用户信息:{}", CommonMethod.getMap());
         }
         filterChain.doFilter(request, response);
         CommonMethod.clear();

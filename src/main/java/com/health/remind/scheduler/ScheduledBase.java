@@ -33,20 +33,10 @@ public class ScheduledBase {
     public static void cancelTask(Long taskId, ScheduledEnum scheduledEnum) {
         switch (scheduledEnum) {
             case DELAY_SCHEDULED:
-                ScheduledFuture<?> future = delayScheduledExecutorFutureMap.get(taskId);
-                if (future != null) {
-                    if (future.cancel(true)) {
-                        delayScheduledExecutorFutureMap.remove(taskId);
-                    }
-                }
+                removeTask(taskId, delayScheduledExecutorFutureMap);
                 break;
             case DELAY_ATTENUATION_SCHEDULED:
-                ScheduledFuture<?> future1 = delayAttenuationScheduledExecutorFutureMap.get(taskId);
-                if (future1 != null) {
-                    if (future1.cancel(true)) {
-                        delayAttenuationScheduledExecutorFutureMap.remove(taskId);
-                    }
-                }
+                removeTask(taskId, delayAttenuationScheduledExecutorFutureMap);
                 break;
             default:
                 break;
@@ -75,5 +65,22 @@ public class ScheduledBase {
             case DELAY_ATTENUATION_SCHEDULED -> delayAttenuationScheduledExecutorFutureMap.size();
             default -> 0;
         };
+    }
+
+    private static void removeTask(Long taskId, ConcurrentHashMap<Long, ScheduledFuture<?>> map) {
+        if (taskId != null) {
+            ScheduledFuture<?> future = map.get(taskId);
+            if (future != null) {
+                if (future.cancel(true)) {
+                    map.remove(taskId);
+                }
+            }
+        } else {
+            map.forEach((k, v) -> {
+                if (v.cancel(true)) {
+                    map.remove(k);
+                }
+            });
+        }
     }
 }
