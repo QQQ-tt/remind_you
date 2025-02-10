@@ -7,6 +7,9 @@ import com.health.remind.pojo.dto.RemindTaskDTO;
 import com.health.remind.pojo.dto.RemindTaskPageDTO;
 import com.health.remind.pojo.vo.RemindTaskVO;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
  * <p>
  * 提醒任务 服务类
@@ -40,6 +43,14 @@ public interface RemindTaskService extends IService<RemindTask> {
      * @return 是否保存成功
      */
     boolean saveOrUpdateTask(RemindTaskDTO task);
+
+    /**
+     * 测试任务获取10条提醒时间
+     *
+     * @param task 任务详情
+     * @return 10条提醒时间
+     */
+    List<LocalDateTime> testTaskInfoNumTen(RemindTaskDTO task);
 
     /**
      * 删除任务

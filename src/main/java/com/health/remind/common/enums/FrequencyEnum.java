@@ -12,8 +12,7 @@ public enum FrequencyEnum {
     HOUR("hour", "小时"),
     DAY("day", "天"),
     WEEK("week", "周"),
-    MONTH("month", "月"),
-    YEAR("year", "年");
+    MONTH("month", "月");
 
     private final String value;
     private final String desc;

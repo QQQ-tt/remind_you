@@ -1,5 +1,6 @@
 package com.health.remind.pojo.dto;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.health.remind.common.enums.FrequencyEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -18,16 +19,10 @@ public class RemindTaskDTO {
     @Schema(description = "任务名称")
     private String name;
 
-    @Schema(description = "提醒类型:1单次,2多次,3无限")
-    private Integer type;
-
-    @Schema(description = "单次提醒触发时间")
-    private LocalDateTime remindTime;
-
-    @Schema(description = "多次提醒:开始时间")
+    @Schema(description = "时间范围提醒:开始时间")
     private LocalDateTime startTime;
 
-    @Schema(description = "多次提醒:结束时间")
+    @Schema(description = "时间范围提醒:结束时间")
     private LocalDateTime endTime;
 
     @Schema(description = "备注")

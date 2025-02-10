@@ -5,8 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.health.remind.config.BaseEntity;
 import java.time.LocalDateTime;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * <p>
@@ -18,6 +17,9 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("remind_task_info")
 @Schema(name = "RemindTaskInfo", description = "任务执行详情数据")
 public class RemindTaskInfo extends BaseEntity {

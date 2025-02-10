@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.health.remind.common.enums.FrequencyEnum;
 import com.health.remind.config.BaseEntity;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -32,19 +34,11 @@ public class RemindTask extends BaseEntity {
     @TableField("name")
     private String name;
 
-    @Schema(description = "提醒类型:1单次,2多次,3无限")
-    @TableField("type")
-    private Integer type;
-
-    @Schema(description = "单次提醒触发时间")
-    @TableField("remind_time")
-    private LocalDateTime remindTime;
-
-    @Schema(description = "多次提醒:开始时间")
+    @Schema(description = "时间范围提醒:开始时间")
     @TableField("start_time")
     private LocalDateTime startTime;
 
-    @Schema(description = "多次提醒:结束时间")
+    @Schema(description = "时间范围提醒:结束时间")
     @TableField("end_time")
     private LocalDateTime endTime;
 
@@ -79,12 +73,13 @@ public class RemindTask extends BaseEntity {
     @TableField("frequency_id")
     private Long frequencyId;
 
+    @TableField(exist = false)
+    private LocalDate initTime;
+
     @Builder
-    public RemindTask(Long id, Long createId, String createName, LocalDateTime createTime, Long updateId, String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag, String name, Integer type, LocalDateTime remindTime, LocalDateTime startTime, LocalDateTime endTime, Integer pushNum, Integer num, String remark, Boolean isRemind, Integer remindType, Integer advanceNum, FrequencyEnum cycleUnit, Long frequencyId) {
+    public RemindTask(Long id, Long createId, String createName, LocalDateTime createTime, Long updateId, String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag, String name, LocalDateTime startTime, LocalDateTime endTime, Integer pushNum, Integer num, String remark, Boolean isRemind, Integer remindType, Integer advanceNum, FrequencyEnum cycleUnit, Long frequencyId) {
         super(id, createId, createName, createTime, updateId, updateName, updateTime, tenantId, deleteFlag);
         this.name = name;
-        this.type = type;
-        this.remindTime = remindTime;
         this.startTime = startTime;
         this.endTime = endTime;
         this.pushNum = pushNum;

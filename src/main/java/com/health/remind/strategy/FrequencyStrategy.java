@@ -1,7 +1,10 @@
 package com.health.remind.strategy;
 
-import com.health.remind.entity.Frequency;
 import com.health.remind.entity.RemindTask;
+import com.health.remind.entity.RemindTaskInfo;
+import com.health.remind.pojo.vo.FrequencyVO;
+
+import java.util.List;
 
 /**
  * @author QQQtx
@@ -15,5 +18,14 @@ public interface FrequencyStrategy {
      * @param task      任务
      * @param frequency 频次
      */
-    void strategyTask(RemindTask task, Frequency frequency);
+    void strategyTask(RemindTask task, FrequencyVO frequency);
+
+    /**
+     * 获取头10次执行时间
+     *
+     * @param task      任务
+     * @param frequency 频率
+     * @return 执行详情
+     */
+    List<RemindTaskInfo> strategyTaskNumTen(RemindTask task, FrequencyVO frequency);
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.health.remind.common.enums.FrequencySqlTypeEnum;
 import com.health.remind.config.BaseEntity;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.DataEnums;
@@ -19,7 +20,11 @@ import com.health.remind.service.FrequencyDetailService;
 import com.health.remind.service.FrequencyService;
 import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RemindTaskService;
+import com.health.remind.strategy.FrequencyUtils;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
@@ -38,10 +43,13 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
 
     private final FrequencyDetailService frequencyDetailService;
 
-    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService) {
+    private final FrequencyUtils frequencyUtils;
+
+    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService, FrequencyUtils frequencyUtils) {
         this.remindTaskInfoService = remindTaskInfoService;
         this.frequencyService = frequencyService;
         this.frequencyDetailService = frequencyDetailService;
+        this.frequencyUtils = frequencyUtils;
     }
 
     @Override
@@ -61,11 +69,10 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     @Override
     public boolean saveOrUpdateTask(RemindTaskDTO task) {
         saveFrequency(task);
-        boolean b = saveOrUpdate(RemindTask.builder()
+        // 频率不可修改
+        RemindTask build = RemindTask.builder()
                 .id(task.getId())
                 .name(task.getName())
-                .type(task.getType())
-                .remindTime(task.getRemindTime())
                 .startTime(task.getStartTime())
                 .endTime(task.getEndTime())
                 .remark(task.getRemark())
@@ -75,8 +82,32 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .cycleUnit(task.getCycleUnit())
                 // 频率不可修改
                 .frequencyId(task.getId() == null ? task.getFrequencyId() : null)
-                .build());
+                .build();
+        boolean b = saveOrUpdate(build);
+        if (task.getId() == null) {
+            frequencyUtils.splitTask(build, FrequencySqlTypeEnum.INSERT);
+        }
         return b;
+    }
+
+    @Override
+    public List<LocalDateTime> testTaskInfoNumTen(RemindTaskDTO task) {
+        saveFrequency(task);
+        // 频率不可修改
+        RemindTask build = RemindTask.builder()
+                .id(task.getId())
+                .name(task.getName())
+                .startTime(task.getStartTime())
+                .endTime(task.getEndTime())
+                .remark(task.getRemark())
+                .isRemind(task.getIsRemind())
+                .remindType(task.getRemindType())
+                .advanceNum(task.getAdvanceNum())
+                .cycleUnit(task.getCycleUnit())
+                // 频率不可修改
+                .frequencyId(task.getFrequencyId())
+                .build();
+        return frequencyUtils.splitTask(build, FrequencySqlTypeEnum.SELECT).stream().map(RemindTaskInfo::getTime).toList();
     }
 
     @Override
