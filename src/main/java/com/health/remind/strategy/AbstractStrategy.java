@@ -15,17 +15,28 @@ import java.util.List;
  */
 public abstract class AbstractStrategy implements FrequencyStrategy {
 
+    private final static ThreadLocal<Integer> count = ThreadLocal.withInitial(() -> 0);
+
     protected final RemindTaskInfoService remindTaskInfoService = SpringUtils.getBean(RemindTaskInfoService.class);
 
     public AbstractStrategy() {
         register();
     }
+
     /**
      * 类注册方法
      */
     public void register() {
         StrategyContext.registerStrategy(getClass().getSimpleName()
                 .toLowerCase(), this);
+    }
+
+    public static int getCount() {
+        return count.get();
+    }
+
+    public static void addCount(int size) {
+        count.set(count.get() + size);
     }
 
     public List<FrequencyDetailVO> filter(RemindTask task, FrequencyVO frequency) {

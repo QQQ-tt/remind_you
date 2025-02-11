@@ -69,8 +69,7 @@ public class DataSourceConfig {
 
     @Bean
     @Primary
-    public SqlSessionTemplate sysSqlSessionTemplate(
-            SqlSessionFactory sessionFactory) {
+    public SqlSessionTemplate sysSqlSessionTemplate(SqlSessionFactory sessionFactory) {
         return new SqlSessionTemplate(sessionFactory);
     }
 

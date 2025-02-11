@@ -28,6 +28,7 @@ public class DayStrategy extends AbstractStrategy {
     public void strategyTask(RemindTask task, FrequencyVO frequency) {
         List<RemindTaskInfo> list = getTaskInfos(task, frequency);
         if (!list.isEmpty()) {
+            AbstractStrategy.addCount(list.size());
             remindTaskInfoService.saveBatch(list);
         }
     }
@@ -48,21 +49,16 @@ public class DayStrategy extends AbstractStrategy {
                     .equals(LocalDate.now())) {
                 frequency.setFrequencyDetailList(filter(task, frequency));
             }
-            addExecutionOrders(task, frequency.getFrequencyDetailList(), list);
+            addExecutionTask(task, frequency.getFrequencyDetailList(), list);
         }
         return list;
     }
 
-    private static void addExecutionOrders(RemindTask task, List<FrequencyDetailVO> collect, List<RemindTaskInfo> taskInfos) {
-        AtomicInteger x = new AtomicInteger(1);
-        collect.forEach(e -> {
-            taskInfos.add(RemindTaskInfo.builder()
-                    .remindTaskId(task.getId())
-                    .time(LocalDateTime.of(task.getInitTime(), e.getFrequencyTime()))
-                    .isRemind(task.getIsRemind())
-                    .isRead(false)
-                    .build());
-            x.getAndIncrement();
-        });
+    private static void addExecutionTask(RemindTask task, List<FrequencyDetailVO> collect, List<RemindTaskInfo> taskInfos) {
+        collect.forEach(e -> taskInfos.add(RemindTaskInfo.builder()
+                .remindTaskId(task.getId())
+                .time(LocalDateTime.of(task.getInitTime(), e.getFrequencyTime()))
+                .isRemind(task.getIsRemind())
+                .build()));
     }
 }

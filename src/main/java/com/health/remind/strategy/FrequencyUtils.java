@@ -5,6 +5,7 @@ import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.pojo.vo.FrequencyVO;
 import com.health.remind.service.FrequencyService;
+import com.health.remind.service.RemindTaskService;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -20,8 +21,11 @@ public class FrequencyUtils {
 
     private final FrequencyService frequencyService;
 
-    public FrequencyUtils(FrequencyService frequencyService) {
+    private final RemindTaskService remindTaskService;
+
+    public FrequencyUtils(FrequencyService frequencyService, RemindTaskService remindTaskService) {
         this.frequencyService = frequencyService;
+        this.remindTaskService = remindTaskService;
     }
 
     public List<RemindTaskInfo> splitTask(RemindTask task, FrequencySqlTypeEnum typeEnum) {
@@ -35,15 +39,20 @@ public class FrequencyUtils {
         if (typeEnum.equals(FrequencySqlTypeEnum.INSERT)) {
             for (; startTime.isBefore(endTime); startTime = startTime.plusDays(1)) {
                 task.setInitTime(startTime.toLocalDate());
-                StrategyContext.getStrategy(frequency.getCycleUnit().getValue() + "strategy")
+                StrategyContext.getStrategy(frequency.getCycleUnit()
+                                .getValue() + "strategy")
                         .strategyTask(task, frequency);
             }
+            int count = AbstractStrategy.getCount();
+            task.setNum(count);
+            remindTaskService.updateById(task);
         }
         if (typeEnum.equals(FrequencySqlTypeEnum.SELECT)) {
             List<RemindTaskInfo> list = new ArrayList<>();
             while (list.size() < 10 && startTime.isBefore(endTime)) {
                 task.setInitTime(startTime.toLocalDate());
-                list.addAll(StrategyContext.getStrategy(frequency.getCycleUnit().getValue() + "strategy")
+                list.addAll(StrategyContext.getStrategy(frequency.getCycleUnit()
+                                .getValue() + "strategy")
                         .strategyTaskNumTen(task, frequency));
                 startTime = startTime.plusDays(1);
             }
