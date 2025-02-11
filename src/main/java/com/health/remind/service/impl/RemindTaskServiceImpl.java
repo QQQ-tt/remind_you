@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.health.remind.common.enums.FrequencySqlTypeEnum;
+import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.BaseEntity;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.DataEnums;
@@ -23,11 +25,14 @@ import com.health.remind.service.FrequencyService;
 import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RemindTaskService;
 import com.health.remind.strategy.FrequencyUtils;
+import com.health.remind.util.RedisUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -74,7 +79,6 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     @Override
     public boolean saveOrUpdateTask(RemindTaskDTO task) {
         saveFrequency(task);
-        // 频率不可修改
         RemindTask build = RemindTask.builder()
                 .id(task.getId())
                 .name(task.getName())
@@ -91,6 +95,8 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         boolean b = saveOrUpdate(build);
         if (task.getId() == null) {
             frequencyUtils.splitTask(build, FrequencySqlTypeEnum.INSERT);
+            Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getUserId(), null, null));
+            RedisUtils.delete(keys);
         }
         return b;
     }
@@ -98,7 +104,6 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     @Override
     public List<LocalDateTime> testTaskInfoNumTen(RemindTaskDTO task) {
         saveFrequency(task);
-        // 频率不可修改
         RemindTask build = RemindTask.builder()
                 .id(task.getId())
                 .name(task.getName())
@@ -109,7 +114,6 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .remindType(task.getRemindType())
                 .advanceNum(task.getAdvanceNum())
                 .cycleUnit(task.getCycleUnit())
-                // 频率不可修改
                 .frequencyId(task.getFrequencyId())
                 .build();
         return frequencyUtils.splitTask(build, FrequencySqlTypeEnum.SELECT)
@@ -120,6 +124,13 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
 
     @Override
     public List<RemindTaskInfoVO> getTaskInfoByUserId(RemindTaskIndoDTO dto) {
+        String remindInfoKey = RedisKeys.getRemindInfoKey(CommonMethod.getUserId(), dto.getStartTime(),
+                dto.getEndTime());
+        boolean flag = RedisUtils.hasKey(remindInfoKey);
+        if (flag) {
+            return RedisUtils.getObject(remindInfoKey, new TypeReference<>() {
+            });
+        }
         List<RemindTask> list = list(Wrappers.lambdaQuery(RemindTask.class)
                 .eq(BaseEntity::getCreateId, CommonMethod.getUserId())
                 .ge(RemindTask::getStartTime, dto.getStartTime())
@@ -129,21 +140,21 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         }
         Map<Long, RemindTask> taskMap = list.stream()
                 .collect(Collectors.toMap(BaseEntity::getId, Function.identity()));
-        return remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
+        List<RemindTaskInfoVO> taskInfoVOS = remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
                         .in(RemindTaskInfo::getRemindTaskId,
                                 list.stream()
                                         .map(BaseEntity::getId)
                                         .toList()))
                 .stream()
-                .map(m -> {
-                    return RemindTaskInfoVO.builder()
-                            .name(taskMap.get(m.getRemindTaskId())
-                                    .getName())
-                            .time(m.getTime())
-                            .isRead(m.getIsRead())
-                            .build();
-                })
+                .map(m -> RemindTaskInfoVO.builder()
+                        .name(taskMap.get(m.getRemindTaskId())
+                                .getName())
+                        .time(m.getTime())
+                        .isRead(m.getIsRead())
+                        .build())
                 .toList();
+        RedisUtils.setObject(remindInfoKey, taskInfoVOS);
+        return taskInfoVOS;
     }
 
     @Override
