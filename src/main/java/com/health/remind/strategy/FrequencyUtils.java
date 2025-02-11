@@ -63,35 +63,37 @@ public class FrequencyUtils {
             task.setNum(count);
             remindTaskService.updateById(task);
             Map<UserInfo, String> map = CommonMethod.getMap();
-            CompletableFuture.runAsync(() -> {
-                List<RemindTaskInfo> list = remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
-                        .eq(RemindTaskInfo::getRemindTaskId, task.getId()));
-                Integer advanceNum = task.getAdvanceNum();
-                FrequencyEnum cycleUnit = task.getCycleUnit();
-                boolean b = advanceNum != null && cycleUnit != null;
-                list.forEach(e -> {
-                    if (b) {
-                        switch (cycleUnit) {
-                            case DAY:
-                                e.setTime(e.getTime()
-                                        .minusDays(advanceNum));
-                                break;
-                            case WEEK:
-                                e.setTime(e.getTime()
-                                        .minusWeeks(advanceNum));
-                                break;
-                            case MONTH:
-                                e.setTime(e.getTime()
-                                        .minusMonths(advanceNum));
-                                break;
-                            case HOUR:
-                                e.setTime(e.getTime()
-                                        .minusHours(advanceNum));
+            if (task.getIsRemind()) {
+                CompletableFuture.runAsync(() -> {
+                    List<RemindTaskInfo> list = remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
+                            .eq(RemindTaskInfo::getRemindTaskId, task.getId()));
+                    Integer advanceNum = task.getAdvanceNum();
+                    FrequencyEnum cycleUnit = task.getCycleUnit();
+                    boolean b = advanceNum != null && cycleUnit != null;
+                    list.forEach(e -> {
+                        if (b) {
+                            switch (cycleUnit) {
+                                case DAY:
+                                    e.setTime(e.getTime()
+                                            .minusDays(advanceNum));
+                                    break;
+                                case WEEK:
+                                    e.setTime(e.getTime()
+                                            .minusWeeks(advanceNum));
+                                    break;
+                                case MONTH:
+                                    e.setTime(e.getTime()
+                                            .minusMonths(advanceNum));
+                                    break;
+                                case HOUR:
+                                    e.setTime(e.getTime()
+                                            .minusHours(advanceNum));
+                            }
                         }
-                    }
-                    DelayScheduledExecutor.putRemindTask(e.getId(), e.getTime(), ExecutionEnum.remind, map);
-                });
-            }, threadPoolExecutor);
+                        DelayScheduledExecutor.putRemindTask(e.getId(), e.getTime(), ExecutionEnum.remind, map);
+                    });
+                }, threadPoolExecutor);
+            }
         }
         if (typeEnum.equals(FrequencySqlTypeEnum.SELECT)) {
             List<RemindTaskInfo> list = new ArrayList<>();

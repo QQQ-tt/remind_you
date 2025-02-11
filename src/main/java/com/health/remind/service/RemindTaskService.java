@@ -3,8 +3,11 @@ package com.health.remind.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.health.remind.entity.RemindTask;
+import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.pojo.dto.RemindTaskDTO;
+import com.health.remind.pojo.dto.RemindTaskIndoDTO;
 import com.health.remind.pojo.dto.RemindTaskPageDTO;
+import com.health.remind.pojo.vo.RemindTaskInfoVO;
 import com.health.remind.pojo.vo.RemindTaskVO;
 
 import java.time.LocalDateTime;
@@ -51,6 +54,13 @@ public interface RemindTaskService extends IService<RemindTask> {
      * @return 10条提醒时间
      */
     List<LocalDateTime> testTaskInfoNumTen(RemindTaskDTO task);
+
+    /**
+     * 获取用户提醒任务详情
+     * @param dto 查询条件
+     * @return 任务详情
+     */
+    List<RemindTaskInfoVO> getTaskInfoByUserId(RemindTaskIndoDTO dto);
 
     /**
      * 删除任务

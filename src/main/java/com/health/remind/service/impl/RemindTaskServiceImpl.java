@@ -14,7 +14,9 @@ import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.mapper.RemindTaskMapper;
 import com.health.remind.pojo.dto.FrequencyDetailDTO;
 import com.health.remind.pojo.dto.RemindTaskDTO;
+import com.health.remind.pojo.dto.RemindTaskIndoDTO;
 import com.health.remind.pojo.dto.RemindTaskPageDTO;
+import com.health.remind.pojo.vo.RemindTaskInfoVO;
 import com.health.remind.pojo.vo.RemindTaskVO;
 import com.health.remind.service.FrequencyDetailService;
 import com.health.remind.service.FrequencyService;
@@ -25,6 +27,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -107,7 +112,38 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 // 频率不可修改
                 .frequencyId(task.getFrequencyId())
                 .build();
-        return frequencyUtils.splitTask(build, FrequencySqlTypeEnum.SELECT).stream().map(RemindTaskInfo::getTime).toList();
+        return frequencyUtils.splitTask(build, FrequencySqlTypeEnum.SELECT)
+                .stream()
+                .map(RemindTaskInfo::getTime)
+                .toList();
+    }
+
+    @Override
+    public List<RemindTaskInfoVO> getTaskInfoByUserId(RemindTaskIndoDTO dto) {
+        List<RemindTask> list = list(Wrappers.lambdaQuery(RemindTask.class)
+                .eq(BaseEntity::getCreateId, CommonMethod.getUserId())
+                .ge(RemindTask::getStartTime, dto.getStartTime())
+                .le(RemindTask::getEndTime, dto.getEndTime()));
+        if (list.isEmpty()) {
+            return List.of();
+        }
+        Map<Long, RemindTask> taskMap = list.stream()
+                .collect(Collectors.toMap(BaseEntity::getId, Function.identity()));
+        return remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
+                        .in(RemindTaskInfo::getRemindTaskId,
+                                list.stream()
+                                        .map(BaseEntity::getId)
+                                        .toList()))
+                .stream()
+                .map(m -> {
+                    return RemindTaskInfoVO.builder()
+                            .name(taskMap.get(m.getRemindTaskId())
+                                    .getName())
+                            .time(m.getTime())
+                            .isRead(m.getIsRead())
+                            .build();
+                })
+                .toList();
     }
 
     @Override

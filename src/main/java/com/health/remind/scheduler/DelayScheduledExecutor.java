@@ -54,28 +54,7 @@ public class DelayScheduledExecutor extends ScheduledBase {
     }
 
     private void processTasks() {
-        try {
-            // 获取队列中的任务
-            List<DelayTask> list = new ArrayList<>();
-            delayScheduledExecutorQueue.drainTo(list);
-            if (list.isEmpty()) {
-                return;
-            }
-            list.forEach(task -> {
-                LocalDateTime executeTime = task.getExecuteTime();
-                long delay = Duration.between(LocalDateTime.now(), executeTime)
-                        .toMillis();
-                if (delay <= 0) {
-                    executeTask(task);
-                } else {
-                    ScheduledFuture<?> schedule = scheduler.schedule(() -> executeTask(task), delay,
-                            TimeUnit.MILLISECONDS);
-                    delayScheduledExecutorFutureMap.put(task.getId(), schedule);
-                }
-            });
-        } catch (Exception e) {
-            log.error("处理任务时发生错误", e);
-        }
+        
     }
 
     private void executeTask(DelayTask task) {

@@ -3,7 +3,9 @@ package com.health.remind.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.health.remind.config.R;
 import com.health.remind.pojo.dto.RemindTaskDTO;
+import com.health.remind.pojo.dto.RemindTaskIndoDTO;
 import com.health.remind.pojo.dto.RemindTaskPageDTO;
+import com.health.remind.pojo.vo.RemindTaskInfoVO;
 import com.health.remind.pojo.vo.RemindTaskVO;
 import com.health.remind.service.RemindTaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,6 +56,12 @@ public class RemindTaskController {
     @PostMapping("/testTaskInfoNumTen")
     public R<List<LocalDateTime>> testTaskInfoNumTen(@RequestBody RemindTaskDTO task) {
         return R.success(remindTaskService.testTaskInfoNumTen(task));
+    }
+
+    @Operation(summary = "根据用户id查询时间范围内提醒任务详情")
+    @PostMapping("/getTaskInfoByUserId")
+    public R<List<RemindTaskInfoVO>> getTaskInfoByUserId(@RequestBody RemindTaskIndoDTO dto) {
+        return R.success(remindTaskService.getTaskInfoByUserId(dto));
     }
 
     @Operation(summary = "删除提醒任务")
