@@ -2,6 +2,7 @@ package com.health.remind.scheduler;
 
 import com.health.remind.config.enums.UserInfo;
 import com.health.remind.scheduler.entity.DelayTask;
+import com.health.remind.scheduler.enums.ExecutionEnum;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +36,15 @@ public class DelayScheduledExecutor extends ScheduledBase {
     }
 
     @SneakyThrows
-    public static void putTestTask(Long taskId, LocalDateTime executeTime, Map<UserInfo, String> commonMethod) {
-        delayScheduledExecutorQueue.put(new DelayTask(taskId, executeTime, commonMethod));
+    public static void putTestTask(Long taskId, LocalDateTime executeTime,
+                                   Map<UserInfo, String> commonMethod) {
+        delayScheduledExecutorQueue.put(new DelayTask(taskId, executeTime, ExecutionEnum.test, commonMethod));
+    }
+
+    @SneakyThrows
+    public static void putRemindTask(Long taskId, LocalDateTime executeTime, ExecutionEnum executionEnum, Map<UserInfo
+            , String> commonMethod) {
+        delayScheduledExecutorQueue.put(new DelayTask(taskId, executeTime, executionEnum, commonMethod));
     }
 
     @PostConstruct
@@ -71,6 +79,17 @@ public class DelayScheduledExecutor extends ScheduledBase {
     }
 
     private void executeTask(DelayTask task) {
+        switch (task.getExecutionEnum()) {
+            case test -> textTask(task);
+            case remind -> remindTask(task);
+            default -> throw new IllegalArgumentException("无效的任务类型");
+        }
+    }
+
+    private void remindTask(DelayTask task) {
+    }
+
+    private void textTask(DelayTask task) {
         long start = System.currentTimeMillis();
         long between = ChronoUnit.SECONDS.between(task.getLastExecutionTime(), LocalDateTime.now());
         delayScheduledExecutorFutureMap.remove(task.getId());

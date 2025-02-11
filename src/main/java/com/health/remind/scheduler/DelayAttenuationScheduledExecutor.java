@@ -3,7 +3,7 @@ package com.health.remind.scheduler;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.UserInfo;
 import com.health.remind.scheduler.entity.DelayTask;
-import com.health.remind.scheduler.enums.QueryEnum;
+import com.health.remind.scheduler.enums.ExecutionEnum;
 import com.health.remind.scheduler.enums.TimeEnum;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
@@ -38,7 +38,7 @@ public class DelayAttenuationScheduledExecutor extends ScheduledBase {
 
     @SneakyThrows
     public static void putTestTask(Long taskId, Map<UserInfo, String> commonMethod) {
-        delayAttenuationScheduledExecutorQueue.put(new DelayTask(taskId, QueryEnum.test, commonMethod));
+        delayAttenuationScheduledExecutorQueue.put(new DelayTask(taskId, ExecutionEnum.test, commonMethod));
     }
 
     @PostConstruct
@@ -83,7 +83,7 @@ public class DelayAttenuationScheduledExecutor extends ScheduledBase {
     private void executeTask(DelayTask task) {
         try {
             task.setLastExecutionTime(LocalDateTime.now());
-            switch (task.getQueryEnum()) {
+            switch (task.getExecutionEnum()) {
                 case pay -> processPaymentQuery(task);
                 case refund -> processRefundQuery(task);
                 case test -> testQuery(task);
