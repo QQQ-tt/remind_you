@@ -46,11 +46,12 @@ public class TestServiceImpl extends ServiceImpl<TestMapper, Test> implements Te
         throw new DataException(DataEnums.DATA_IS_ABNORMAL);
     }
 
-    @RedisLock(lockParameter = "#key")
+    //    @RedisLock(lockParameter = "#key")
+    @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getUserId()", autoUnlockTime = 6000)
     @Override
     public String testRedisLock(String key) {
         try {
-            Thread.sleep(500);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

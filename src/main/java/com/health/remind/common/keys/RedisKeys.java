@@ -23,9 +23,10 @@ public class RedisKeys {
 
     /**
      * 时间范围内查询
-     * @param userId 用户id
+     *
+     * @param userId    用户id
      * @param startTime 开始时间
-     * @param endTime 结束时间
+     * @param endTime   结束时间
      * @return remind:info:userId:startTime-endTime
      */
     public static String getRemindInfoKey(Long userId, LocalDateTime startTime, LocalDateTime endTime) {

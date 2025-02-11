@@ -13,6 +13,7 @@ import com.health.remind.scheduler.enums.ExecutionEnum;
 import com.health.remind.service.FrequencyService;
 import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RemindTaskService;
+import com.health.remind.util.SpringUtils;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -26,25 +27,17 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @author QQQtx
  * @since 2025/1/27 16:42
  */
-@Component
 public class FrequencyUtils {
 
-    private final FrequencyService frequencyService;
+    private static final FrequencyService frequencyService = SpringUtils.getBean(FrequencyService.class);
 
-    private final RemindTaskService remindTaskService;
+    private static final RemindTaskService remindTaskService = SpringUtils.getBean(RemindTaskService.class);
 
-    private final RemindTaskInfoService remindTaskInfoService;
+    private static final RemindTaskInfoService remindTaskInfoService = SpringUtils.getBean(RemindTaskInfoService.class);
 
-    private final ThreadPoolExecutor threadPoolExecutor;
+    private static final ThreadPoolExecutor threadPoolExecutor = SpringUtils.getBean(ThreadPoolExecutor.class);
 
-    public FrequencyUtils(FrequencyService frequencyService, RemindTaskService remindTaskService, RemindTaskInfoService remindTaskInfoService, ThreadPoolExecutor threadPoolExecutor) {
-        this.frequencyService = frequencyService;
-        this.remindTaskService = remindTaskService;
-        this.remindTaskInfoService = remindTaskInfoService;
-        this.threadPoolExecutor = threadPoolExecutor;
-    }
-
-    public List<RemindTaskInfo> splitTask(RemindTask task, FrequencySqlTypeEnum typeEnum) {
+    public static List<RemindTaskInfo> splitTask(RemindTask task, FrequencySqlTypeEnum typeEnum) {
         if (task == null) {
             return List.of();
         }

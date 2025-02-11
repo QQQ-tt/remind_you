@@ -11,6 +11,7 @@ import com.health.remind.config.BaseEntity;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
+import com.health.remind.config.lock.RedisLock;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.mapper.RemindTaskMapper;
@@ -31,7 +32,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -53,13 +53,10 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
 
     private final FrequencyDetailService frequencyDetailService;
 
-    private final FrequencyUtils frequencyUtils;
-
-    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService, FrequencyUtils frequencyUtils) {
+    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService) {
         this.remindTaskInfoService = remindTaskInfoService;
         this.frequencyService = frequencyService;
         this.frequencyDetailService = frequencyDetailService;
-        this.frequencyUtils = frequencyUtils;
     }
 
     @Override
@@ -77,6 +74,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     }
 
     @Override
+    @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getUserId()")
     public boolean saveOrUpdateTask(RemindTaskDTO task) {
         saveFrequency(task);
         RemindTask build = RemindTask.builder()
@@ -94,7 +92,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .build();
         boolean b = saveOrUpdate(build);
         if (task.getId() == null) {
-            frequencyUtils.splitTask(build, FrequencySqlTypeEnum.INSERT);
+            FrequencyUtils.splitTask(build, FrequencySqlTypeEnum.INSERT);
             Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getUserId(), null, null));
             RedisUtils.delete(keys);
         }
@@ -116,7 +114,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .cycleUnit(task.getCycleUnit())
                 .frequencyId(task.getFrequencyId())
                 .build();
-        return frequencyUtils.splitTask(build, FrequencySqlTypeEnum.SELECT)
+        return FrequencyUtils.splitTask(build, FrequencySqlTypeEnum.SELECT)
                 .stream()
                 .map(RemindTaskInfo::getTime)
                 .toList();
