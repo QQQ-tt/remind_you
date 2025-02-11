@@ -23,6 +23,8 @@ import com.health.remind.pojo.dto.RemindTaskPageDTO;
 import com.health.remind.pojo.vo.RemindInfoExcelVO;
 import com.health.remind.pojo.vo.RemindTaskInfoVO;
 import com.health.remind.pojo.vo.RemindTaskVO;
+import com.health.remind.scheduler.ScheduledBase;
+import com.health.remind.scheduler.enums.ScheduledEnum;
 import com.health.remind.service.FrequencyDetailService;
 import com.health.remind.service.FrequencyService;
 import com.health.remind.service.RemindTaskInfoService;
@@ -172,8 +174,12 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     @Override
     public boolean removeTask(Long id) {
         if (removeById(id)) {
+            List<RemindTaskInfo> list = remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
+                    .eq(RemindTaskInfo::getRemindTaskId, id)
+                    .eq(RemindTaskInfo::getIsRead, false));
             remindTaskInfoService.remove(Wrappers.lambdaQuery(RemindTaskInfo.class)
                     .eq(RemindTaskInfo::getRemindTaskId, id));
+            list.forEach(e-> ScheduledBase.cancelTask(e.getId(), ScheduledEnum.DELAY_SCHEDULED));
         }
         return false;
     }

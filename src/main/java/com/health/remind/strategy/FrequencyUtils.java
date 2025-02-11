@@ -83,7 +83,8 @@ public class FrequencyUtils {
                                             .minusHours(advanceNum));
                             }
                         }
-                        DelayScheduledExecutor.putRemindTask(e.getId(), e.getTime(), ExecutionEnum.remind, map);
+                        DelayScheduledExecutor.putRemindTask(e.getId(), task.getId(), e.getTime(), ExecutionEnum.remind,
+                                map);
                     });
                 }, threadPoolExecutor);
             }

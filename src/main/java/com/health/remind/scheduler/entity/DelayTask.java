@@ -51,6 +51,11 @@ public class DelayTask {
     private final LocalDateTime executeTime;
 
     /**
+     * 其他id
+     */
+    private final String otherId;
+
+    /**
      * 上次执行时间
      */
     @Setter
@@ -60,16 +65,18 @@ public class DelayTask {
         this.id = id;
         this.executionEnum = executionEnum;
         this.commonMethod = commonMethod;
+        this.otherId = "";
         this.executeTime = LocalDateTime.now();
         this.outTradeNo = "";
     }
 
     public DelayTask(Long id, LocalDateTime executeTime,
-                     ExecutionEnum executionEnum, Map<UserInfo, String> commonMethod) {
+                     ExecutionEnum executionEnum, Map<UserInfo, String> commonMethod, String otherId) {
         this.id = id;
         this.executionEnum = executionEnum;
         this.commonMethod = commonMethod;
         this.executeTime = executeTime;
+        this.otherId = otherId;
         this.outTradeNo = "";
     }
 }
