@@ -10,6 +10,7 @@ import com.health.remind.pojo.vo.RemindTaskVO;
 import com.health.remind.service.RemindTaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -56,6 +57,12 @@ public class RemindTaskController {
     @PostMapping("/testTaskInfoNumTen")
     public R<List<LocalDateTime>> testTaskInfoNumTen(@RequestBody RemindTaskDTO task) {
         return R.success(remindTaskService.testTaskInfoNumTen(task));
+    }
+
+    @Operation(summary = "导出任务时间详情")
+    @PostMapping("/exportTaskInfo")
+    public void exportTaskInfo(@RequestParam Long id, HttpServletResponse response) {
+        remindTaskService.exportTaskInfo(id, response);
     }
 
     @Operation(summary = "根据用户id查询时间范围内提醒任务详情")

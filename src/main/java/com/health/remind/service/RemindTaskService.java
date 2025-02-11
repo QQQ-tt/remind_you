@@ -9,6 +9,7 @@ import com.health.remind.pojo.dto.RemindTaskIndoDTO;
 import com.health.remind.pojo.dto.RemindTaskPageDTO;
 import com.health.remind.pojo.vo.RemindTaskInfoVO;
 import com.health.remind.pojo.vo.RemindTaskVO;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -56,7 +57,16 @@ public interface RemindTaskService extends IService<RemindTask> {
     List<LocalDateTime> testTaskInfoNumTen(RemindTaskDTO task);
 
     /**
+     * 导出对应任务的时间详情
+     *
+     * @param id       任务id
+     * @param response r
+     */
+    void exportTaskInfo(Long id, HttpServletResponse response);
+
+    /**
      * 获取用户提醒任务详情
+     *
      * @param dto 查询条件
      * @return 任务详情
      */
@@ -69,5 +79,4 @@ public interface RemindTaskService extends IService<RemindTask> {
      * @return 是否删除成功
      */
     boolean removeTask(Long id);
-
 }

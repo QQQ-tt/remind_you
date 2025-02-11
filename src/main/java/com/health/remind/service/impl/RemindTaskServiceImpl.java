@@ -14,11 +14,13 @@ import com.health.remind.config.exception.DataException;
 import com.health.remind.config.lock.RedisLock;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
+import com.health.remind.excel.ExcelTransfer;
 import com.health.remind.mapper.RemindTaskMapper;
 import com.health.remind.pojo.dto.FrequencyDetailDTO;
 import com.health.remind.pojo.dto.RemindTaskDTO;
 import com.health.remind.pojo.dto.RemindTaskIndoDTO;
 import com.health.remind.pojo.dto.RemindTaskPageDTO;
+import com.health.remind.pojo.vo.RemindInfoExcelVO;
 import com.health.remind.pojo.vo.RemindTaskInfoVO;
 import com.health.remind.pojo.vo.RemindTaskVO;
 import com.health.remind.service.FrequencyDetailService;
@@ -27,6 +29,7 @@ import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RemindTaskService;
 import com.health.remind.strategy.FrequencyUtils;
 import com.health.remind.util.RedisUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -118,6 +121,17 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .stream()
                 .map(RemindTaskInfo::getTime)
                 .toList();
+    }
+
+    @Override
+    public void exportTaskInfo(Long id, HttpServletResponse response) {
+        RemindTask byId = getById(id);
+        List<RemindTaskInfo> list = remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
+                .eq(RemindTaskInfo::getRemindTaskId, id));
+        List<RemindInfoExcelVO> excelList = list.stream()
+                .map(m -> new RemindInfoExcelVO(byId.getName(), m.getTime()))
+                .toList();
+        ExcelTransfer.exportExcel(response, excelList, "任务详情", byId.getName(), RemindInfoExcelVO.class);
     }
 
     @Override
