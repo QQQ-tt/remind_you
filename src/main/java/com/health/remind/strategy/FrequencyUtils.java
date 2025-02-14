@@ -14,7 +14,6 @@ import com.health.remind.service.FrequencyService;
 import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RemindTaskService;
 import com.health.remind.util.SpringUtils;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
