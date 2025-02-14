@@ -32,7 +32,7 @@ public class NumUtils {
      * @return 数字字符串
      */
     public static long numUserCard() {
-        return numRandom(1, 1, 9) + numRandom(9, 0, 9);
+        return Long.parseLong(numRandom(1, 1, 9) + String.valueOf(numRandom(9, 0, 9)));
     }
 
     /**

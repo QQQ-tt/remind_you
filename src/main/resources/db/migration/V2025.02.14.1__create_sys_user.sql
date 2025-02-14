@@ -3,8 +3,8 @@ create table sys_user
     id          bigint           not null
         primary key,
     name        varchar(50)      null comment '用户名称',
-    account     varchar(10)      not null comment '账户',
-    password    varchar(50)      not null comment '密码',
+    account     bigint           not null comment '账户',
+    password    varchar(200)     not null comment '密码',
     telephone   varchar(13)      null comment '电话',
     status      bit default b'0' null comment '是否启用',
     sys_role_id bigint           null comment '用户角色id',

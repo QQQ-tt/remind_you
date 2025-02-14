@@ -4,7 +4,10 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.health.remind.config.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -17,6 +20,9 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("sys_user")
 @Schema(name = "SysUser", description = "")
 public class SysUser extends BaseEntity {
@@ -27,7 +33,7 @@ public class SysUser extends BaseEntity {
 
     @Schema(description = "账户")
     @TableField("account")
-    private String account;
+    private Long account;
 
     @Schema(description = "密码")
     @TableField("password")
