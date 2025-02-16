@@ -1,10 +1,13 @@
 package com.health.remind.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.health.remind.entity.SysUser;
 import com.health.remind.pojo.dto.SignDTO;
+import com.health.remind.pojo.dto.SysUserDTO;
 import com.health.remind.pojo.vo.LoginVO;
 import com.health.remind.pojo.vo.SignVO;
+import com.health.remind.pojo.vo.SysUserVO;
 
 /**
  * <p>
@@ -31,4 +34,12 @@ public interface SysUserService extends IService<SysUser> {
      * @return 登录结果
      */
     LoginVO loginUser(Long account, String password);
+
+    /**
+     * 分页查询用户
+     *
+     * @param dto 分页信息
+     * @return 用户集合
+     */
+    Page<SysUserVO> pageSysUser(SysUserDTO dto);
 }

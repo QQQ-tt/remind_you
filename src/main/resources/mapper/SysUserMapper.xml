@@ -2,4 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.health.remind.mapper.SysUserMapper">
 
+    <select id="selectPageSysUser" resultType="com.health.remind.pojo.vo.SysUserVO">
+        with info as (select su.id,
+                             su.name,
+                             su.account,
+                             su.telephone,
+                             su.status,
+                             su.create_time,
+                             su.delete_flag,
+                             sr.name as sys_role_name
+                      from sys_user su
+                               left join sys_role sr on su.sys_role_id = sr.id)
+        select *
+        from info ${ew.customSqlSegment}
+    </select>
 </mapper>

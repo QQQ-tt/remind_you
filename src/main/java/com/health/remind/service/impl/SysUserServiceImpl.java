@@ -1,16 +1,21 @@
 package com.health.remind.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.health.remind.common.keys.RedisKeys;
+import com.health.remind.config.BaseEntity;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
 import com.health.remind.config.lock.RedisLock;
 import com.health.remind.entity.SysUser;
 import com.health.remind.mapper.SysUserMapper;
 import com.health.remind.pojo.dto.SignDTO;
+import com.health.remind.pojo.dto.SysUserDTO;
 import com.health.remind.pojo.vo.LoginVO;
 import com.health.remind.pojo.vo.SignVO;
+import com.health.remind.pojo.vo.SysUserVO;
 import com.health.remind.service.SysUserService;
 import com.health.remind.util.JwtUtils;
 import com.health.remind.util.NumUtils;
@@ -66,6 +71,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public LoginVO loginUser(Long account, String password) {
         SysUser sysUser = Optional.ofNullable(getOne(Wrappers.lambdaQuery(SysUser.class)
+                        .eq(SysUser::getStatus, true)
                         .eq(SysUser::getAccount, account)))
                 .orElseThrow(() -> new DataException(DataEnums.DATA_IS_ABNORMAL, "用户不存在"));
         if (passwordEncoder.matches(password, sysUser.getPassword())) {
@@ -79,5 +85,18 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return loginVO;
         }
         return null;
+    }
+
+    @Override
+    public Page<SysUserVO> pageSysUser(SysUserDTO dto) {
+        return baseMapper.selectPageSysUser(dto.getPage(),
+                Wrappers.lambdaQuery(SysUser.class)
+                        .eq(BaseEntity::getDeleteFlag, false)
+                        .eq(dto.getStatus() != null, SysUser::getStatus, dto.getStatus())
+                        .like(StringUtils.isNotBlank(dto.getName()), SysUser::getName,
+                                dto.getName())
+                        .like(dto.getAccount() != null, SysUser::getAccount, dto.getAccount())
+                        .like(StringUtils.isNotBlank(dto.getTelephone()), SysUser::getTelephone, dto.getTelephone())
+                        .orderByDesc(BaseEntity::getCreateTime));
     }
 }

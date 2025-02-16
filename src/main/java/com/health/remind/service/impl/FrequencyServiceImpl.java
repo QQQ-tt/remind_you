@@ -46,6 +46,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
     public Page<FrequencyVO> pageFrequency(FrequencyPageDTO dto) {
         return baseMapper.selectPageFrequency(dto.getPage(),
                 Wrappers.lambdaQuery(Frequency.class)
+                        .eq(BaseEntity::getDeleteFlag, false)
                         .like(StringUtils.isNotBlank(dto.getFrequencyName()),
                                 Frequency::getFrequencyName, dto.getFrequencyName())
                         .orderByDesc(BaseEntity::getCreateTime));
@@ -60,6 +61,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
             });
         }
         List<FrequencyVO> sys = baseMapper.selectListFrequency(Wrappers.lambdaQuery(Frequency.class)
+                .eq(BaseEntity::getDeleteFlag, false)
                 .le(Frequency::getLevel, getLevel())
                 .eq(Frequency::getStatus, true)
                 .in(Frequency::getSource, "system",

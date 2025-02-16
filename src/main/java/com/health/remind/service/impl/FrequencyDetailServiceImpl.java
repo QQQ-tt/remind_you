@@ -32,6 +32,7 @@ public class FrequencyDetailServiceImpl extends ServiceImpl<FrequencyDetailMappe
     public Page<FrequencyDetailVO> pageFrequencyDetail(FrequencyDetailPageDTO dto) {
         Page<FrequencyDetailVO> page = baseMapper.selectPageFrequencyDetail(dto.getPage(),
                 Wrappers.lambdaQuery(FrequencyDetail.class)
+                        .eq(BaseEntity::getDeleteFlag, false)
                         .eq(FrequencyDetail::getFrequencyId, dto.getFrequencyId())
                         .orderByDesc(BaseEntity::getCreateTime));
         page.getRecords()
