@@ -4,7 +4,7 @@ import com.health.remind.common.enums.FrequencyEnum;
 import com.health.remind.common.enums.FrequencyTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -16,11 +16,11 @@ public class FrequencyDTO {
 
     private Long id;
 
-    @NotNull(message = "频次名称不能为空")
+    @NotBlank(message = "频次名称不能为空")
     @Schema(description = "频次名称")
     private String frequencyName;
 
-    @NotNull(message = "频次编码不能为空")
+    @NotBlank(message = "频次编码不能为空")
     @Schema(description = "频次编码")
     private String frequencyCode;
 
