@@ -2,13 +2,16 @@ package com.health.remind.controller;
 
 import com.health.remind.config.R;
 import com.health.remind.pojo.dto.SignDTO;
+import com.health.remind.pojo.vo.LoginVO;
 import com.health.remind.pojo.vo.SignVO;
 import com.health.remind.service.SysUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -30,9 +33,15 @@ public class SysUserController {
         this.sysUserService = sysUserService;
     }
 
-    @Operation(summary = "用户注册")
+    @Operation(summary = "用户注册（管理端）")
     @PutMapping("/signUser")
     public R<SignVO> signUser(@RequestBody SignDTO dto) {
         return R.success(sysUserService.signUser(dto));
+    }
+
+    @Operation(summary = "用户登录（管理端）")
+    @GetMapping("/loginUser")
+    public R<LoginVO> loginUser(@RequestParam Long account, @RequestParam String password) {
+        return R.success(sysUserService.loginUser(account, password));
     }
 }

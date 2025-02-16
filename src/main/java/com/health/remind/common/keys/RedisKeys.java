@@ -35,4 +35,17 @@ public class RedisKeys {
         }
         return "remind:info:" + userId + ":" + startTime + "-" + endTime;
     }
+
+    /**
+     * 获取登录key
+     *
+     * @param account 账号
+     * @return login:account
+     */
+    public static String getLoginKey(String account) {
+        if (account == null) {
+            return "login:*";
+        }
+        return "login:" + account;
+    }
 }

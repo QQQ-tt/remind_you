@@ -33,7 +33,7 @@ public class JwtUtils {
     }
 
     // 10 days jwt过期时间，单位毫秒
-    private static final long EXPIRATION_TIME = 864_000_000;
+    public static final long EXPIRATION_TIME = 864_000_000;
 
     // 签发人
     private static final String ISSUER = "QQQtx";
