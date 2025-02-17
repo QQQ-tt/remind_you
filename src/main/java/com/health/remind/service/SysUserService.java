@@ -52,4 +52,20 @@ public interface SysUserService extends IService<SysUser> {
      * @return 是否成功
      */
     boolean saveOrUpdateSysUser(SysUserDTO dto);
+
+    /**
+     * 根据id查询用户
+     *
+     * @param id 用户id
+     * @return 用户信息
+     */
+    SysUser getSysUserById(Long id);
+
+    /**
+     * 删除用户
+     *
+     * @param id 用户id
+     * @return 是否成功
+     */
+    boolean removeByUserId(Long id);
 }

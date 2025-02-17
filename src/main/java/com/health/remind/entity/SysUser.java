@@ -2,6 +2,7 @@ package com.health.remind.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.health.remind.config.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -34,6 +35,7 @@ public class SysUser extends BaseEntity {
     @TableField("account")
     private Long account;
 
+    @JsonIgnore
     @Schema(description = "密码")
     @TableField("password")
     private String password;

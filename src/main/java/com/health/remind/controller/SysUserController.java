@@ -2,6 +2,7 @@ package com.health.remind.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.health.remind.config.R;
+import com.health.remind.entity.SysUser;
 import com.health.remind.pojo.dto.SignDTO;
 import com.health.remind.pojo.dto.SysUserDTO;
 import com.health.remind.pojo.dto.SysUserPageDTO;
@@ -13,10 +14,12 @@ import com.health.remind.service.SysUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -60,5 +63,17 @@ public class SysUserController {
     @PostMapping("/saveOrUpdateSysUser")
     public R<Boolean> saveOrUpdateSysUser(@RequestBody @Valid SysUserDTO dto) {
         return R.success(sysUserService.saveOrUpdateSysUser(dto));
+    }
+
+    @Operation(summary = "根据id查询用户")
+    @PostMapping("/getSysUserById")
+    public R<SysUser> getSysUserById(@RequestParam Long id) {
+        return R.success(sysUserService.getSysUserById(id));
+    }
+
+    @Operation(summary = "删除用户")
+    @DeleteMapping("/removeByUserId")
+    public R<Boolean> removeByUserId(@RequestParam Long id) {
+        return R.success(sysUserService.removeByUserId(id));
     }
 }

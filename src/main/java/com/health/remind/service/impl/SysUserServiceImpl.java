@@ -125,6 +125,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         throw new DataException(DataEnums.DATA_REPEAT, "手机号重复");
     }
 
+    @Override
+    public SysUser getSysUserById(Long id) {
+        return getById(id);
+    }
+
+    @Override
+    public boolean removeByUserId(Long id) {
+        return removeById(id);
+    }
+
     private long getAccount() {
         long l;
         do {
