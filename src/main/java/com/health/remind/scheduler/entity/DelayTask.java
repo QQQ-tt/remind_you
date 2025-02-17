@@ -3,7 +3,7 @@ package com.health.remind.scheduler.entity;
 import com.health.remind.config.enums.UserInfo;
 import com.health.remind.scheduler.enums.ExecutionEnum;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author QQQtx
  * @since 2025/1/6 16:43
  */
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 public class DelayTask {

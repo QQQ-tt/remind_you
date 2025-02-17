@@ -5,13 +5,14 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.health.remind.entity.SysUser;
 import com.health.remind.pojo.dto.SignDTO;
 import com.health.remind.pojo.dto.SysUserDTO;
+import com.health.remind.pojo.dto.SysUserPageDTO;
 import com.health.remind.pojo.vo.LoginVO;
 import com.health.remind.pojo.vo.SignVO;
 import com.health.remind.pojo.vo.SysUserVO;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author QQQtx
@@ -21,6 +22,7 @@ public interface SysUserService extends IService<SysUser> {
 
     /**
      * 注册用户
+     *
      * @param signDTO 注册信息
      * @return 注册结果
      */
@@ -29,7 +31,7 @@ public interface SysUserService extends IService<SysUser> {
     /**
      * 登录用户
      *
-     * @param account 账户
+     * @param account  账户
      * @param password 密码
      * @return 登录结果
      */
@@ -41,5 +43,13 @@ public interface SysUserService extends IService<SysUser> {
      * @param dto 分页信息
      * @return 用户集合
      */
-    Page<SysUserVO> pageSysUser(SysUserDTO dto);
+    Page<SysUserVO> pageSysUser(SysUserPageDTO dto);
+
+    /**
+     * 用户创建和编辑
+     *
+     * @param dto 用户信息
+     * @return 是否成功
+     */
+    boolean saveOrUpdateSysUser(SysUserDTO dto);
 }

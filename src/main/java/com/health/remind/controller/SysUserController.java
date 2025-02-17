@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.health.remind.config.R;
 import com.health.remind.pojo.dto.SignDTO;
 import com.health.remind.pojo.dto.SysUserDTO;
+import com.health.remind.pojo.dto.SysUserPageDTO;
 import com.health.remind.pojo.vo.LoginDTO;
 import com.health.remind.pojo.vo.LoginVO;
 import com.health.remind.pojo.vo.SignVO;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- *  前端控制器
+ * 前端控制器
  * </p>
  *
  * @author QQQtx
@@ -51,7 +52,13 @@ public class SysUserController {
 
     @Operation(summary = "分页查询")
     @PostMapping("/pageSysUser")
-    public R<Page<SysUserVO>> pageSysUser(@RequestBody SysUserDTO dto) {
+    public R<Page<SysUserVO>> pageSysUser(@RequestBody SysUserPageDTO dto) {
         return R.success(sysUserService.pageSysUser(dto));
+    }
+
+    @Operation(summary = "保存或编辑用户")
+    @PostMapping("/saveOrUpdateSysUser")
+    public R<Boolean> saveOrUpdateSysUser(@RequestBody @Valid SysUserDTO dto) {
+        return R.success(sysUserService.saveOrUpdateSysUser(dto));
     }
 }
