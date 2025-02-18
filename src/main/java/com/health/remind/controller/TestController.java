@@ -135,6 +135,14 @@ public class TestController {
         return R.success(i);
     }
 
+    /**
+     * string.format 用法
+     * %s：字符串
+     * %d：十进制整数
+     * %f：浮点数
+     * %t：日期/时间
+     * %n：换行符
+     */
     @Operation(summary = "测试token校验", description = StaticConstant.PERMISSION_KEY)
     @GetMapping("/testToken/{key}/acc/{val}")
     public R<String> testToken(@PathVariable String key, @PathVariable String val) {

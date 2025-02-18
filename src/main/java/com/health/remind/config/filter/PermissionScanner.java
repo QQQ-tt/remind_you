@@ -66,7 +66,8 @@ public class PermissionScanner {
                     RequestMapping requestMapping = controllerClass.getAnnotation(RequestMapping.class);
                     // 路径
                     String parentPath = (requestMapping != null && requestMapping.value().length > 0) ?
-                            requestMapping.value()[0] : "";
+                            requestMapping.value()[0].startsWith("/") ? requestMapping.value()[0]
+                                    .substring(1) : requestMapping.value()[0] : "";
                     for (Method method : controllerClass.getDeclaredMethods()) {
                         if (method.isAnnotationPresent(Operation.class)) {
                             String childPath = parentPath;
@@ -95,10 +96,6 @@ public class PermissionScanner {
                                         .value()[0];
                                 httpMethod = "GET";
                             }
-
-                            if (StaticConstant.PERMISSION_KEY.equals(description)) {
-                                publicPath.add(childPath);
-                            }
                             // 构建权限配置
                             Map<String, String> objectMap = Map.of(
                                     "moduleName", moduleName,
@@ -106,14 +103,21 @@ public class PermissionScanner {
                                     "httpMethod", httpMethod,
                                     "summary", summary,
                                     "public", description);
-                            permissions.add(objectMap);
+                            String s;
                             try {
-                                String s = objectMapper.writeValueAsString(objectMap);
-                                RedisUtils.hPut(RedisKeys.getTokenPermissionKey(applicationName, moduleName),
-                                        childPath, s);
+                                s = objectMapper.writeValueAsString(objectMap);
                             } catch (JsonProcessingException e) {
                                 throw new RuntimeException(e);
                             }
+                            if (StaticConstant.PERMISSION_KEY.equals(description)) {
+                                publicPath.add(childPath);
+                                RedisUtils.hPut(
+                                        RedisKeys.getTokenPermissionKey(applicationName, StaticConstant.PERMISSION_KEY),
+                                        childPath, s);
+                            }
+                            permissions.add(objectMap);
+                            RedisUtils.hPut(RedisKeys.getTokenPermissionKey(applicationName, moduleName),
+                                    childPath, s);
                         }
                     }
                 });
