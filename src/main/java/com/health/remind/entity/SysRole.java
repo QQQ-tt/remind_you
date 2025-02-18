@@ -25,6 +25,10 @@ public class SysRole extends BaseEntity {
     @TableField("name")
     private String name;
 
+    @Schema(description = "角色状态")
+    @TableField("status")
+    private Boolean status;
+
     @TableField("remark")
     private String remark;
 }

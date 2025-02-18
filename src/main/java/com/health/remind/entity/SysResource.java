@@ -29,7 +29,7 @@ public class SysResource extends BaseEntity {
     @TableField("url")
     private String url;
 
-    @Schema(description = "资源类型：菜单、接口等")
+    @Schema(description = "资源类型：路由、接口")
     @TableField("type")
     private String type;
 
@@ -41,7 +41,7 @@ public class SysResource extends BaseEntity {
     @TableField("description")
     private String description;
 
-    @Schema(description = "是否启用")
+    @Schema(description = "资源状态")
     @TableField("status")
     private Boolean status;
 
