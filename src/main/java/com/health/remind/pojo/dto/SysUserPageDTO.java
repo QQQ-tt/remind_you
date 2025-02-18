@@ -30,6 +30,7 @@ public class SysUserPageDTO extends PageDTO<SysUser> {
     @Schema(description = "状态")
     private Boolean status;
 
-    @Schema(description = "用户类型")
+    @NotBlank(message = "用户类型不能为空")
+    @Schema(description = "用户类型：sys,user")
     private String userType;
 }
