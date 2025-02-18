@@ -5,7 +5,7 @@ package com.health.remind.config.enums;
  * @since 2024/11/26 11:11
  */
 public enum UserInfo {
-    USER_ID("user_id"), USER_NAME("user_name"), TOKEN("token"), tenant_id("tenant_id"), URL("url"),
+    USER_ID("user_id"), USER_NAME("user_name"), TOKEN("Authorization"), tenant_id("tenant_id"), URL("url"),
     PARAMETER("parameter");
 
     public final String msg;

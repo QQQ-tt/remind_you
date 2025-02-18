@@ -5,6 +5,8 @@ import com.health.remind.scheduler.ExceptionConsumerExecutor;
 import com.health.remind.scheduler.entity.ExceptionTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,6 +30,32 @@ public class GlobalExceptionHandler {
         this.exceptionConsumerExecutor = exceptionConsumerExecutor;
     }
 
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<R<String>> authException(AuthException e) {
+        log.warn("认证异常:{}", e.getMessage());
+        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
+                .exceptionName(e.getClass()
+                        .getName())
+                .level(2)
+                .message(e.getMessage())
+                .stackTrace(Arrays.toString(e.getStackTrace()))
+                .build());
+        return new ResponseEntity<>(R.failed(e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<R<String>> methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        log.error("异常信息:", e);
+        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
+                .exceptionName(e.getClass()
+                        .getName())
+                .level(1)
+                .message(e.getMessage())
+                .stackTrace(Arrays.toString(e.getStackTrace()))
+                .build());
+        return new ResponseEntity<>(R.failed(e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public R<List<String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         log.error("参数校验异常", ex);
@@ -44,19 +72,6 @@ public class GlobalExceptionHandler {
                 .stackTrace(Arrays.toString(ex.getStackTrace()))
                 .build());
         return R.failed(errors);
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public R<String> methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
-        log.error("异常信息:", e);
-        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
-                .exceptionName(e.getClass()
-                        .getName())
-                .level(1)
-                .message(e.getMessage())
-                .stackTrace(Arrays.toString(e.getStackTrace()))
-                .build());
-        return R.failed(e.getMessage());
     }
 
     @ExceptionHandler(NullPointerException.class)

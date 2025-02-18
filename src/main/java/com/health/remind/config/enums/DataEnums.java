@@ -18,6 +18,10 @@ public enum DataEnums {
      */
     FAILED("失败", 500),
     /**
+     * 用户未登录
+     */
+    USER_NOT_LOGIN("用户未登录", 403),
+    /**
      * 入参数据异常
      */
     DATA_IS_ABNORMAL("入参数据异常", 205),

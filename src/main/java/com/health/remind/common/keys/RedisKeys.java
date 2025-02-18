@@ -48,4 +48,18 @@ public class RedisKeys {
         }
         return "login:" + account;
     }
+
+    /**
+     * 获取token权限key
+     *
+     * @param appName    app名称
+     * @param moduleName 模块名称
+     * @return permission:appName:moduleName
+     */
+    public static String getTokenPermissionKey(String appName, String moduleName) {
+        if (moduleName == null) {
+            return "permission:" + appName + ":*";
+        }
+        return "permission:" + appName + ":" + moduleName;
+    }
 }

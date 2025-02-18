@@ -9,7 +9,9 @@
                              su.telephone,
                              su.status,
                              su.create_time,
+                             su.update_time,
                              su.delete_flag,
+                             su.user_type,
                              sr.name as sys_role_name
                       from sys_user su
                                left join sys_role sr on su.sys_role_id = sr.id)

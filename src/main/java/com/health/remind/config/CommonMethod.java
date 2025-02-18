@@ -1,9 +1,15 @@
 package com.health.remind.config;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.enums.UserInfo;
+import com.health.remind.config.exception.AuthException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.SneakyThrows;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,11 +18,64 @@ import java.util.Map;
  */
 public class CommonMethod {
 
+    // ------------------------请求转发---------------------------------
+
+    @SneakyThrows
+    public static void failed(HttpServletRequest request, HttpServletResponse response, DataEnums dataEnums) {
+        request.setAttribute("jwtException", new AuthException(dataEnums));
+        request.getRequestDispatcher("/exception/jwtException")
+                .forward(request, response);
+    }
+
+    // ------------------------token放行校验---------------------------------
+
+    private static final TrieNode ROOT = new TrieNode();
+
+    public static boolean isPublicUrl(String url) {
+        TrieNode node = ROOT;
+        String[] parts = url.split("/");
+        for (String part : parts) {
+            if (node.children.containsKey(part)) {
+                node = node.children.get(part);
+            } else if (node.children.containsKey("*")) {
+                node = node.children.get("*");
+            } else if (node.children.containsKey("{var}")) {
+                node = node.children.get("{var}");
+            } else return node.children.containsKey("**");
+        }
+        return node.isEndOfWord;
+    }
+
+    public static void addPatterns(List<String> patterns) {
+        for (String pattern : patterns) {
+            addPattern(pattern);
+        }
+    }
+
+    private static void addPattern(String pattern) {
+        TrieNode node = ROOT;
+        String[] parts = pattern.split("/");
+        for (String part : parts) {
+            if (part.startsWith("{") && part.endsWith("}")) {
+                part = "{var}";
+            }
+            node.children.putIfAbsent(part, new TrieNode());
+            node = node.children.get(part);
+        }
+        node.isEndOfWord = true;
+    }
+
+    private static class TrieNode {
+        Map<String, TrieNode> children = new HashMap<>();
+        boolean isEndOfWord;
+    }
+
+    // ------------------------用户基本信息---------------------------------
+
     /**
      * 用户信息
      */
     private static final ThreadLocal<Map<UserInfo, String>> mapThreadLocal = new ThreadLocal<>();
-
 
     public static String getUserName() {
         return mapThreadLocal.get()
@@ -83,7 +142,6 @@ public class CommonMethod {
                     .put(UserInfo.USER_ID, userId);
         }
     }
-
 
     public static Map<UserInfo, String> getMap() {
         return mapThreadLocal.get();

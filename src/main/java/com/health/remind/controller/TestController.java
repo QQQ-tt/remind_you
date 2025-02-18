@@ -2,6 +2,7 @@ package com.health.remind.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.health.remind.common.StaticConstant;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.R;
 import com.health.remind.entity.Test;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -83,7 +85,7 @@ public class TestController {
     @GetMapping("/testDelayTask")
     public R<Long> testDelayScheduledTask(@RequestParam(required = false) Integer num) {
         long id = IdWorker.getId();
-        int randomNum = (int)(Math.random() * 10) + 1;
+        int randomNum = (int) (Math.random() * 10) + 1;
         if (num != null) {
             randomNum = num;
         }
@@ -131,5 +133,11 @@ public class TestController {
             throw new NullPointerException("测试空指针异常日志");
         }
         return R.success(i);
+    }
+
+    @Operation(summary = "测试token校验", description = StaticConstant.PERMISSION_KEY)
+    @GetMapping("/testToken/{key}/acc/{val}")
+    public R<String> testToken(@PathVariable String key, @PathVariable String val) {
+        return R.success(String.format("测试token校验成功:%s,%s", key, val));
     }
 }
