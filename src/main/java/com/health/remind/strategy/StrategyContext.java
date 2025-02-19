@@ -44,7 +44,7 @@ public class StrategyContext {
 
     private FrequencyStrategy getFromRegisterMap(String type) {
         FrequencyStrategy strategy = REGISTER_MAP.getOrDefault(type, new DoNothing());
-        log.info("frequency type:{}", strategy.getClass().getName());
+        log.debug("frequency type:{}", strategy.getClass().getName());
         return strategy;
     }
 }

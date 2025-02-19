@@ -18,21 +18,21 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void insertFill(MetaObject metaObject) {
-        log.info("start insert fill ....");
+        log.debug("start insert fill ....");
         this.strictInsertFill(metaObject, "createId", Long.class, CommonMethod.getUserId());
         this.strictInsertFill(metaObject, "createName", String.class, CommonMethod.getUserName());
         this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
         this.strictInsertFill(metaObject, "tenantId", Long.class, CommonMethod.getTenantId());
-        log.info("end insert fill ...");
+        log.debug("end insert fill ...");
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        log.info("start update fill ....");
+        log.debug("start update fill ....");
         this.strictUpdateFill(metaObject, "updateId", Long.class, CommonMethod.getUserId());
         this.strictUpdateFill(metaObject, "updateName", String.class, CommonMethod.getUserName());
         this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
-        log.info("end update fill ...");
+        log.debug("end update fill ...");
     }
 }
 

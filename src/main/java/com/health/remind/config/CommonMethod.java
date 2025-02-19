@@ -144,7 +144,12 @@ public class CommonMethod {
     }
 
     public static Map<UserInfo, String> getMap() {
-        return mapThreadLocal.get();
+        Map<UserInfo, String> map = mapThreadLocal.get();
+        if (map == null) {
+            initialize();
+            return mapThreadLocal.get();
+        }
+        return map;
     }
 
     public static void setMap(Map<UserInfo, String> map) {
