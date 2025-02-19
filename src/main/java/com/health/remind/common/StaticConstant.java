@@ -7,4 +7,6 @@ package com.health.remind.common;
 public class StaticConstant {
 
     public static final String PERMISSION_KEY = "PUBLIC";
+
+    public static final String ROLE_ID = "ROLE_ID";
 }

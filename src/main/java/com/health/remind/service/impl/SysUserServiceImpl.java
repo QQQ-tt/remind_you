@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.health.remind.common.StaticConstant;
 import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.BaseEntity;
 import com.health.remind.config.enums.DataEnums;
@@ -17,6 +18,7 @@ import com.health.remind.pojo.dto.SysUserPageDTO;
 import com.health.remind.pojo.vo.LoginVO;
 import com.health.remind.pojo.vo.SignVO;
 import com.health.remind.pojo.vo.SysUserVO;
+import com.health.remind.service.SysRoleService;
 import com.health.remind.service.SysUserService;
 import com.health.remind.util.JwtUtils;
 import com.health.remind.util.NumUtils;
@@ -24,7 +26,7 @@ import com.health.remind.util.RedisUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -43,8 +45,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     private final PasswordEncoder passwordEncoder;
 
-    public SysUserServiceImpl(PasswordEncoder passwordEncoder) {
+    private final SysRoleService sysRoleService;
+
+    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysRoleService sysRoleService) {
         this.passwordEncoder = passwordEncoder;
+        this.sysRoleService = sysRoleService;
     }
 
     @Override
@@ -77,16 +82,19 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                                 .eq(SysUser::getTelephone, account))))
                 .orElseThrow(() -> new DataException(DataEnums.DATA_IS_ABNORMAL, "用户不存在"));
         if (passwordEncoder.matches(password, sysUser.getPassword())) {
-            Long sysRoleId = sysUser.getSysRoleId();
+            HashMap<String, Object> map = new HashMap<>();
+            Optional.ofNullable(sysUser.getSysRoleId())
+                    .flatMap(e -> Optional.ofNullable(sysRoleService.getById(e)))
+                    .ifPresent(byId -> map.put(StaticConstant.ROLE_ID, byId.getStatus() ? byId.getId() : ""));
             String s = JwtUtils.generateToken(sysUser.getAccount()
-                    .toString(), Map.of("role", sysRoleId == null ? "0" : sysRoleId.toString()));
+                    .toString(), map);
             LoginVO loginVO = new LoginVO(sysUser.getId(), sysUser.getName(), s);
             RedisUtils.setObject(RedisKeys.getLoginKey(account.toString()), loginVO);
             RedisUtils.expire(RedisKeys.getLoginKey(account.toString()), JwtUtils.EXPIRATION_TIME,
                     TimeUnit.MILLISECONDS);
             return loginVO;
         }
-        return null;
+        throw new DataException(DataEnums.PASSWORD_ERROR);
     }
 
     @Override

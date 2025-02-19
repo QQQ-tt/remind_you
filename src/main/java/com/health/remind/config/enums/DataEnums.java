@@ -22,6 +22,10 @@ public enum DataEnums {
      */
     USER_NOT_LOGIN("用户未登录", 403),
     /**
+     * 密码错误
+     */
+    PASSWORD_ERROR("密码错误", 403),
+    /**
      * 入参数据异常
      */
     DATA_IS_ABNORMAL("入参数据异常", 205),
