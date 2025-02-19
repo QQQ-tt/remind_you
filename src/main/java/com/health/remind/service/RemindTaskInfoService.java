@@ -1,5 +1,6 @@
 package com.health.remind.service;
 
+import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,6 +14,15 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface RemindTaskInfoService extends IService<RemindTaskInfo> {
 
+    /**
+     * 将任务详情添加到队列中
+     *
+     * @param remindTask 任务
+     */
+    void putTask(RemindTask remindTask);
 
-
+    /**
+     * 初始化任务详情添加到队列中
+     */
+    void initTask();
 }

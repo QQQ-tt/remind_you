@@ -5,7 +5,6 @@ import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.pojo.vo.FrequencyDetailVO;
 import com.health.remind.pojo.vo.FrequencyVO;
 import com.health.remind.strategy.AbstractStrategy;
-import lombok.val;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -14,6 +13,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author QQQtx
@@ -22,31 +22,23 @@ import java.util.Optional;
 @Component
 public class WeekStrategy extends AbstractStrategy {
 
-    public WeekStrategy() {
+    private final ThreadPoolExecutor threadPoolExecutor;
+
+    public WeekStrategy(ThreadPoolExecutor threadPoolExecutor) {
         super();
+        this.threadPoolExecutor = threadPoolExecutor;
     }
 
     @Override
     public void strategyTask(RemindTask task, FrequencyVO frequency) {
         List<RemindTaskInfo> taskInfos = getTaskInfos(task, frequency);
-        if (!taskInfos.isEmpty()) {
-            AbstractStrategy.addCount(taskInfos.size());
-            remindTaskInfoService.saveBatch(taskInfos);
-        }
+        save(taskInfos, threadPoolExecutor);
     }
 
     @Override
     public List<RemindTaskInfo> strategyTaskNumTen(RemindTask task, FrequencyVO frequency) {
         List<RemindTaskInfo> list = getTaskInfos(task, frequency);
         return list.size() > 10 ? list.subList(0, 10) : list;
-    }
-
-    private void getTaskInfos(RemindTask task, FrequencyDetailVO e, List<RemindTaskInfo> remindTaskInfos) {
-        remindTaskInfos.add(RemindTaskInfo.builder()
-                .remindTaskId(task.getId())
-                .time(LocalDateTime.of(task.getInitTime(), e.getFrequencyTime()))
-                .isRemind(task.getIsRemind())
-                .build());
     }
 
     private List<RemindTaskInfo> getTaskInfos(RemindTask task, FrequencyVO frequency) {
@@ -64,7 +56,7 @@ public class WeekStrategy extends AbstractStrategy {
                     if (startTime.toLocalDate()
                             .until(initTime,
                                     ChronoUnit.DAYS) % (frequency.getFrequencyCycle() * 7L) + integer == e.getFrequencyWeekday()) {
-                        getTaskInfos(task, e, taskInfos);
+                        addExecutionTask(task, e, taskInfos);
                     }
                 }));
             } else {
@@ -72,11 +64,23 @@ public class WeekStrategy extends AbstractStrategy {
                     boolean b = e.getFrequencyWeekday() == initTime.getDayOfWeek()
                             .getValue();
                     if (b) {
-                        getTaskInfos(task, e, taskInfos);
+                        addExecutionTask(task, e, taskInfos);
                     }
                 }
             }
         }
         return taskInfos;
+    }
+
+    private void addExecutionTask(RemindTask task, FrequencyDetailVO e, List<RemindTaskInfo> remindTaskInfos) {
+        int i = calculateTime(task);
+        LocalDateTime time = LocalDateTime.of(task.getInitTime(), e.getFrequencyTime());
+        remindTaskInfos.add(RemindTaskInfo.builder()
+                .remindTaskId(task.getId())
+                .estimatedTime(time.minusHours(i))
+                .time(time)
+                .isRemind(task.getIsRemind())
+                .remindType(task.getRemindType())
+                .build());
     }
 }

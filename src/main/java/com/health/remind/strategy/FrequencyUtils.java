@@ -1,42 +1,30 @@
 package com.health.remind.strategy;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.health.remind.common.enums.FrequencyEnum;
 import com.health.remind.common.enums.FrequencySqlTypeEnum;
-import com.health.remind.config.CommonMethod;
-import com.health.remind.config.enums.UserInfo;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.pojo.vo.FrequencyVO;
-import com.health.remind.scheduler.DelayScheduledExecutor;
-import com.health.remind.scheduler.enums.ExecutionEnum;
 import com.health.remind.service.FrequencyService;
-import com.health.remind.service.RemindTaskInfoService;
-import com.health.remind.service.RemindTaskService;
-import com.health.remind.util.SpringUtils;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author QQQtx
  * @since 2025/1/27 16:42
  */
+@Component
 public class FrequencyUtils {
 
-    private static final FrequencyService frequencyService = SpringUtils.getBean(FrequencyService.class);
+    private final FrequencyService frequencyService;
 
-    private static final RemindTaskService remindTaskService = SpringUtils.getBean(RemindTaskService.class);
+    public FrequencyUtils(FrequencyService frequencyService) {
+        this.frequencyService = frequencyService;
+    }
 
-    private static final RemindTaskInfoService remindTaskInfoService = SpringUtils.getBean(RemindTaskInfoService.class);
-
-    private static final ThreadPoolExecutor threadPoolExecutor = SpringUtils.getBean(ThreadPoolExecutor.class);
-
-    public static List<RemindTaskInfo> splitTask(RemindTask task, FrequencySqlTypeEnum typeEnum) {
+    public List<RemindTaskInfo> splitTask(RemindTask task, FrequencySqlTypeEnum typeEnum) {
         if (task == null) {
             return List.of();
         }
@@ -50,42 +38,6 @@ public class FrequencyUtils {
                 StrategyContext.getStrategy(frequency.getCycleUnit()
                                 .getValue() + "strategy")
                         .strategyTask(task, frequency);
-            }
-            int count = AbstractStrategy.getCount();
-            task.setNum(count);
-            remindTaskService.updateById(task);
-            Map<UserInfo, String> map = CommonMethod.getMap();
-            if (task.getIsRemind()) {
-                CompletableFuture.runAsync(() -> {
-                    List<RemindTaskInfo> list = remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
-                            .eq(RemindTaskInfo::getRemindTaskId, task.getId()));
-                    Integer advanceNum = task.getAdvanceNum();
-                    FrequencyEnum cycleUnit = task.getCycleUnit();
-                    boolean b = advanceNum != null && cycleUnit != null;
-                    list.forEach(e -> {
-                        if (b) {
-                            switch (cycleUnit) {
-                                case DAY:
-                                    e.setTime(e.getTime()
-                                            .minusDays(advanceNum));
-                                    break;
-                                case WEEK:
-                                    e.setTime(e.getTime()
-                                            .minusWeeks(advanceNum));
-                                    break;
-                                case MONTH:
-                                    e.setTime(e.getTime()
-                                            .minusMonths(advanceNum));
-                                    break;
-                                case HOUR:
-                                    e.setTime(e.getTime()
-                                            .minusHours(advanceNum));
-                            }
-                        }
-                        DelayScheduledExecutor.putRemindTask(e.getId(), task.getId(), e.getTime(), ExecutionEnum.remind,
-                                map);
-                    });
-                }, threadPoolExecutor);
             }
         }
         if (typeEnum.equals(FrequencySqlTypeEnum.SELECT)) {

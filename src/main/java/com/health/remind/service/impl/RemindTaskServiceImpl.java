@@ -29,6 +29,7 @@ import com.health.remind.service.FrequencyDetailService;
 import com.health.remind.service.FrequencyService;
 import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RemindTaskService;
+import com.health.remind.strategy.AbstractStrategy;
 import com.health.remind.strategy.FrequencyUtils;
 import com.health.remind.util.RedisUtils;
 import jakarta.servlet.http.HttpServletResponse;
@@ -58,10 +59,13 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
 
     private final FrequencyDetailService frequencyDetailService;
 
-    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService) {
+    private final FrequencyUtils frequencyUtils;
+
+    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService, FrequencyUtils frequencyUtils) {
         this.remindTaskInfoService = remindTaskInfoService;
         this.frequencyService = frequencyService;
         this.frequencyDetailService = frequencyDetailService;
+        this.frequencyUtils = frequencyUtils;
     }
 
     @Override
@@ -97,7 +101,10 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .build();
         boolean b = saveOrUpdate(build);
         if (task.getId() == null) {
-            FrequencyUtils.splitTask(build, FrequencySqlTypeEnum.INSERT);
+            frequencyUtils.splitTask(build, FrequencySqlTypeEnum.INSERT);
+            build.setNum(AbstractStrategy.getCount());
+            updateById(build);
+            remindTaskInfoService.putTask(build);
             Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getUserId(), null, null));
             RedisUtils.delete(keys);
         }
@@ -119,7 +126,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .cycleUnit(task.getCycleUnit())
                 .frequencyId(task.getFrequencyId())
                 .build();
-        return FrequencyUtils.splitTask(build, FrequencySqlTypeEnum.SELECT)
+        return frequencyUtils.splitTask(build, FrequencySqlTypeEnum.SELECT)
                 .stream()
                 .map(RemindTaskInfo::getTime)
                 .toList();
@@ -179,7 +186,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                     .eq(RemindTaskInfo::getIsRead, false));
             remindTaskInfoService.remove(Wrappers.lambdaQuery(RemindTaskInfo.class)
                     .eq(RemindTaskInfo::getRemindTaskId, id));
-            list.forEach(e-> ScheduledBase.cancelTask(e.getId(), ScheduledEnum.DELAY_SCHEDULED));
+            list.forEach(e -> ScheduledBase.cancelTask(e.getId(), ScheduledEnum.DELAY_SCHEDULED));
         }
         return false;
     }

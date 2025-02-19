@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author QQQtx
@@ -20,17 +20,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class DayStrategy extends AbstractStrategy {
 
-    public DayStrategy() {
+    private final ThreadPoolExecutor threadPoolExecutor;
+
+    public DayStrategy(ThreadPoolExecutor threadPoolExecutor) {
         super();
+        this.threadPoolExecutor = threadPoolExecutor;
     }
 
     @Override
     public void strategyTask(RemindTask task, FrequencyVO frequency) {
-        List<RemindTaskInfo> list = getTaskInfos(task, frequency);
-        if (!list.isEmpty()) {
-            AbstractStrategy.addCount(list.size());
-            remindTaskInfoService.saveBatch(list);
-        }
+        List<RemindTaskInfo> taskInfos = getTaskInfos(task, frequency);
+        save(taskInfos, threadPoolExecutor);
     }
 
     @Override
@@ -55,10 +55,16 @@ public class DayStrategy extends AbstractStrategy {
     }
 
     private static void addExecutionTask(RemindTask task, List<FrequencyDetailVO> collect, List<RemindTaskInfo> taskInfos) {
-        collect.forEach(e -> taskInfos.add(RemindTaskInfo.builder()
-                .remindTaskId(task.getId())
-                .time(LocalDateTime.of(task.getInitTime(), e.getFrequencyTime()))
-                .isRemind(task.getIsRemind())
-                .build()));
+        int i = calculateTime(task);
+        collect.forEach(e -> {
+            LocalDateTime time = LocalDateTime.of(task.getInitTime(), e.getFrequencyTime());
+            taskInfos.add(RemindTaskInfo.builder()
+                    .remindTaskId(task.getId())
+                    .estimatedTime(time.minusHours(i))
+                    .time(time)
+                    .isRemind(task.getIsRemind())
+                    .remindType(task.getRemindType())
+                    .build());
+        });
     }
 }

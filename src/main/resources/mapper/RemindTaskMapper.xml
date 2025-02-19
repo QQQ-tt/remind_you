@@ -3,15 +3,26 @@
 <mapper namespace="com.health.remind.mapper.RemindTaskMapper">
 
     <select id="selectPageTask" resultType="com.health.remind.pojo.vo.RemindTaskVO">
-        select id, name, push_num
+        select id,
+               name,
+               start_time,
+               end_time,
+               is_remind,
+               push_num,
+               num,
+               remark,
+               remind_type,
+               advance_num,
+               cycle_unit,
+               create_time
         from remind_task ${ew.customSqlSegment}
     </select>
     <select id="selectOneById" resultType="com.health.remind.pojo.vo.RemindTaskVO">
-        select rt.id, rt.name, rt.type, rt.remind_time, rt.start_time, rt.end_time, rt.push_num, rt.num, rt.remark,
-        rt.is_remind, rt.remind_type, rt.advance_num, rt.cycle_unit, rt.frequency_id, f.id as, f.name as frequency_name
+        select rt.id, rt.name, rt.start_time, rt.end_time, rt.push_num, rt.num, rt.remark,
+        rt.is_remind, rt.remind_type, rt.advance_num, rt.cycle_unit, rt.frequency_id, f.frequency_name
         from remind_task rt
         left join frequency f on rt.frequency_id = f.id
-        where rt.delete_flag = false and id = #{id}
+        where rt.delete_flag = false and rt.id = #{id}
         <if test="userId != null">
             and rt.create_id = #{userId}
         </if>

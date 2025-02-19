@@ -2,6 +2,7 @@ package com.health.remind.scheduler.entity;
 
 import com.health.remind.config.enums.UserInfo;
 import com.health.remind.scheduler.enums.ExecutionEnum;
+import com.health.remind.scheduler.enums.RemindTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,7 +39,8 @@ public class DelayTask {
     /**
      * 查询类型
      */
-    private final ExecutionEnum executionEnum;
+    private ExecutionEnum executionEnum;
+    private RemindTypeEnum remindTypeEnum;
 
     /**
      * 用户信息
@@ -71,9 +73,9 @@ public class DelayTask {
     }
 
     public DelayTask(Long id, LocalDateTime executeTime,
-                     ExecutionEnum executionEnum, Map<UserInfo, String> commonMethod, String otherId) {
+                     RemindTypeEnum remindTypeEnum, Map<UserInfo, String> commonMethod, String otherId) {
         this.id = id;
-        this.executionEnum = executionEnum;
+        this.remindTypeEnum = remindTypeEnum;
         this.commonMethod = commonMethod;
         this.executeTime = executeTime;
         this.otherId = otherId;

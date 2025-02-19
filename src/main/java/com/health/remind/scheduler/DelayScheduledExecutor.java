@@ -6,7 +6,7 @@ import com.health.remind.config.enums.UserInfo;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.scheduler.entity.DelayTask;
-import com.health.remind.scheduler.enums.ExecutionEnum;
+import com.health.remind.scheduler.enums.RemindTypeEnum;
 import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RemindTaskService;
 import jakarta.annotation.PostConstruct;
@@ -50,15 +50,15 @@ public class DelayScheduledExecutor extends ScheduledBase {
     @SneakyThrows
     public static void putTestTask(Long taskId, LocalDateTime executeTime,
                                    Map<UserInfo, String> commonMethod) {
-        delayScheduledExecutorQueue.put(new DelayTask(taskId, executeTime, ExecutionEnum.test, commonMethod, ""));
+        delayScheduledExecutorQueue.put(new DelayTask(taskId, executeTime, RemindTypeEnum.test, commonMethod, ""));
     }
 
     @SneakyThrows
-    public static void putRemindTask(Long taskId, Long remindId, LocalDateTime executeTime, ExecutionEnum executionEnum,
-                                     Map<UserInfo
-                                             , String> commonMethod) {
+    public static void putRemindTask(Long taskId, Long remindId, LocalDateTime executeTime,
+                                     RemindTypeEnum remindTypeEnum,
+                                     Map<UserInfo, String> commonMethod) {
         delayScheduledExecutorQueue.put(
-                new DelayTask(taskId, executeTime, executionEnum, commonMethod, remindId.toString()));
+                new DelayTask(taskId, executeTime, remindTypeEnum, commonMethod, remindId.toString()));
     }
 
     @PostConstruct
@@ -93,21 +93,33 @@ public class DelayScheduledExecutor extends ScheduledBase {
     }
 
     private void executeTask(DelayTask task) {
-        switch (task.getExecutionEnum()) {
+        switch (task.getRemindTypeEnum()) {
             case test -> textTask(task);
-            case remind -> remindTask(task);
+            case remind_text -> remindTextTask(task);
+            case remind_wx -> remindWxTask(task);
             default -> throw new IllegalArgumentException("无效的任务类型");
         }
         delayScheduledExecutorFutureMap.remove(task.getId());
     }
 
-    private void remindTask(DelayTask task) {
+    private void remindTextTask(DelayTask task) {
         remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
                 .eq(BaseEntity::getId, task.getOtherId())
                 .setSql("pushNum = " + "pushNum + 1"));
         RemindTaskInfo info = new RemindTaskInfo();
         info.setId(task.getId());
-        info.setIsRead(true);
+        info.setIsSend(true);
+        // 发送消息
+        remindTaskInfoService.updateById(info);
+    }
+
+    private void remindWxTask(DelayTask task) {
+        remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
+                .eq(BaseEntity::getId, task.getOtherId())
+                .setSql("pushNum = " + "pushNum + 1"));
+        RemindTaskInfo info = new RemindTaskInfo();
+        info.setId(task.getId());
+        info.setIsSend(true);
         // 发送消息
         remindTaskInfoService.updateById(info);
     }

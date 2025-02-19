@@ -1,7 +1,7 @@
 package com.health.remind.pojo.dto;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.health.remind.common.enums.FrequencyEnum;
+import com.health.remind.scheduler.enums.RemindTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -32,7 +32,7 @@ public class RemindTaskDTO {
     private Boolean isRemind;
 
     @Schema(description = "提醒方式")
-    private Integer remindType;
+    private RemindTypeEnum remindType;
 
     @Schema(description = "提前时间的数量")
     private Integer advanceNum;

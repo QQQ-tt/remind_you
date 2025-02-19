@@ -4,15 +4,16 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.health.remind.common.enums.FrequencyEnum;
 import com.health.remind.config.BaseEntity;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import com.health.remind.scheduler.enums.RemindTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -60,7 +61,7 @@ public class RemindTask extends BaseEntity {
 
     @Schema(description = "提醒方式")
     @TableField("remind_type")
-    private Integer remindType;
+    private RemindTypeEnum remindType;
 
     @Schema(description = "提前时间的数量")
     @TableField("advance_num")
@@ -77,7 +78,7 @@ public class RemindTask extends BaseEntity {
     private LocalDate initTime;
 
     @Builder
-    public RemindTask(Long id, Long createId, String createName, LocalDateTime createTime, Long updateId, String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag, String name, LocalDateTime startTime, LocalDateTime endTime, Integer pushNum, Integer num, String remark, Boolean isRemind, Integer remindType, Integer advanceNum, FrequencyEnum cycleUnit, Long frequencyId) {
+    public RemindTask(Long id, Long createId, String createName, LocalDateTime createTime, Long updateId, String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag, String name, LocalDateTime startTime, LocalDateTime endTime, Integer pushNum, Integer num, String remark, Boolean isRemind, RemindTypeEnum remindType, Integer advanceNum, FrequencyEnum cycleUnit, Long frequencyId) {
         super(id, createId, createName, createTime, updateId, updateName, updateTime, tenantId, deleteFlag);
         this.name = name;
         this.startTime = startTime;

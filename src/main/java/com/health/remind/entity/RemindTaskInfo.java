@@ -3,9 +3,15 @@ package com.health.remind.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.health.remind.config.BaseEntity;
-import java.time.LocalDateTime;
+import com.health.remind.scheduler.enums.RemindTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -27,6 +33,14 @@ public class RemindTaskInfo extends BaseEntity {
     @TableField("remind_task_id")
     private Long remindTaskId;
 
+    @Schema(description = "预计发送时间")
+    @TableField("estimated_time")
+    private LocalDateTime estimatedTime;
+
+    @Schema(description = "实际发送时间")
+    @TableField("actual_time")
+    private LocalDateTime actualTime;
+
     @Schema(description = "执行时间")
     @TableField("time")
     private LocalDateTime time;
@@ -34,6 +48,14 @@ public class RemindTaskInfo extends BaseEntity {
     @Schema(description = "是否提醒")
     @TableField("is_remind")
     private Boolean isRemind;
+
+    @Schema(description = "提醒方式")
+    @TableField("remind_type")
+    private RemindTypeEnum remindType;
+
+    @Schema(description = "是否发送")
+    @TableField("is_send")
+    private Boolean isSend;
 
     @Schema(description = "是否已读")
     @TableField("is_read")
