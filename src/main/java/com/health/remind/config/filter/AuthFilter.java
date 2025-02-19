@@ -43,7 +43,8 @@ public class AuthFilter extends OncePerRequestFilter {
             CommonMethod.setParameter(request.getQueryString());
             log.info("用户信息:{}", CommonMethod.getMap());
         }
-        if (CommonMethod.isPublicUrl(request.getRequestURI())) {
+        if (CommonMethod.isPublicUrl(request.getRequestURI().startsWith("/") ? request.getRequestURI().substring(1) :
+                request.getRequestURI())) {
             filterChain.doFilter(request, response);
             CommonMethod.clear();
             return;

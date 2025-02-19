@@ -38,5 +38,5 @@ public interface TestService extends IService<Test> {
      * @param key 随机字符串
      * @return 结果
      */
-    String testRedisLock(String key);
+    String testRedisLock(String key, Long length);
 }

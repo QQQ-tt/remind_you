@@ -89,15 +89,14 @@ public class RedisLockAspect {
             log.info("{} 已被锁定, 无重试", lockName);
             throw new DataException(DataEnums.SYSTEM_BUSY);
         }
-        int failCount = 1;
-        while (failCount <= retryNum) {
+        for (int i = 1; i <= retryNum; i++) {
+            log.info("循环次数：{}",i);
             Thread.sleep(retryWait);
-            if (lock.tryLock(lockWait, autoUnlockTime, TimeUnit.SECONDS)) {
+            if (lock.tryLock(lockWait, autoUnlockTime, TimeUnit.MILLISECONDS)) {
                 log.info("{}: 重试加锁成功", lockName);
                 return joinPoint.proceed();
             } else {
-                log.info("{}: 重试中 [{}/{}], 等待时间 {}ms", lockName, failCount, retryNum, retryWait);
-                failCount++;
+                log.info("{}: 重试中 [{}/{}], 等待时间 {}ms", lockName, i, retryNum, retryWait);
             }
         }
         throw new DataException(DataEnums.SYSTEM_BUSY);

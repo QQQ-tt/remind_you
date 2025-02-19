@@ -121,8 +121,8 @@ public class TestController {
 
     @Operation(summary = "测试redis锁")
     @GetMapping("/testRedisLock")
-    public R<String> testRedisLock(@RequestParam String key) {
-        return R.success(testService.testRedisLock(key));
+    public R<String> testRedisLock(@RequestParam String key, @RequestParam Long length) {
+        return R.success(testService.testRedisLock(key, length));
     }
 
     @Operation(summary = "测试异常日志")
