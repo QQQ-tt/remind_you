@@ -2,4 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.health.remind.mapper.SysRoleMapper">
 
+    <select id="selectPageSysRole" resultType="com.health.remind.pojo.vo.SysRoleVO">
+        select id, name, status, remark, create_time, update_time
+        from sys_role
+        ${ew.customSqlSegment}
+    </select>
 </mapper>
