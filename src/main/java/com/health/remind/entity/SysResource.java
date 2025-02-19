@@ -4,7 +4,10 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.health.remind.config.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -17,6 +20,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("sys_resource")
 @Schema(name = "SysResource", description = "系统资源")
 public class SysResource extends BaseEntity {
@@ -48,4 +53,16 @@ public class SysResource extends BaseEntity {
     @Schema(description = "父id")
     @TableField("parent_id")
     private Long parentId;
+
+    @Builder
+    public SysResource(Long id, String name, String url, String type, String method, String description, Boolean status, Long parentId) {
+        super(id);
+        this.name = name;
+        this.url = url;
+        this.type = type;
+        this.method = method;
+        this.description = description;
+        this.status = status;
+        this.parentId = parentId;
+    }
 }

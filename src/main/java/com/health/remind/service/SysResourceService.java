@@ -7,6 +7,8 @@ import com.health.remind.pojo.dto.SysResourceDTO;
 import com.health.remind.pojo.dto.SysResourcePageDTO;
 import com.health.remind.pojo.vo.SysResourceVO;
 
+import java.util.List;
+
 /**
  * <p>
  * 系统资源 服务类
@@ -24,6 +26,14 @@ public interface SysResourceService extends IService<SysResource> {
      * @return 分页集合
      */
     Page<SysResourceVO> pageResource(SysResourcePageDTO dto);
+
+    /**
+     * 根据父id查询资源信息
+     *
+     * @param id 父id
+     * @return 资源信息集合
+     */
+    List<SysResource> listResourceByParentId(Long id);
 
     /**
      * 保存或更新资源信息
