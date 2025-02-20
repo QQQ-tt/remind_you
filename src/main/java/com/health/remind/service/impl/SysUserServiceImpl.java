@@ -83,14 +83,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .orElseThrow(() -> new DataException(DataEnums.DATA_IS_ABNORMAL, "用户不存在"));
         if (passwordEncoder.matches(password, sysUser.getPassword())) {
             HashMap<String, Object> map = new HashMap<>();
+            map.put(StaticConstant.USER_TYPE, sysUser.getUserType());
             Optional.ofNullable(sysUser.getSysRoleId())
                     .flatMap(e -> Optional.ofNullable(sysRoleService.getById(e)))
                     .ifPresent(byId -> map.put(StaticConstant.ROLE_ID, byId.getStatus() ? byId.getId() : ""));
             String s = JwtUtils.generateToken(sysUser.getAccount()
                     .toString(), map);
             LoginVO loginVO = new LoginVO(sysUser.getId(), sysUser.getName(), s);
-            RedisUtils.setObject(RedisKeys.getLoginKey(account.toString()), loginVO);
-            RedisUtils.expire(RedisKeys.getLoginKey(account.toString()), JwtUtils.EXPIRATION_TIME,
+            RedisUtils.setObject(RedisKeys.getLoginKey(account.toString(), sysUser.getUserType()), loginVO);
+            RedisUtils.expire(RedisKeys.getLoginKey(account.toString(), sysUser.getUserType()),
+                    JwtUtils.EXPIRATION_TIME,
                     TimeUnit.MILLISECONDS);
             return loginVO;
         }

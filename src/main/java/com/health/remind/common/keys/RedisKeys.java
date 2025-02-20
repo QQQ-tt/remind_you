@@ -40,13 +40,17 @@ public class RedisKeys {
      * 获取登录key
      *
      * @param account 账号
+     * @param type    类型
      * @return login:account
      */
-    public static String getLoginKey(String account) {
-        if (account == null) {
+    public static String getLoginKey(String account, String type) {
+        if (type == null) {
             return "login:*";
         }
-        return "login:" + account;
+        if (account == null) {
+            return "login:" + type + ":*";
+        }
+        return "login:" + type + ":" + account;
     }
 
     /**

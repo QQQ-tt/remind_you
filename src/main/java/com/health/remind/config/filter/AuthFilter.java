@@ -1,6 +1,7 @@
 package com.health.remind.config.filter;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.health.remind.common.StaticConstant;
 import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.DataEnums;
@@ -8,6 +9,7 @@ import com.health.remind.config.enums.UserInfo;
 import com.health.remind.pojo.vo.LoginVO;
 import com.health.remind.util.JwtUtils;
 import com.health.remind.util.RedisUtils;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebFilter;
@@ -43,7 +45,9 @@ public class AuthFilter extends OncePerRequestFilter {
             CommonMethod.setParameter(request.getQueryString());
             log.info("用户信息:{}", CommonMethod.getMap());
         }
-        if (CommonMethod.isPublicUrl(request.getRequestURI().startsWith("/") ? request.getRequestURI().substring(1) :
+        if (CommonMethod.isPublicUrl(request.getRequestURI()
+                .startsWith("/") ? request.getRequestURI()
+                .substring(1) :
                 request.getRequestURI())) {
             filterChain.doFilter(request, response);
             CommonMethod.clear();
@@ -61,11 +65,13 @@ public class AuthFilter extends OncePerRequestFilter {
             return;
         }
         String bodyFromToken = JwtUtils.getBodyFromToken(token);
+        Claims claims = JwtUtils.getClaimsFromToken(token);
+        String type = claims.get(StaticConstant.USER_TYPE, String.class);
         if (StringUtils.isBlank(bodyFromToken)) {
             CommonMethod.failed(request, response, DataEnums.USER_NOT_LOGIN);
             return;
         }
-        LoginVO loginVO = RedisUtils.getObject(RedisKeys.getLoginKey(bodyFromToken), LoginVO.class);
+        LoginVO loginVO = RedisUtils.getObject(RedisKeys.getLoginKey(bodyFromToken, type), LoginVO.class);
         if (loginVO == null || !loginVO.getToken()
                 .equals(token)) {
             CommonMethod.failed(request, response, DataEnums.USER_NOT_LOGIN);

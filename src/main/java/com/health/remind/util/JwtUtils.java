@@ -97,7 +97,7 @@ public class JwtUtils {
                     .parseSignedClaims(token)
                     .getPayload();
         }
-        return null;
+        throw new DataException(DataEnums.USER_NOT_LOGIN);
     }
 
     /**

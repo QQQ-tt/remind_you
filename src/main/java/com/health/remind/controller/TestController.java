@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 
 /**
  * <p>
@@ -147,5 +148,14 @@ public class TestController {
     @GetMapping("/testToken/{key}/acc/{val}")
     public R<String> testToken(@PathVariable String key, @PathVariable String val) {
         return R.success(String.format("测试token校验成功:%s,%s", key, val));
+    }
+
+    @Operation(summary = "生成随机数", description = StaticConstant.PERMISSION_KEY)
+    @GetMapping("/num")
+    public R<String> num() {
+        Random random = new Random();
+        // 生成6位随机数 从 0 到 899999 之间的随机整数
+        int number = random.nextInt(900000) + 100000;
+        return R.success(String.valueOf(number));
     }
 }
