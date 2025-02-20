@@ -67,6 +67,7 @@ public class AuthFilter extends OncePerRequestFilter {
         String bodyFromToken = JwtUtils.getBodyFromToken(token);
         Claims claims = JwtUtils.getClaimsFromToken(token);
         String type = claims.get(StaticConstant.USER_TYPE, String.class);
+        Long roleId = claims.get(StaticConstant.ROLE_ID, Long.class);
         if (StringUtils.isBlank(bodyFromToken)) {
             CommonMethod.failed(request, response, DataEnums.USER_NOT_LOGIN);
             return;
@@ -89,5 +90,12 @@ public class AuthFilter extends OncePerRequestFilter {
         CommonMethod.setToken(token);
         filterChain.doFilter(request, response);
         CommonMethod.clear();
+    }
+
+    private boolean verify(String url, Long roleId) {
+        if (roleId == null) {
+            return false;
+        }
+        return false;
     }
 }
