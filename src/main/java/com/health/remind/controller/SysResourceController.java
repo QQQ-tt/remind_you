@@ -46,9 +46,15 @@ public class SysResourceController {
     }
 
     @Operation(summary = "根据pid查询资源")
-    @PostMapping("/listResourceByParentId")
+    @GetMapping("/listResourceByParentId")
     public R<List<SysResource>> saveOrUpdate(@RequestParam Long id) {
         return R.success(sysResourceService.listResourceByParentId(id));
+    }
+
+    @Operation(summary = "获取资源树")
+    @GetMapping("/treeResource")
+    public R<List<SysResource>> treeResource() {
+        return R.success(sysResourceService.treeResource());
     }
 
     @Operation(summary = "根据id查询资源")
@@ -64,9 +70,9 @@ public class SysResourceController {
     }
 
     @Operation(summary = "更新资源状态")
-    @GetMapping("/updateStatus")
-    public R<Boolean> updateStatus(@RequestParam Long id, @RequestParam Boolean status) {
-        return R.success(sysResourceService.updateStatus(id, status));
+    @PutMapping("/updateStatus")
+    public R<Boolean> updateStatus(@RequestBody SysResourceDTO dto) {
+        return R.success(sysResourceService.updateStatus(dto.getId(), dto.getStatus()));
     }
 
     @Operation(summary = "删除资源")

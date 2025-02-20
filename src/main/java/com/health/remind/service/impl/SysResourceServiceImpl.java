@@ -45,6 +45,24 @@ public class SysResourceServiceImpl extends ServiceImpl<SysResourceMapper, SysRe
     }
 
     @Override
+    public List<SysResource> treeResource() {
+        List<SysResource> list = list(Wrappers.lambdaQuery(SysResource.class)
+                .eq(SysResource::getStatus, true));
+        return list.stream()
+                .filter(f -> f.getParentId() == 0)
+                .peek(e -> setChildren(e, list))
+                .toList();
+    }
+
+    private void setChildren(SysResource e, List<SysResource> list) {
+        e.setChildren(list.stream()
+                .filter(f -> f.getParentId()
+                        .equals(e.getId()))
+                .peek(c -> setChildren(c, list))
+                .toList());
+    }
+
+    @Override
     public boolean saveOrUpdateResource(SysResourceDTO dto) {
         long count = count(Wrappers.lambdaQuery(SysResource.class)
                 .ne(dto.getId() != null, BaseEntity::getId, dto.getId())

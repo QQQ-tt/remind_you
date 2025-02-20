@@ -36,6 +36,13 @@ public interface SysResourceService extends IService<SysResource> {
     List<SysResource> listResourceByParentId(Long id);
 
     /**
+     * 以树结构查询资源信息
+     *
+     * @return 资源信息集合
+     */
+    List<SysResource> treeResource();
+
+    /**
      * 保存或更新资源信息
      *
      * @param resource 资源信息

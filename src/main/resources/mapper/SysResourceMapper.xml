@@ -3,7 +3,14 @@
 <mapper namespace="com.health.remind.mapper.SysResourceMapper">
 
     <select id="selectPageResource" resultType="com.health.remind.pojo.vo.SysResourceVO">
-        select *
+        select id,
+               name,
+               url,
+               type,
+               method,
+               description,
+               status,
+               create_time
         from sys_resource ${ew.customSqlSegment}
     </select>
 </mapper>

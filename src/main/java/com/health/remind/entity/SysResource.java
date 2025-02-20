@@ -2,6 +2,7 @@ package com.health.remind.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.health.remind.common.enums.SysResourceEnum;
 import com.health.remind.config.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 /**
  * <p>
@@ -36,7 +39,7 @@ public class SysResource extends BaseEntity {
 
     @Schema(description = "资源类型：路由、接口")
     @TableField("type")
-    private String type;
+    private SysResourceEnum type;
 
     @Schema(description = "方法类型")
     @TableField("method")
@@ -54,8 +57,11 @@ public class SysResource extends BaseEntity {
     @TableField("parent_id")
     private Long parentId;
 
+    @TableField(exist = false)
+    private List<SysResource> children;
+
     @Builder
-    public SysResource(Long id, String name, String url, String type, String method, String description, Boolean status, Long parentId) {
+    public SysResource(Long id, String name, String url, SysResourceEnum type, String method, String description, Boolean status, Long parentId) {
         super(id);
         this.name = name;
         this.url = url;

@@ -1,5 +1,6 @@
 package com.health.remind.pojo.dto;
 
+import com.health.remind.common.enums.SysResourceEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -19,7 +20,7 @@ public class SysResourceDTO {
     private String url;
 
     @Schema(description = "资源类型：路由、接口")
-    private String type;
+    private SysResourceEnum type;
 
     @Schema(description = "方法类型")
     private String method;

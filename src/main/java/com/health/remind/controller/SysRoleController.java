@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -50,7 +51,7 @@ public class SysRoleController {
 
     @Operation(summary = "根据id查询系统角色")
     @GetMapping("/getSysRoleById")
-    public R<SysRole> getSysRoleById(@RequestBody Long id) {
+    public R<SysRole> getSysRoleById(@RequestParam Long id) {
         return R.success(sysRoleService.getSysRoleById(id));
     }
 
@@ -62,7 +63,7 @@ public class SysRoleController {
 
     @Operation(summary = "删除系统角色")
     @DeleteMapping("/removeByRoleId")
-    public R<Boolean> removeByRoleId(@RequestBody Long id) {
+    public R<Boolean> removeByRoleId(@RequestParam Long id) {
         return R.success(sysRoleService.removeByRoleId(id));
     }
 }
