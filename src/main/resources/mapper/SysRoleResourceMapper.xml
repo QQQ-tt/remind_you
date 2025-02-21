@@ -11,4 +11,20 @@
           and sr.status = 1
           and srr.sys_role_id = #{roleId}
     </select>
+    <select id="selectUrlListByRoleIds" resultType="com.health.remind.pojo.bo.SysRoleResourceBO">
+        select srr.sys_role_id as sysRoleId,
+               sr.url
+        from sys_resource sr
+                 left join sys_role_resource srr on sr.id = srr.sys_resource and srr.delete_flag = 0
+        where sr.delete_flag = 0
+          and sr.status = 1
+          and sr.type = 'api'
+          and srr.sys_role_id is not null
+          <if test="roleIds != null and roleIds.size > 0">
+              and srr.sys_role_id in
+              <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+                  #{roleId}
+              </foreach>
+          </if>
+    </select>
 </mapper>

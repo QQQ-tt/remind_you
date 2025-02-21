@@ -6,8 +6,11 @@ import com.health.remind.config.enums.UserInfo;
 import com.health.remind.config.exception.AuthException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Data;
 import lombok.SneakyThrows;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +52,7 @@ public class CommonMethod {
      * @return 是否符合路径
      */
     public static boolean isPublicUrl(String url, TrieNode node) {
+        url = url.startsWith("/") ? url.substring(1) : url;
         String[] parts = url.split("/");
         for (String part : parts) {
             if (node.children.containsKey(part)) {
@@ -75,6 +79,7 @@ public class CommonMethod {
     }
 
     public static void addPattern(String pattern, TrieNode node) {
+        pattern = pattern.startsWith("/") ? pattern.substring(1) : pattern;
         String[] parts = pattern.split("/");
         for (String part : parts) {
             if (part.startsWith("{") && part.endsWith("}")) {
@@ -86,7 +91,10 @@ public class CommonMethod {
         node.isEndOfWord = true;
     }
 
-    public static class TrieNode {
+    @Data
+    public static class TrieNode implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L; // 推荐添加序列化版本UID
         Map<String, TrieNode> children = new HashMap<>();
         boolean isEndOfWord;
     }
@@ -96,7 +104,8 @@ public class CommonMethod {
     /**
      * 用户信息
      */
-    private static final ThreadLocal<Map<UserInfo, String>> mapThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<Map<UserInfo, String>> mapThreadLocal = ThreadLocal.withInitial(
+            CommonMethod::initialize);
 
     public static String getUserName() {
         return mapThreadLocal.get()
@@ -165,12 +174,7 @@ public class CommonMethod {
     }
 
     public static Map<UserInfo, String> getMap() {
-        Map<UserInfo, String> map = mapThreadLocal.get();
-        if (map == null) {
-            initialize();
-            return mapThreadLocal.get();
-        }
-        return map;
+        return mapThreadLocal.get();
     }
 
     public static void setMap(Map<UserInfo, String> map) {
@@ -181,14 +185,11 @@ public class CommonMethod {
         mapThreadLocal.remove();
     }
 
-    public static void initialize() {
-        Map<UserInfo, String> map = mapThreadLocal.get();
-        if (map == null) {
-            HashMap<UserInfo, String> value = new HashMap<>();
-            value.put(UserInfo.USER_ID, "1");
-            value.put(UserInfo.USER_NAME, "admin");
-            value.put(UserInfo.tenant_id, "1234");
-            mapThreadLocal.set(value);
-        }
+    public static HashMap<UserInfo, String> initialize() {
+        HashMap<UserInfo, String> value = new HashMap<>();
+        value.put(UserInfo.USER_ID, "1");
+        value.put(UserInfo.USER_NAME, "admin");
+        value.put(UserInfo.tenant_id, "1234");
+        return value;
     }
 }

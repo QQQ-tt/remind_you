@@ -22,6 +22,14 @@ public enum DataEnums {
      */
     USER_NOT_LOGIN("用户未登录", 403),
     /**
+     * 用户角色异常
+     */
+    USER_ROLE_ERROR("用户角色异常", 403),
+    /**
+     * 用户资源不足
+     */
+    USER_RESOURCE_ERROR("用户资源不足", 403),
+    /**
      * TOKEN异常
      */
     USER_TOKEN_ERROR("TOKEN异常", 403),

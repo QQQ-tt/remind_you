@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,13 +62,13 @@ public class SysUserController {
     }
 
     @Operation(summary = "保存或编辑用户")
-    @PostMapping("/saveOrUpdateSysUser")
+    @PutMapping("/saveOrUpdateSysUser")
     public R<Boolean> saveOrUpdateSysUser(@RequestBody @Valid SysUserDTO dto) {
         return R.success(sysUserService.saveOrUpdateSysUser(dto));
     }
 
     @Operation(summary = "根据id查询用户")
-    @PostMapping("/getSysUserById")
+    @GetMapping("/getSysUserById")
     public R<SysUser> getSysUserById(@RequestParam Long id) {
         return R.success(sysUserService.getSysUserById(id));
     }

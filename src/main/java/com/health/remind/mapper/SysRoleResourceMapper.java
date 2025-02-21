@@ -1,7 +1,8 @@
 package com.health.remind.mapper;
 
-import com.health.remind.entity.SysRoleResource;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.health.remind.entity.SysRoleResource;
+import com.health.remind.pojo.bo.SysRoleResourceBO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,4 +20,6 @@ import java.util.List;
 public interface SysRoleResourceMapper extends BaseMapper<SysRoleResource> {
 
     List<Long> selectListRoleResourceByRoleId(@Param("roleId") Long roleId);
+
+    List<SysRoleResourceBO> selectUrlListByRoleIds(@Param("roleIds") List<Long> roleIds);
 }

@@ -155,22 +155,22 @@ public class TestController {
     }
 
     @Operation(summary = "生成随机数", description = StaticConstant.PERMISSION_KEY)
-    @GetMapping("/num")
-    public R<String> num() {
+    @GetMapping("/randomNum")
+    public R<String> randomNum() {
         Random random = new Random();
         // 生成6位随机数 从 0 到 899999 之间的随机整数
         int number = random.nextInt(900000) + 100000;
         return R.success(String.valueOf(number));
     }
 
-    @CachePut(value = "cache10", key = "#value")
+    @CachePut(value = StaticConstant.CACHE_10, key = "#value")
     @Operation(summary = "测试cache")
     @GetMapping("/testCache")
     public R<String> testCache(@RequestParam String value) {
         return R.success(value);
     }
 
-    @Cacheable(value = "cache10", key = "#value")
+    @Cacheable(value = StaticConstant.CACHE_10, key = "#value")
     @Operation(summary = "测试cache")
     @GetMapping("/testCache2")
     public R<String> testCache2(@RequestParam String value) {
@@ -178,14 +178,14 @@ public class TestController {
         return R.success(value);
     }
 
-    @CachePut(value = "cache5", key = "#value")
+    @CachePut(value = StaticConstant.CACHE_5, key = "#value")
     @Operation(summary = "测试cache")
     @GetMapping("/testCache3")
     public R<String> testCache3(@RequestParam String value) {
         return R.success(value);
     }
 
-    @Cacheable(value = "cache5", key = "#value")
+    @Cacheable(value = StaticConstant.CACHE_5, key = "#value")
     @Operation(summary = "测试cache")
     @GetMapping("/testCache4")
     public R<String> testCache4(@RequestParam String value) {

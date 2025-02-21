@@ -126,11 +126,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     .telephone(Long.valueOf(dto.getTelephone()))
                     .status(dto.isStatus())
                     .userType(USER_TYPE)
+                    .sysRoleId(dto.getSysRoleId())
                     .build();
             if (!b) {
                 sysUser.setAccount(getAccount());
             }
-            saveOrUpdate(sysUser);
+            return saveOrUpdate(sysUser);
         }
         throw new DataException(DataEnums.DATA_REPEAT, "手机号重复");
     }

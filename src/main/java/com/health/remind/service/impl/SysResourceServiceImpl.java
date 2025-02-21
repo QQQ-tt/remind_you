@@ -66,6 +66,7 @@ public class SysResourceServiceImpl extends ServiceImpl<SysResourceMapper, SysRe
     public boolean saveOrUpdateResource(SysResourceDTO dto) {
         long count = count(Wrappers.lambdaQuery(SysResource.class)
                 .ne(dto.getId() != null, BaseEntity::getId, dto.getId())
+                .eq(SysResource::getParentId, dto.getParentId())
                 .eq(StringUtils.isNotBlank(dto.getName()), SysResource::getName, dto.getName()));
         if (count == 0) {
             SysResource sysResource = SysResource.builder()

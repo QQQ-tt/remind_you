@@ -66,4 +66,17 @@ public class RedisKeys {
         }
         return "permission:" + appName + ":" + moduleName;
     }
+
+    /**
+     * 获取角色资源key
+     *
+     * @param roleId 角色id
+     * @return role:roleId
+     */
+    public static String getRoleResourceKey(Long roleId) {
+        if (roleId == null) {
+            return "role:*";
+        }
+        return "role:" + roleId;
+    }
 }

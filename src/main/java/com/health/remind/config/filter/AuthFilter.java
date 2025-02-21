@@ -7,6 +7,7 @@ import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.enums.UserInfo;
 import com.health.remind.pojo.vo.LoginVO;
+import com.health.remind.service.SysRoleResourceService;
 import com.health.remind.util.JwtUtils;
 import com.health.remind.util.RedisUtils;
 import io.jsonwebtoken.Claims;
@@ -31,11 +32,15 @@ import java.nio.charset.StandardCharsets;
 @WebFilter("/*")
 public class AuthFilter extends OncePerRequestFilter {
 
+    private final SysRoleResourceService roleResourceService;
+
+    public AuthFilter(SysRoleResourceService roleResourceService) {
+        this.roleResourceService = roleResourceService;
+    }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        CommonMethod.initialize();
         CommonMethod.setTenantId(request.getHeader(UserInfo.tenant_id.toString()));
         if (!request.getRequestURI()
                 .equals("/")) {
@@ -45,10 +50,7 @@ public class AuthFilter extends OncePerRequestFilter {
             CommonMethod.setParameter(request.getQueryString());
             log.info("用户信息:{}", CommonMethod.getMap());
         }
-        if (CommonMethod.isPublicUrl(request.getRequestURI()
-                .startsWith("/") ? request.getRequestURI()
-                .substring(1) :
-                request.getRequestURI())) {
+        if (CommonMethod.isPublicUrl(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             CommonMethod.clear();
             return;
@@ -64,20 +66,34 @@ public class AuthFilter extends OncePerRequestFilter {
             CommonMethod.failed(request, response, DataEnums.USER_NOT_LOGIN);
             return;
         }
+
         String bodyFromToken = JwtUtils.getBodyFromToken(token);
         Claims claims = JwtUtils.getClaimsFromToken(token);
-        String type = claims.get(StaticConstant.USER_TYPE, String.class);
-        Long roleId = claims.get(StaticConstant.ROLE_ID, Long.class);
         if (StringUtils.isBlank(bodyFromToken)) {
             CommonMethod.failed(request, response, DataEnums.USER_NOT_LOGIN);
             return;
         }
+
+        String type = claims.get(StaticConstant.USER_TYPE, String.class);
         LoginVO loginVO = RedisUtils.getObject(RedisKeys.getLoginKey(bodyFromToken, type), LoginVO.class);
         if (loginVO == null || !loginVO.getToken()
                 .equals(token)) {
             CommonMethod.failed(request, response, DataEnums.USER_NOT_LOGIN);
             return;
         }
+
+        Long roleId = claims.get(StaticConstant.ROLE_ID, Long.class);
+        if (roleId == null) {
+            CommonMethod.failed(request, response, DataEnums.USER_ROLE_ERROR);
+            return;
+        }
+        CommonMethod.TrieNode verify = roleResourceService.verify(roleId);
+        boolean publicUrl = CommonMethod.isPublicUrl(request.getRequestURI(), verify);
+        if (!publicUrl) {
+            CommonMethod.failed(request, response, DataEnums.USER_RESOURCE_ERROR);
+            return;
+        }
+
         CommonMethod.setUserId(bodyFromToken);
         String userName = request.getHeader(UserInfo.USER_NAME.toString());
         if (userName != null && userName.contains("%")) {
@@ -90,12 +106,5 @@ public class AuthFilter extends OncePerRequestFilter {
         CommonMethod.setToken(token);
         filterChain.doFilter(request, response);
         CommonMethod.clear();
-    }
-
-    private boolean verify(String url, Long roleId) {
-        if (roleId == null) {
-            return false;
-        }
-        return false;
     }
 }
