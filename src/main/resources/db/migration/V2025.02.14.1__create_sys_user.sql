@@ -1,3 +1,24 @@
+create table exception_log
+(
+    id             bigint           not null
+        primary key,
+    exception_name varchar(100)     null comment '异常名称',
+    url            varchar(200)     null comment '请求地址',
+    parameter      text             null comment '请求参数',
+    level          int default 1    null comment '异常等级',
+    message        varchar(200)     null comment '异常信息',
+    stack_trace    text             null comment '堆栈信息',
+    tenant_id      bigint           null comment '租户id',
+    create_id      bigint           null comment '创建人id',
+    create_name    varchar(100)     null comment '创建人名',
+    create_time    datetime         null comment '创建时间',
+    update_id      bigint           null comment '更新人id',
+    update_name    varchar(100)     null comment '更新人名',
+    update_time    datetime         null comment '更新时间',
+    delete_flag    bit default b'0' null comment '逻辑删除'
+)
+    comment '异常日志log';
+
 create table sys_resource
 (
     id          bigint           not null
@@ -78,4 +99,3 @@ create table sys_user
         unique (account)
 )
     comment '系统用户';
-

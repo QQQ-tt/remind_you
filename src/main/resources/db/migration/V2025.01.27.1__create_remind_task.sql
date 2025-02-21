@@ -9,7 +9,7 @@ create table remind_task
     num          int              null comment '提醒次数(计算得出)',
     remark       text             null comment '备注',
     is_remind    bit default b'1' null comment '是否提醒',
-    remind_type  int              not null comment '提醒方式',
+    remind_type  varchar(20)      not null comment '提醒方式',
     advance_num  int              null comment '提前时间的数量',
     cycle_unit   varchar(20)      null comment '单位:分钟,小时,天,周',
     frequency_id bigint           not null,
@@ -29,8 +29,12 @@ create table remind_task_info
     id             bigint           not null
         primary key,
     remind_task_id bigint           not null,
-    time           datetime         null comment '执行时间',
+    estimated_time datetime         not null comment '预计发送时间',
+    actual_time    datetime         null comment '实际发送时间',
+    time           datetime         not null comment '执行时间',
     is_remind      bit default b'0' null comment '是否提醒',
+    remind_type    varchar(20)      null comment '提醒方式',
+    is_send        bit default b'0' null,
     is_read        bit default b'0' null comment '是否已读',
     tenant_id      bigint           null comment '租户id',
     create_id      bigint           null comment '创建人id',
@@ -43,7 +47,7 @@ create table remind_task_info
 )
     comment '任务执行详情数据';
 
-create table remind_task_history
+create table remind_task_his
 (
     id           bigint           not null
         primary key,
@@ -54,7 +58,7 @@ create table remind_task_history
     num          int              null comment '提醒次数(计算得出)',
     remark       text             null comment '备注',
     is_remind    bit default b'1' null comment '是否提醒',
-    remind_type  int              not null comment '提醒方式',
+    remind_type  varchar(20)      not null comment '提醒方式',
     advance_num  int              null comment '提前时间的数量',
     cycle_unit   varchar(20)      null comment '单位:分钟,小时,天,周',
     frequency_id bigint           not null,
@@ -69,13 +73,17 @@ create table remind_task_history
 )
     comment '提醒任务';
 
-create table remind_task_info_history
+create table remind_task_info_his
 (
     id             bigint           not null
         primary key,
     remind_task_id bigint           not null,
-    time           datetime         null comment '执行时间',
+    estimated_time datetime         not null comment '预计发送时间',
+    actual_time    datetime         null comment '实际发送时间',
+    time           datetime         not null comment '执行时间',
     is_remind      bit default b'0' null comment '是否提醒',
+    remind_type    varchar(20)      null comment '提醒方式',
+    is_send        bit default b'0' null,
     is_read        bit default b'0' null comment '是否已读',
     tenant_id      bigint           null comment '租户id',
     create_id      bigint           null comment '创建人id',

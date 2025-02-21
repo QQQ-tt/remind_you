@@ -8,7 +8,7 @@ create table frequency
     frequency_number int                           null comment '频次数目',
     frequency_cycle  int                           null comment '频次周期',
     cycle_unit       varchar(20)                   null comment '周期单位',
-    type             varchar(20)                   null comment '周单位开始方式',
+    type             varchar(20)                   null comment '开始方式',
     status           bit          default b'0'     null comment '是否启用',
     source           varchar(100) default 'system' null comment '来源',
     level            int          default 1        null comment '等级',
