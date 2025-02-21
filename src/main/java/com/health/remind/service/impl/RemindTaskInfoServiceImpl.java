@@ -59,8 +59,13 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
                     .eq(RemindTaskInfo::getIsRemind, true)
                     .eq(RemindTaskInfo::getIsSend, false)
                     .ne(RemindTaskInfo::getEstimatedTime, LocalDateTime.now()));
-            list.forEach(e -> DelayScheduledExecutor.putRemindTask(e.getId(), e.getRemindTaskId(), e.getEstimatedTime(),
-                    e.getRemindType(), map));
+            list.forEach(e -> {
+                CommonMethod.setTenantId(e.getTenantId()
+                        .toString());
+                DelayScheduledExecutor.putRemindTask(e.getId(), e.getRemindTaskId(),
+                        e.getEstimatedTime(),
+                        e.getRemindType(), map);
+            });
         }, threadPoolExecutor);
     }
 }

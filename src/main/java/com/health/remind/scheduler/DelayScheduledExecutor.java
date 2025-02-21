@@ -2,6 +2,7 @@ package com.health.remind.scheduler;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.health.remind.config.BaseEntity;
+import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.UserInfo;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
@@ -93,6 +94,8 @@ public class DelayScheduledExecutor extends ScheduledBase {
     }
 
     private void executeTask(DelayTask task) {
+        log.info("执行任务:{},任务类型:{}", task.getId(), task.getRemindTypeEnum());
+        CommonMethod.setMap(task.getCommonMethod());
         switch (task.getRemindTypeEnum()) {
             case test -> textTask(task);
             case remind_text -> remindTextTask(task);
@@ -105,7 +108,7 @@ public class DelayScheduledExecutor extends ScheduledBase {
     private void remindTextTask(DelayTask task) {
         remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
                 .eq(BaseEntity::getId, task.getOtherId())
-                .setSql("pushNum = " + "pushNum + 1"));
+                .setSql("push_num = " + "push_num + 1"));
         RemindTaskInfo info = new RemindTaskInfo();
         info.setId(task.getId());
         info.setIsSend(true);
@@ -116,7 +119,7 @@ public class DelayScheduledExecutor extends ScheduledBase {
     private void remindWxTask(DelayTask task) {
         remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
                 .eq(BaseEntity::getId, task.getOtherId())
-                .setSql("pushNum = " + "pushNum + 1"));
+                .setSql("push_num = " + "push_num + 1"));
         RemindTaskInfo info = new RemindTaskInfo();
         info.setId(task.getId());
         info.setIsSend(true);

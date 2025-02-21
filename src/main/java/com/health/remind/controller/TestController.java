@@ -17,6 +17,9 @@ import com.health.remind.util.RedisUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +40,7 @@ import java.util.Random;
  * @author QQQtx
  * @since 2025-01-14
  */
+@Slf4j
 @Tag(name = "测试")
 @RestController
 @RequestMapping("/remind/test")
@@ -157,5 +161,35 @@ public class TestController {
         // 生成6位随机数 从 0 到 899999 之间的随机整数
         int number = random.nextInt(900000) + 100000;
         return R.success(String.valueOf(number));
+    }
+
+    @CachePut(value = "cache10", key = "#value")
+    @Operation(summary = "测试cache")
+    @GetMapping("/testCache")
+    public R<String> testCache(@RequestParam String value) {
+        return R.success(value);
+    }
+
+    @Cacheable(value = "cache10", key = "#value")
+    @Operation(summary = "测试cache")
+    @GetMapping("/testCache2")
+    public R<String> testCache2(@RequestParam String value) {
+        log.info("Fetching data from database for id: {}", value);
+        return R.success(value);
+    }
+
+    @CachePut(value = "cache5", key = "#value")
+    @Operation(summary = "测试cache")
+    @GetMapping("/testCache3")
+    public R<String> testCache3(@RequestParam String value) {
+        return R.success(value);
+    }
+
+    @Cacheable(value = "cache5", key = "#value")
+    @Operation(summary = "测试cache")
+    @GetMapping("/testCache4")
+    public R<String> testCache4(@RequestParam String value) {
+        log.info("Fetching data from database for id: {}", value);
+        return R.success(value);
     }
 }

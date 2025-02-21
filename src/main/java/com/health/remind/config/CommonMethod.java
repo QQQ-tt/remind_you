@@ -31,8 +31,24 @@ public class CommonMethod {
 
     private static final TrieNode ROOT = new TrieNode();
 
+    /**
+     * 判断是否为开放路径
+     *
+     * @param url 请求路径
+     * @return 是否为开放路径
+     */
     public static boolean isPublicUrl(String url) {
-        TrieNode node = ROOT;
+        return isPublicUrl(url, ROOT);
+    }
+
+    /**
+     * 根据传入的TrieNode判断url是否为开放路径
+     *
+     * @param url  请求路径
+     * @param node 路径节点
+     * @return 是否符合路径
+     */
+    public static boolean isPublicUrl(String url, TrieNode node) {
         String[] parts = url.split("/");
         for (String part : parts) {
             if (node.children.containsKey(part)) {
@@ -47,13 +63,18 @@ public class CommonMethod {
     }
 
     public static void addPatterns(List<String> patterns) {
-        for (String pattern : patterns) {
-            addPattern(pattern);
-        }
+        patterns.forEach(CommonMethod::addPattern);
+    }
+
+    public static void addPatterns(List<String> patterns, TrieNode node) {
+        patterns.forEach(pattern -> addPattern(pattern, node));
     }
 
     private static void addPattern(String pattern) {
-        TrieNode node = ROOT;
+        addPattern(pattern, ROOT);
+    }
+
+    public static void addPattern(String pattern, TrieNode node) {
         String[] parts = pattern.split("/");
         for (String part : parts) {
             if (part.startsWith("{") && part.endsWith("}")) {
@@ -65,7 +86,7 @@ public class CommonMethod {
         node.isEndOfWord = true;
     }
 
-    private static class TrieNode {
+    public static class TrieNode {
         Map<String, TrieNode> children = new HashMap<>();
         boolean isEndOfWord;
     }
