@@ -18,8 +18,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -163,33 +161,27 @@ public class TestController {
         return R.success(String.valueOf(number));
     }
 
-    @CachePut(value = StaticConstant.CACHE_10, key = "#value")
     @Operation(summary = "测试cache")
     @GetMapping("/testCache")
     public R<String> testCache(@RequestParam String value) {
-        return R.success(value);
+        return R.success(testService.testCache(value));
     }
 
-    @Cacheable(value = StaticConstant.CACHE_10, key = "#value")
     @Operation(summary = "测试cache")
     @GetMapping("/testCache2")
     public R<String> testCache2(@RequestParam String value) {
-        log.info("Fetching data from database for id: {}", value);
-        return R.success(value);
+        return R.success(testService.testCache2(value));
     }
 
-    @CachePut(value = StaticConstant.CACHE_5, key = "#value")
     @Operation(summary = "测试cache")
     @GetMapping("/testCache3")
     public R<String> testCache3(@RequestParam String value) {
-        return R.success(value);
+        return R.success(testService.testCache3(value));
     }
 
-    @Cacheable(value = StaticConstant.CACHE_5, key = "#value")
     @Operation(summary = "测试cache")
     @GetMapping("/testCache4")
     public R<String> testCache4(@RequestParam String value) {
-        log.info("Fetching data from database for id: {}", value);
-        return R.success(value);
+        return R.success(testService.testCache4(value));
     }
 }

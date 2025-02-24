@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.health.remind.common.StaticConstant;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
 import com.health.remind.config.lock.RedisLock;
@@ -12,6 +13,9 @@ import com.health.remind.mapper.TestMapper;
 import com.health.remind.pojo.dto.TestDTO;
 import com.health.remind.pojo.dto.TestEntityDTO;
 import com.health.remind.service.TestService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Service;
  * @author QQQtx
  * @since 2025-01-14
  */
+@Slf4j
 @Service
 public class TestServiceImpl extends ServiceImpl<TestMapper, Test> implements TestService {
 
@@ -56,5 +61,33 @@ public class TestServiceImpl extends ServiceImpl<TestMapper, Test> implements Te
             throw new RuntimeException(e);
         }
         return key;
+    }
+
+    @CachePut(value = StaticConstant.CACHE_10, key = "#value")
+    @Override
+    public String testCache(String value) {
+        log.info("10:CachePut From Database: {}", value);
+        return value;
+    }
+
+    @Cacheable(value = StaticConstant.CACHE_10, key = "#value")
+    @Override
+    public String testCache2(String value) {
+        log.info("10:Cacheable From Database: {}", value);
+        return value;
+    }
+
+    @CachePut(value = StaticConstant.CACHE_5, key = "#value")
+    @Override
+    public String testCache3(String value) {
+        log.info("5:CachePut From Database: {}", value);
+        return value;
+    }
+
+    @Cacheable(value = StaticConstant.CACHE_5, key = "#value")
+    @Override
+    public String testCache4(String value) {
+        log.info("5:Cacheable From Database: {}", value);
+        return value;
     }
 }
