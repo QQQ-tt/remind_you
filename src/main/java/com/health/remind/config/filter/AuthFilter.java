@@ -56,28 +56,51 @@ public class AuthFilter extends OncePerRequestFilter {
             CommonMethod.setParameter(request.getQueryString());
             log.info("用户信息:{}", CommonMethod.getMap());
         }
+
         if (CommonMethod.isPublicUrl(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             CommonMethod.clear();
             return;
         }
+
+        Token result = getToken(request, response);
+        if (result == null) return;
+
+        if (resource(request, response, result.claims())) return;
+
+        CommonMethod.setUserId(result.bodyFromToken());
+        String userName = request.getHeader(UserInfo.USER_NAME.toString());
+        if (userName != null && userName.contains("%")) {
+            userName = URLDecoder.decode(userName, StandardCharsets.UTF_8);
+        }
+        if (StringUtils.isBlank(userName)) {
+            userName = result.loginVO()
+                    .getName();
+        }
+        CommonMethod.setUserName(userName);
+        CommonMethod.setToken(result.token());
+        filterChain.doFilter(request, response);
+        CommonMethod.clear();
+    }
+
+    private static Token getToken(HttpServletRequest request, HttpServletResponse response) {
         String auth = request.getHeader(UserInfo.TOKEN.toString());
         if (StringUtils.isBlank(auth)) {
             CommonMethod.failed(request, response, DataEnums.USER_NOT_LOGIN);
-            return;
+            return null;
         }
         String token = auth.split(" ")[1];
         Boolean tokenExpired = JwtUtils.isTokenExpired(token);
         if (tokenExpired) {
             CommonMethod.failed(request, response, DataEnums.USER_NOT_LOGIN);
-            return;
+            return null;
         }
 
         String bodyFromToken = JwtUtils.getBodyFromToken(token);
         Claims claims = JwtUtils.getClaimsFromToken(token);
         if (StringUtils.isBlank(bodyFromToken)) {
             CommonMethod.failed(request, response, DataEnums.USER_NOT_LOGIN);
-            return;
+            return null;
         }
 
         String type = claims.get(StaticConstant.USER_TYPE, String.class);
@@ -85,23 +108,12 @@ public class AuthFilter extends OncePerRequestFilter {
         if (loginVO == null || !loginVO.getToken()
                 .equals(token)) {
             CommonMethod.failed(request, response, DataEnums.USER_NOT_LOGIN);
-            return;
+            return null;
         }
+        return new Token(token, bodyFromToken, claims, loginVO);
+    }
 
-        if (resource(request, response, claims)) return;
-
-        CommonMethod.setUserId(bodyFromToken);
-        String userName = request.getHeader(UserInfo.USER_NAME.toString());
-        if (userName != null && userName.contains("%")) {
-            userName = URLDecoder.decode(userName, StandardCharsets.UTF_8);
-        }
-        if (StringUtils.isBlank(userName)) {
-            userName = loginVO.getName();
-        }
-        CommonMethod.setUserName(userName);
-        CommonMethod.setToken(token);
-        filterChain.doFilter(request, response);
-        CommonMethod.clear();
+    private record Token(String token, String bodyFromToken, Claims claims, LoginVO loginVO) {
     }
 
     /**
