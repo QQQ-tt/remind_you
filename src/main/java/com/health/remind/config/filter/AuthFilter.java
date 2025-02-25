@@ -46,11 +46,11 @@ public class AuthFilter extends OncePerRequestFilter {
                 .equals("/")) {
             String requestURI = request.getRequestURI();
             String remoteAddr;
-            if (request.getHeader("X-Real-IP")
-                    .isBlank()) {
+            String header = request.getHeader("X-Real-IP");
+            if (StringUtils.isBlank(header)) {
                 remoteAddr = request.getRemoteAddr();
             } else {
-                remoteAddr = request.getHeader("X-Real-IP");
+                remoteAddr = header;
             }
             CommonMethod.setUrl(remoteAddr + requestURI);
             CommonMethod.setParameter(request.getQueryString());
