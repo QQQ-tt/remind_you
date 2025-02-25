@@ -88,17 +88,7 @@ public class AuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        Long roleId = claims.get(StaticConstant.ROLE_ID, Long.class);
-        if (roleId == null) {
-            CommonMethod.failed(request, response, DataEnums.USER_ROLE_ERROR);
-            return;
-        }
-        CommonMethod.TrieNode verify = roleResourceService.verify(roleId);
-        boolean publicUrl = CommonMethod.isPublicUrl(request.getRequestURI(), verify);
-        if (!publicUrl) {
-            CommonMethod.failed(request, response, DataEnums.USER_RESOURCE_ERROR);
-            return;
-        }
+        if (resource(request, response, claims)) return;
 
         CommonMethod.setUserId(bodyFromToken);
         String userName = request.getHeader(UserInfo.USER_NAME.toString());
@@ -112,5 +102,23 @@ public class AuthFilter extends OncePerRequestFilter {
         CommonMethod.setToken(token);
         filterChain.doFilter(request, response);
         CommonMethod.clear();
+    }
+
+    /**
+     * 用户资源校验
+     */
+    private boolean resource(HttpServletRequest request, HttpServletResponse response, Claims claims) {
+        Long roleId = claims.get(StaticConstant.ROLE_ID, Long.class);
+        if (roleId == null) {
+            CommonMethod.failed(request, response, DataEnums.USER_ROLE_ERROR);
+            return true;
+        }
+        CommonMethod.TrieNode verify = roleResourceService.verify(roleId);
+        boolean publicUrl = CommonMethod.isPublicUrl(request.getRequestURI(), verify);
+        if (!publicUrl) {
+            CommonMethod.failed(request, response, DataEnums.USER_RESOURCE_ERROR);
+            return true;
+        }
+        return false;
     }
 }
