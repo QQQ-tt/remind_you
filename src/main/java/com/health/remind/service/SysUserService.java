@@ -54,6 +54,14 @@ public interface SysUserService extends IService<SysUser> {
     boolean saveOrUpdateSysUser(SysUserDTO dto);
 
     /**
+     * 取消角色
+     *
+     * @param id 用户id
+     * @return 是否成功
+     */
+    boolean cancelRole(Long id);
+
+    /**
      * 根据id查询用户
      *
      * @param id 用户id

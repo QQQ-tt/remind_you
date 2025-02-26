@@ -1,7 +1,6 @@
 package com.health.remind.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.health.remind.config.CommonMethod;
 import com.health.remind.entity.SysRoleResource;
 import com.health.remind.pojo.dto.SysRoleResourceDTO;
 
@@ -41,14 +40,4 @@ public interface SysRoleResourceService extends IService<SysRoleResource> {
      * @return 资源集合
      */
     Map<Long, List<String>> listRoleResourceByRoleId(List<Long> roleIds);
-
-    /**
-     * 获取角色资源
-     *
-     * @param roleId 角色id
-     * @return trieNode
-     */
-    CommonMethod.TrieNode verify(Long roleId);
-
-
 }

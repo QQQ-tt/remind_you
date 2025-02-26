@@ -2,12 +2,12 @@ package com.health.remind.config.filter;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.health.remind.common.StaticConstant;
+import com.health.remind.common.cache.JavaCache;
 import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.enums.UserInfo;
 import com.health.remind.pojo.vo.LoginVO;
-import com.health.remind.service.SysRoleResourceService;
 import com.health.remind.util.JwtUtils;
 import com.health.remind.util.RedisUtils;
 import io.jsonwebtoken.Claims;
@@ -32,10 +32,10 @@ import java.nio.charset.StandardCharsets;
 @WebFilter("/*")
 public class AuthFilter extends OncePerRequestFilter {
 
-    private final SysRoleResourceService roleResourceService;
+    private final JavaCache cache;
 
-    public AuthFilter(SysRoleResourceService roleResourceService) {
-        this.roleResourceService = roleResourceService;
+    public AuthFilter(JavaCache cache) {
+        this.cache = cache;
     }
 
     @Override
@@ -125,7 +125,7 @@ public class AuthFilter extends OncePerRequestFilter {
             CommonMethod.failed(request, response, DataEnums.USER_ROLE_ERROR);
             return true;
         }
-        CommonMethod.TrieNode verify = roleResourceService.verify(roleId);
+        CommonMethod.TrieNode verify = cache.verify(roleId);
         boolean publicUrl = CommonMethod.isPublicUrl(request.getRequestURI(), verify);
         if (!publicUrl) {
             CommonMethod.failed(request, response, DataEnums.USER_RESOURCE_ERROR);

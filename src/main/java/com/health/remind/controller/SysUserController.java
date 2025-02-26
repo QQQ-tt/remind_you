@@ -67,6 +67,12 @@ public class SysUserController {
         return R.success(sysUserService.saveOrUpdateSysUser(dto));
     }
 
+    @Operation(summary = "取消角色")
+    @PutMapping("/cancelRole")
+    public R<Boolean> cancelRole(@RequestParam Long id) {
+        return R.success(sysUserService.cancelRole(id));
+    }
+
     @Operation(summary = "根据id查询用户")
     @GetMapping("/getSysUserById")
     public R<SysUser> getSysUserById(@RequestParam Long id) {

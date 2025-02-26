@@ -148,6 +148,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    public boolean cancelRole(Long id) {
+        return update(Wrappers.lambdaUpdate(SysUser.class)
+                .eq(BaseEntity::getId, id)
+                .set(SysUser::getSysRoleId, null));
+    }
+
+
+    @Override
     public SysUser getSysUserById(Long id) {
         return getById(id);
     }

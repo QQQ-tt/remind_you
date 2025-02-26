@@ -2,7 +2,7 @@ package com.health.remind.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.health.remind.common.StaticConstant;
+import com.health.remind.common.cache.JavaCache;
 import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.entity.SysRoleResource;
@@ -11,8 +11,6 @@ import com.health.remind.pojo.bo.SysRoleResourceBO;
 import com.health.remind.pojo.dto.SysRoleResourceDTO;
 import com.health.remind.service.SysRoleResourceService;
 import com.health.remind.util.RedisUtils;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +30,12 @@ import java.util.stream.Collectors;
  */
 @Service
 public class SysRoleResourceServiceImpl extends ServiceImpl<SysRoleResourceMapper, SysRoleResource> implements SysRoleResourceService {
+
+    private final JavaCache cache;
+
+    public SysRoleResourceServiceImpl(JavaCache cache) {
+        this.cache = cache;
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -68,24 +72,11 @@ public class SysRoleResourceServiceImpl extends ServiceImpl<SysRoleResourceMappe
                 .collect(Collectors.groupingBy(SysRoleResourceBO::getSysRoleId,
                         Collectors.mapping(SysRoleResourceBO::getUrl, Collectors.toList())));
         listMap.forEach((k, v) -> {
-            CommonMethod.TrieNode node = getTrieNode(k, v);
+            CommonMethod.TrieNode node = cache.getTrieNode(k, v);
             RedisUtils.delete(RedisKeys.getRoleResourceKey(k));
             RedisUtils.setObject(RedisKeys.getRoleResourceKey(k), node);
             RedisUtils.persist(RedisKeys.getRoleResourceKey(k));
         });
         return listMap;
-    }
-
-    @CachePut(value = StaticConstant.CACHE_10, key = "#id")
-    public CommonMethod.TrieNode getTrieNode(Long id, List<String> urls) {
-        CommonMethod.TrieNode node = new CommonMethod.TrieNode();
-        CommonMethod.addPatterns(urls, node);
-        return node;
-    }
-
-    @Cacheable(value = StaticConstant.CACHE_10, key = "#roleId")
-    public CommonMethod.TrieNode verify(Long roleId) {
-        return RedisUtils.getObject(RedisKeys.getRoleResourceKey(roleId),
-                CommonMethod.TrieNode.class);
     }
 }
