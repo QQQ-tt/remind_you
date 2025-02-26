@@ -11,6 +11,7 @@ import lombok.SneakyThrows;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,92 +105,92 @@ public class CommonMethod {
     /**
      * 用户信息
      */
-    private static final ThreadLocal<Map<UserInfo, String>> mapThreadLocal = ThreadLocal.withInitial(
+    private static final ThreadLocal<Map<UserInfo, String>> THREAD_LOCAL = ThreadLocal.withInitial(
             CommonMethod::initialize);
 
     public static String getUserName() {
-        return mapThreadLocal.get()
+        return THREAD_LOCAL.get()
                 .get(UserInfo.USER_NAME);
     }
 
     public static Long getTenantId() {
-        return Long.parseLong(mapThreadLocal.get()
-                .get(UserInfo.tenant_id));
+        return Long.parseLong(THREAD_LOCAL.get()
+                .get(UserInfo.TENANT_ID));
     }
 
     public static String getToken() {
-        return mapThreadLocal.get()
+        return THREAD_LOCAL.get()
                 .get(UserInfo.TOKEN);
     }
 
     public static Long getUserId() {
-        return Long.parseLong(mapThreadLocal.get()
+        return Long.parseLong(THREAD_LOCAL.get()
                 .get(UserInfo.USER_ID));
     }
 
     public static String getUrl() {
-        return mapThreadLocal.get()
+        return THREAD_LOCAL.get()
                 .get(UserInfo.URL);
     }
 
     public static String getParameter() {
-        return mapThreadLocal.get()
+        return THREAD_LOCAL.get()
                 .get(UserInfo.PARAMETER);
     }
 
     public static void setParameter(String parameter) {
-        mapThreadLocal.get()
+        THREAD_LOCAL.get()
                 .put(UserInfo.PARAMETER, parameter);
     }
 
     public static void setUrl(String url) {
-        mapThreadLocal.get()
+        THREAD_LOCAL.get()
                 .put(UserInfo.URL, url);
     }
 
     public static void setToken(String token) {
-        mapThreadLocal.get()
+        THREAD_LOCAL.get()
                 .put(UserInfo.TOKEN, token);
     }
 
     public static void setUserName(String userName) {
         if (StringUtils.isNotBlank(userName)) {
-            mapThreadLocal.get()
+            THREAD_LOCAL.get()
                     .put(UserInfo.USER_NAME, userName);
         }
     }
 
     public static void setTenantId(String tenantId) {
         if (StringUtils.isNotBlank(tenantId)) {
-            mapThreadLocal.get()
-                    .put(UserInfo.tenant_id, tenantId);
+            THREAD_LOCAL.get()
+                    .put(UserInfo.TENANT_ID, tenantId);
         }
     }
 
     public static void setUserId(String userId) {
         if (StringUtils.isNotBlank(userId)) {
-            mapThreadLocal.get()
+            THREAD_LOCAL.get()
                     .put(UserInfo.USER_ID, userId);
         }
     }
 
     public static Map<UserInfo, String> getMap() {
-        return mapThreadLocal.get();
+        return Collections.unmodifiableMap(THREAD_LOCAL.get());
     }
 
     public static void setMap(Map<UserInfo, String> map) {
-        mapThreadLocal.set(map);
+        THREAD_LOCAL.set(map);
     }
 
     public static void clear() {
-        mapThreadLocal.remove();
+        THREAD_LOCAL.remove();
     }
 
     public static HashMap<UserInfo, String> initialize() {
         HashMap<UserInfo, String> value = new HashMap<>();
         value.put(UserInfo.USER_ID, "1");
         value.put(UserInfo.USER_NAME, "admin");
-        value.put(UserInfo.tenant_id, "1234");
+        value.put(UserInfo.TENANT_ID, "1234");
         return value;
     }
 }
