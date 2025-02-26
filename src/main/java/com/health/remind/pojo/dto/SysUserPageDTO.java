@@ -30,4 +30,10 @@ public class SysUserPageDTO extends PageDTO<SysUser> {
     @NotBlank(message = "用户类型不能为空")
     @Schema(description = "用户类型：sys,user")
     private String userType;
+
+    @Schema(description = "排序方向")
+    private boolean isAsc = false;
+
+    @Schema(description = "排序字段")
+    private String sortField;
 }

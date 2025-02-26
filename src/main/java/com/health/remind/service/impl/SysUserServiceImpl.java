@@ -2,6 +2,7 @@ package com.health.remind.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.health.remind.common.StaticConstant;
@@ -27,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -99,8 +101,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         throw new DataException(DataEnums.PASSWORD_ERROR);
     }
 
+    private static final Map<String, SFunction<SysUser, Object>> SORT_FIELD_MAP = Map.of(
+            "name", SysUser::getName,
+            "account", SysUser::getAccount,
+            "telephone", SysUser::getTelephone,
+            "createTime", SysUser::getCreateTime,
+            "updateTime", SysUser::getUpdateTime
+    );
+
     @Override
     public Page<SysUserVO> pageSysUser(SysUserPageDTO dto) {
+        SFunction<SysUser, Object> function = SORT_FIELD_MAP.getOrDefault(dto.getSortField(), SysUser::getCreateTime);
         return baseMapper.selectPageSysUser(dto.getPage(),
                 Wrappers.lambdaQuery(SysUser.class)
                         .eq(BaseEntity::getDeleteFlag, false)
@@ -110,7 +121,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                                 dto.getName())
                         .like(dto.getAccount() != null, SysUser::getAccount, dto.getAccount())
                         .like(StringUtils.isNotBlank(dto.getTelephone()), SysUser::getTelephone, dto.getTelephone())
-                        .orderByDesc(BaseEntity::getCreateTime));
+                        .orderBy(true, dto.isAsc(), function));
     }
 
     @Override
