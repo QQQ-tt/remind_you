@@ -15,7 +15,11 @@ import com.health.remind.pojo.vo.SysResourceVO;
 import com.health.remind.service.SysResourceService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * <p>
@@ -48,18 +52,21 @@ public class SysResourceServiceImpl extends ServiceImpl<SysResourceMapper, SysRe
     public List<SysResource> treeResource() {
         List<SysResource> list = list(Wrappers.lambdaQuery(SysResource.class)
                 .eq(SysResource::getStatus, true));
+        Map<Long, List<SysResource>> hashMap = new HashMap<>();
+        list.forEach(e -> hashMap.computeIfAbsent(e.getParentId(), k -> new ArrayList<>())
+                .add(e));
         return list.stream()
                 .filter(f -> f.getParentId() == 0)
-                .peek(e -> setChildren(e, list))
+                .peek(e -> setChildren(e, hashMap))
                 .toList();
     }
 
-    private void setChildren(SysResource e, List<SysResource> list) {
-        e.setChildren(list.stream()
-                .filter(f -> f.getParentId()
-                        .equals(e.getId()))
-                .peek(c -> setChildren(c, list))
-                .toList());
+    private void setChildren(SysResource sysResource, Map<Long, List<SysResource>> hashMap) {
+        Optional.ofNullable(hashMap.get(sysResource.getId()))
+                .ifPresent(i -> {
+                    sysResource.setChildren(i);
+                    i.forEach(e -> setChildren(e, hashMap));
+                });
     }
 
     @Override
