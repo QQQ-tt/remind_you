@@ -62,6 +62,10 @@ public class R<T> {
         return new R<>(data, DataEnums.FAILED);
     }
 
+    public static <T> R<T> verifyFailed(T data) {
+        return new R<>(data, DataEnums.VERIFICATION_FAILED);
+    }
+
     public static <T> R<T> success() {
         return new R<>(DataEnums.SUCCESS.getMsg(), DataEnums.SUCCESS);
     }

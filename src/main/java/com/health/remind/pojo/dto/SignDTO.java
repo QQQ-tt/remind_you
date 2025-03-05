@@ -16,7 +16,8 @@ public class SignDTO {
     @Schema(description = "用户名")
     private String name;
 
-    @Pattern(regexp = "/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\\d{8}$/", message = "手机号格式有误")
+    @NotBlank(message = "手机号不能为空")
+    @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式有误")
     @Schema(description = "电话")
     private String telephone;
 

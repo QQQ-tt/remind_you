@@ -59,7 +59,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         String password = signDTO.getPassword();
         String againPassword = signDTO.getAgainPassword();
         if (!password.equals(againPassword)) {
-            throw new DataException(DataEnums.DATA_IS_ABNORMAL);
+            throw new DataException(DataEnums.DATA_IS_ABNORMAL, "两次密码不一致");
+        }
+        long count = count(Wrappers.lambdaQuery(SysUser.class)
+                .eq(SysUser::getTelephone, signDTO.getTelephone()));
+        if (count > 0) {
+            throw new DataException(DataEnums.DATA_IS_ABNORMAL, "手机号已存在");
         }
         long l = getAccount();
         String encode = passwordEncoder.encode(signDTO.getPassword());

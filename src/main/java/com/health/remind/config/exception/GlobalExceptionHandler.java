@@ -71,7 +71,7 @@ public class GlobalExceptionHandler {
                 .message(errors.toString())
                 .stackTrace(Arrays.toString(ex.getStackTrace()))
                 .build());
-        return R.failed(errors);
+        return R.verifyFailed(errors);
     }
 
     @ExceptionHandler(NullPointerException.class)
@@ -99,7 +99,7 @@ public class GlobalExceptionHandler {
                 .message(e.getMessage() + msg)
                 .stackTrace(Arrays.toString(e.getStackTrace()))
                 .build());
-        return R.failed(e.getMessage() + msg);
+        return R.failed(e.getMessage() + msg, e.getCode());
     }
 
     @ExceptionHandler(Exception.class)

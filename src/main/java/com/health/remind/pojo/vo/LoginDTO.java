@@ -13,6 +13,7 @@ import lombok.Data;
 public class LoginDTO {
 
     @Pattern(regexp = "^\\d{10}$", message = "账户格式不正确")
+    @NotBlank(message = "账户不能为空")
     @Schema(description = "账户")
     private String account;
 
