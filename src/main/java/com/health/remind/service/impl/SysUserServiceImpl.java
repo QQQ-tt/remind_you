@@ -54,6 +54,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         this.sysRoleService = sysRoleService;
     }
 
+    @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getIp()", autoUnlockTime = 6000)
     @Override
     public SignVO signUser(SignDTO signDTO) {
         String password = signDTO.getPassword();
@@ -74,6 +75,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .password(encode)
                 .telephone(Long.valueOf(signDTO.getTelephone()))
                 .userType(USER_TYPE)
+                .status(false)
                 .build());
         return new SignVO(l);
     }
@@ -83,11 +85,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public LoginVO loginUser(Long account, String password) {
         SysUser sysUser = Optional.ofNullable(getOne(Wrappers.lambdaQuery(SysUser.class)
                         .eq(SysUser::getUserType, USER_TYPE)
-                        .eq(SysUser::getStatus, true)
                         .and(e -> e.eq(SysUser::getAccount, account)
                                 .or()
                                 .eq(SysUser::getTelephone, account))))
                 .orElseThrow(() -> new DataException(DataEnums.DATA_IS_ABNORMAL, "用户不存在"));
+        if (!sysUser.getStatus()) {
+            throw new DataException(DataEnums.USER_STATUS_ERROR);
+        }
         if (passwordEncoder.matches(password, sysUser.getPassword())) {
             HashMap<String, Object> map = new HashMap<>();
             map.put(StaticConstant.USER_TYPE, sysUser.getUserType());
@@ -131,7 +135,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public boolean saveOrUpdateSysUser(SysUserDTO dto) {
-        boolean b = dto.getId() != null;
+        boolean b = dto.getId() == null;
         long count = count(Wrappers.lambdaQuery(SysUser.class)
                 .ne(b, BaseEntity::getId, dto.getId())
                 .eq(StringUtils.isNotBlank(dto.getTelephone()), SysUser::getTelephone, dto.getTelephone()));
@@ -144,8 +148,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     .userType(USER_TYPE)
                     .sysRoleId(dto.getSysRoleId())
                     .build();
-            if (!b) {
+            if (b) {
                 sysUser.setAccount(getAccount());
+            }
+            if (!b && !dto.isStatus()) {
+                SysUser byId = getById(dto.getId());
+                String loginKey = RedisKeys.getLoginKey(String.valueOf(byId.getAccount()), byId.getUserType());
+                RedisUtils.delete(loginKey);
             }
             return saveOrUpdate(sysUser);
         }

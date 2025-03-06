@@ -52,6 +52,7 @@ public class AuthFilter extends OncePerRequestFilter {
             } else {
                 remoteAddr = header;
             }
+            CommonMethod.setIp(remoteAddr);
             CommonMethod.setUrl(remoteAddr + requestURI);
             CommonMethod.setParameter(request.getQueryString());
             log.info("用户信息:{}", CommonMethod.getMap());

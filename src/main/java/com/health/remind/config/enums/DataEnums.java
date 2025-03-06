@@ -28,7 +28,11 @@ public enum DataEnums {
     /**
      * 用户资源不足
      */
-    USER_RESOURCE_ERROR("用户资源不足", 401),
+    USER_RESOURCE_ERROR("用户资源不足", 403),
+    /**
+     * 用户状态异常
+     */
+    USER_STATUS_ERROR("请联系管理员",403),
     /**
      * TOKEN异常
      */

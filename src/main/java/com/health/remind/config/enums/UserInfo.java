@@ -9,6 +9,7 @@ public enum UserInfo {
     USER_NAME("user_name"),
     TOKEN("Authorization"),
     TENANT_ID("tenant_id"),
+    IP("ip"),
     URL("url"),
     PARAMETER("parameter");
 

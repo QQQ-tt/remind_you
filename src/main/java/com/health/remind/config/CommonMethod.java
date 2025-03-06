@@ -133,6 +133,11 @@ public class CommonMethod {
                 .get(UserInfo.URL);
     }
 
+    public static String getIp() {
+        return THREAD_LOCAL.get()
+                .get(UserInfo.IP);
+    }
+
     public static String getParameter() {
         return THREAD_LOCAL.get()
                 .get(UserInfo.PARAMETER);
@@ -146,6 +151,11 @@ public class CommonMethod {
     public static void setUrl(String url) {
         THREAD_LOCAL.get()
                 .put(UserInfo.URL, url);
+    }
+
+    public static void setIp(String ip) {
+        THREAD_LOCAL.get()
+                .put(UserInfo.IP, ip);
     }
 
     public static void setToken(String token) {
