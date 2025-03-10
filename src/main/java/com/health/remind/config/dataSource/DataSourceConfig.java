@@ -10,7 +10,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -30,11 +29,14 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 public class DataSourceConfig {
 
-    @Autowired
-    private MybatisPlusInterceptor mybatisPlusInterceptor;
+    private final MybatisPlusInterceptor mybatisPlusInterceptor;
 
-    @Autowired
-    private MyMetaObjectHandler myMetaObjectHandler;
+    private final MyMetaObjectHandler myMetaObjectHandler;
+
+    public DataSourceConfig(MybatisPlusInterceptor mybatisPlusInterceptor, MyMetaObjectHandler myMetaObjectHandler) {
+        this.mybatisPlusInterceptor = mybatisPlusInterceptor;
+        this.myMetaObjectHandler = myMetaObjectHandler;
+    }
 
     @Bean
     @Primary

@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 :: 服务器IP/域名
-set DEPLOY_HOST=120.55.165.76
+set DEPLOY_HOST=qqqtx.com
 :: 服务器工作目录
 set REMOTE_WORKDIR=/root/install
 :: Maven构建命令
