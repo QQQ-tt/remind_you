@@ -27,7 +27,7 @@ public class Generator {
 
     private static final String PASSWORD;
 
-    private static final String dataName;
+    private static final String DATABASE_NAME;
 
     static {
         Map<String, String> getEnv = System.getenv();
@@ -35,12 +35,12 @@ public class Generator {
                 .orElseThrow(() -> new RuntimeException("请设置java_author环境变量"));
         URL = StringUtils.isBlank(getEnv.get("service_ip")) ? "127.0.0.1" : getEnv.get("service_ip");
         PASSWORD = StringUtils.isBlank(getEnv.get("mysql_password")) ? "123456" : getEnv.get("mysql_password");
-        dataName = Optional.ofNullable(getEnv.get("data_name"))
+        DATABASE_NAME = Optional.ofNullable(getEnv.get("database_name"))
                 .orElseThrow(() -> new RuntimeException("请设置data_name环境变量"));
     }
 
     private static final DataSourceConfig.Builder DATA_SOURCE_CONFIG = new DataSourceConfig.Builder(
-            "jdbc:mysql://" + URL + ":3306/" + dataName,
+            "jdbc:mysql://" + URL + ":3306/" + DATABASE_NAME,
             "root",
             PASSWORD);
 

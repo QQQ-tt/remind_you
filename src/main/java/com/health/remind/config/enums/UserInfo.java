@@ -11,6 +11,7 @@ public enum UserInfo {
     TENANT_ID("tenant_id"),
     IP("ip"),
     URL("url"),
+    METHOD("method"),
     PARAMETER("parameter");
 
     public final String msg;

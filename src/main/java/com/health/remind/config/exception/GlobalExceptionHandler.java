@@ -1,7 +1,7 @@
 package com.health.remind.config.exception;
 
 import com.health.remind.config.R;
-import com.health.remind.scheduler.ExceptionConsumerExecutor;
+import com.health.remind.scheduler.LogConsumerExecutor;
 import com.health.remind.scheduler.entity.ExceptionTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -24,16 +24,16 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private final ExceptionConsumerExecutor exceptionConsumerExecutor;
+    private final LogConsumerExecutor exceptionConsumerExecutor;
 
-    public GlobalExceptionHandler(ExceptionConsumerExecutor exceptionConsumerExecutor) {
+    public GlobalExceptionHandler(LogConsumerExecutor exceptionConsumerExecutor) {
         this.exceptionConsumerExecutor = exceptionConsumerExecutor;
     }
 
     @ExceptionHandler(AuthException.class)
     public ResponseEntity<R<String>> authException(AuthException e) {
         log.warn("认证异常:{}", e.getMessage());
-        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
+        exceptionConsumerExecutor.putExceptionTask(ExceptionTask.builder()
                 .exceptionName(e.getClass()
                         .getName())
                 .level(2)
@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<R<String>> methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         log.error("异常信息:", e);
-        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
+        exceptionConsumerExecutor.putExceptionTask(ExceptionTask.builder()
                 .exceptionName(e.getClass()
                         .getName())
                 .level(1)
@@ -64,7 +64,7 @@ public class GlobalExceptionHandler {
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
-        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
+        exceptionConsumerExecutor.putExceptionTask(ExceptionTask.builder()
                 .exceptionName(ex.getClass()
                         .getName())
                 .level(1)
@@ -77,7 +77,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NullPointerException.class)
     public R<String> nullException(NullPointerException e) {
         log.error("空指针异常", e);
-        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
+        exceptionConsumerExecutor.putExceptionTask(ExceptionTask.builder()
                 .exceptionName(e.getClass()
                         .getName())
                 .level(2)
@@ -92,7 +92,7 @@ public class GlobalExceptionHandler {
         log.warn("业务异常:{}", e.getMessage());
         String msg = !e.getMsg()
                 .isEmpty() ? ":" + e.getMsg() : "";
-        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
+        exceptionConsumerExecutor.putExceptionTask(ExceptionTask.builder()
                 .exceptionName(e.getClass()
                         .getName())
                 .level(2)
@@ -105,7 +105,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public R<String> exception(Exception e) {
         log.error("系统异常", e);
-        exceptionConsumerExecutor.putTask(ExceptionTask.builder()
+        exceptionConsumerExecutor.putExceptionTask(ExceptionTask.builder()
                 .exceptionName(e.getClass()
                         .getName())
                 .level(3)

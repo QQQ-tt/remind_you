@@ -143,6 +143,16 @@ public class CommonMethod {
                 .get(UserInfo.PARAMETER);
     }
 
+    public static String getMethod() {
+        return THREAD_LOCAL.get()
+                .get(UserInfo.METHOD);
+    }
+
+    public static void setMethod(String method) {
+        THREAD_LOCAL.get()
+                .put(UserInfo.METHOD, method);
+    }
+
     public static void setParameter(String parameter) {
         THREAD_LOCAL.get()
                 .put(UserInfo.PARAMETER, parameter);
