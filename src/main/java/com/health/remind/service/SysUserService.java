@@ -76,4 +76,11 @@ public interface SysUserService extends IService<SysUser> {
      * @return 是否成功
      */
     boolean removeByUserId(Long id);
+
+    /**
+     * 测试token
+     *
+     * @return true or false
+     */
+    boolean testToken();
 }

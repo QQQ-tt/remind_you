@@ -84,4 +84,10 @@ public class SysUserController {
     public R<Boolean> removeByUserId(@RequestParam Long id) {
         return R.success(sysUserService.removeByUserId(id));
     }
+
+    @Operation(summary = "测试token")
+    @GetMapping("/testToken")
+    public R<Boolean> testToken() {
+        return R.success(sysUserService.testToken());
+    }
 }

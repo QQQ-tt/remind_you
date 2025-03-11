@@ -179,6 +179,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return removeById(id);
     }
 
+    @Override
+    public boolean testToken() {
+        return true;
+    }
+
     private long getAccount() {
         long l;
         do {
