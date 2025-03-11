@@ -1,8 +1,15 @@
 package com.health.remind.mapper;
 
-import com.health.remind.entity.RequestLog;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.health.remind.entity.RequestLog;
+import com.health.remind.pojo.bo.CountRequest;
+import com.health.remind.pojo.bo.ErrorCountRequest;
+import com.health.remind.pojo.bo.HighConcurrencyRequest;
+import com.health.remind.pojo.bo.IpCountRequest;
+import com.health.remind.pojo.bo.SlowRequest;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -15,4 +22,13 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface RequestLogMapper extends BaseMapper<RequestLog> {
 
+    List<SlowRequest> selectSlowRequest();
+
+    List<CountRequest> selectCountRequest();
+
+    List<HighConcurrencyRequest> selectHighConcurrencyRequest();
+
+    List<ErrorCountRequest> selectErrorCountRequest();
+
+    List<IpCountRequest> selectIpCountRequest();
 }

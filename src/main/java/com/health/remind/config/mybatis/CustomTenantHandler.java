@@ -6,12 +6,21 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author QQQtx
  * @since 2025/2/19
  */
 @Component
 public class CustomTenantHandler implements TenantLineHandler {
+
+    private static final Set<String> igTable = new HashSet<>();
+
+    static {
+        igTable.add("request_log");
+    }
 
     @Override
     public Expression getTenantId() {
@@ -24,7 +33,7 @@ public class CustomTenantHandler implements TenantLineHandler {
     @Override
     public boolean ignoreTable(String tableName) {
         // 根据需要返回是否忽略该表
-        return false;
+        return igTable.contains(tableName);
     }
 
 }

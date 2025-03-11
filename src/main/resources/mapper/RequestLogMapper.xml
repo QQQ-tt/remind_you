@@ -2,4 +2,53 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.health.remind.mapper.RequestLogMapper">
 
+    <select id="selectSlowRequest" resultType="com.health.remind.pojo.bo.SlowRequest">
+        SELECT url,
+               method,
+               COUNT(*)  AS request_count,
+               AVG(size) AS avg_time,
+               MAX(size) AS max_time
+        FROM request_log
+        WHERE time >= NOW() - INTERVAL 1 DAY -- 过去一天
+        GROUP BY url, method
+        ORDER BY avg_time DESC
+        LIMIT 10
+    </select>
+    <select id="selectCountRequest" resultType="com.health.remind.pojo.bo.CountRequest">
+        SELECT url, method, COUNT(*) AS request_count
+        FROM request_log
+        WHERE time >= NOW() - INTERVAL 1 DAY
+        GROUP BY url, method
+        ORDER BY request_count DESC
+        LIMIT 10
+    </select>
+    <select id="selectHighConcurrencyRequest" resultType="com.health.remind.pojo.bo.HighConcurrencyRequest">
+        SELECT url, method, COUNT(*) AS request_count, MIN(time) AS start_time
+        FROM request_log
+        WHERE time >= NOW() - INTERVAL 1 HOUR
+        GROUP BY url, method, UNIX_TIMESTAMP(time) DIV 1  -- 1秒内的请求数
+        HAVING request_count > 100
+        ORDER BY request_count DESC;
+
+    </select>
+    <select id="selectErrorCountRequest" resultType="com.health.remind.pojo.bo.ErrorCountRequest">
+        SELECT url, method, COUNT(*) AS error_count,
+               COUNT(*) * 100 / (SELECT COUNT(*) FROM request_log) AS error_rate
+        FROM request_log
+        WHERE status_code NOT LIKE '2%'  -- 过滤 2xx 成功请求
+          AND time >= NOW() - INTERVAL 1 DAY
+        GROUP BY url, method
+        ORDER BY error_count DESC
+        LIMIT 10;
+
+    </select>
+    <select id="selectIpCountRequest" resultType="com.health.remind.pojo.bo.IpCountRequest">
+        SELECT ip, COUNT(*) AS request_count
+        FROM request_log
+        WHERE time >= NOW() - INTERVAL 1 DAY
+        GROUP BY ip
+        ORDER BY request_count DESC
+        LIMIT 10;
+
+    </select>
 </mapper>
