@@ -39,7 +39,7 @@ import java.util.Random;
  * @since 2025-01-14
  */
 @Slf4j
-@Tag(name = "测试")
+@Tag(name = "测试", description = StaticConstant.PERMISSION_KEY)
 @RestController
 @RequestMapping("/remind/test")
 public class TestController {

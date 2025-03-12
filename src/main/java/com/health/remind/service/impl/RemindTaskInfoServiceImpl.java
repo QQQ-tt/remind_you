@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -42,9 +43,14 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
             CompletableFuture.runAsync(() -> {
                 CommonMethod.setMap(map);
                 List<RemindTaskInfo> list = list(Wrappers.lambdaQuery(RemindTaskInfo.class)
-                        .eq(RemindTaskInfo::getRemindTaskId, task.getId()));
-                list.forEach(e -> DelayScheduledExecutor.putRemindTask(e.getId(), task.getId(), e.getEstimatedTime(),
-                        e.getRemindType(), map));
+                        .eq(RemindTaskInfo::getRemindTaskId, task.getId())
+                        .eq(RemindTaskInfo::getIsSend, false)
+                        .orderByAsc(RemindTaskInfo::getEstimatedTime));
+                // 只放第一个任务
+                list.stream()
+                        .findFirst()
+                        .ifPresent(e -> DelayScheduledExecutor.putRemindTask(e.getId(), task.getId(),
+                                e.getEstimatedTime(), e.getRemindType(), map));
             }, threadPoolExecutor);
         }
     }
@@ -55,17 +61,22 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
         Map<UserInfo, String> map = CommonMethod.getMap();
         CompletableFuture.runAsync(() -> {
             CommonMethod.setMap(map);
-            List<RemindTaskInfo> list = list(Wrappers.lambdaQuery(RemindTaskInfo.class)
+            Map<Long, List<RemindTaskInfo>> listMap = list(Wrappers.lambdaQuery(RemindTaskInfo.class)
                     .eq(RemindTaskInfo::getIsRemind, true)
                     .eq(RemindTaskInfo::getIsSend, false)
-                    .ne(RemindTaskInfo::getEstimatedTime, LocalDateTime.now()));
-            list.forEach(e -> {
-                CommonMethod.setTenantId(e.getTenantId()
-                        .toString());
-                DelayScheduledExecutor.putRemindTask(e.getId(), e.getRemindTaskId(),
-                        e.getEstimatedTime(),
-                        e.getRemindType(), map);
-            });
+                    .ne(RemindTaskInfo::getEstimatedTime, LocalDateTime.now())
+                    .orderByAsc(RemindTaskInfo::getEstimatedTime)
+                    .orderByAsc(RemindTaskInfo::getRemindTaskId)).stream()
+                    .collect(Collectors.groupingBy(RemindTaskInfo::getRemindTaskId));
+            listMap.forEach((k, v) -> v.stream()
+                    .findFirst()
+                    .ifPresent(e -> {
+                        CommonMethod.setTenantId(e.getTenantId()
+                                .toString());
+                        DelayScheduledExecutor.putRemindTask(e.getId(), e.getRemindTaskId(),
+                                e.getEstimatedTime(),
+                                e.getRemindType(), map);
+                    }));
         }, threadPoolExecutor);
     }
 }

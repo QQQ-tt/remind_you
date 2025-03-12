@@ -35,6 +35,12 @@ public class RemindTaskController {
         this.remindTaskService = remindTaskService;
     }
 
+    @Operation(summary = "分页查询提醒任务")
+    @PostMapping("/pageTask")
+    public R<Page<RemindTaskVO>> pageTask(@RequestBody RemindTaskPageDTO dto) {
+        return R.success(remindTaskService.pageTask(dto));
+    }
+
     @Operation(summary = "根据用户分页查询提醒任务")
     @PostMapping("/pageTaskByUserId")
     public R<Page<RemindTaskVO>> pageTaskByUserId(@RequestBody RemindTaskPageDTO dto) {

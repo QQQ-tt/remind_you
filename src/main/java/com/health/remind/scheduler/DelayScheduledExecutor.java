@@ -112,8 +112,17 @@ public class DelayScheduledExecutor extends ScheduledBase {
         RemindTaskInfo info = new RemindTaskInfo();
         info.setId(task.getId());
         info.setIsSend(true);
+        info.setActualTime(LocalDateTime.now());
         // 发送消息
         remindTaskInfoService.updateById(info);
+        RemindTaskInfo one = remindTaskInfoService.getOne(Wrappers.lambdaQuery(RemindTaskInfo.class)
+                .eq(RemindTaskInfo::getRemindTaskId,
+                        task.getOtherId())
+                .eq(RemindTaskInfo::getIsSend, false)
+                .orderByAsc(RemindTaskInfo::getEstimatedTime)
+                .last("limit 1"));
+        putRemindTask(one.getId(), one.getRemindTaskId(), one.getEstimatedTime(), one.getRemindType(),
+                task.getCommonMethod());
     }
 
     private void remindWxTask(DelayTask task) {

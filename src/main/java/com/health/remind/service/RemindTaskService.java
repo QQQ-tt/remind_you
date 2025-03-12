@@ -3,7 +3,6 @@ package com.health.remind.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.health.remind.entity.RemindTask;
-import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.pojo.dto.RemindTaskDTO;
 import com.health.remind.pojo.dto.RemindTaskIndoDTO;
 import com.health.remind.pojo.dto.RemindTaskPageDTO;
@@ -23,6 +22,14 @@ import java.util.List;
  * @since 2025-01-22
  */
 public interface RemindTaskService extends IService<RemindTask> {
+
+    /**
+     * 分页查询用户提醒任务
+     *
+     * @param dto 查询条件
+     * @return 分页集合
+     */
+    Page<RemindTaskVO> pageTask(RemindTaskPageDTO dto);
 
     /**
      * 分页查询用户提醒任务

@@ -69,6 +69,14 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     }
 
     @Override
+    public Page<RemindTaskVO> pageTask(RemindTaskPageDTO dto) {
+        return baseMapper.selectPageTask(dto.getPage(),
+                Wrappers.lambdaQuery(RemindTask.class)
+                        .like(StringUtils.isNotBlank(dto.getName()), RemindTask::getName, dto.getName())
+                        .orderByDesc(BaseEntity::getCreateTime));
+    }
+
+    @Override
     public Page<RemindTaskVO> pageTaskByUserId(RemindTaskPageDTO dto) {
         return baseMapper.selectPageTask(dto.getPage(),
                 Wrappers.lambdaQuery(RemindTask.class)

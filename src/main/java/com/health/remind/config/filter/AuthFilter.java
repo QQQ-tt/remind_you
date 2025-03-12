@@ -45,7 +45,6 @@ public class AuthFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         if (CommonMethod.isPublicUrl(request.getRequestURI())) {
             filterChain.doFilter(request, response);
-            CommonMethod.clear();
             return;
         }
 
@@ -68,6 +67,10 @@ public class AuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * token检验
+     * @return 不等于null 校验通过
+     */
     private static Token getToken(HttpServletRequest request, HttpServletResponse response) {
         String auth = request.getHeader(UserInfo.TOKEN.toString());
         if (StringUtils.isBlank(auth)) {
