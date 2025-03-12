@@ -1,6 +1,7 @@
 package com.health.remind.common.keys;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author QQQtx
@@ -30,10 +31,11 @@ public class RedisKeys {
      * @return remind:info:userId:startTime-endTime
      */
     public static String getRemindInfoKey(Long userId, LocalDateTime startTime, LocalDateTime endTime) {
+        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH/mm/ss");
         if (startTime == null || endTime == null) {
             return "remind:info:" + userId + ":*";
         }
-        return "remind:info:" + userId + ":" + startTime + "-" + endTime;
+        return "remind:info:" + userId + ":" + pattern.format(startTime) + "-" + pattern.format(endTime);
     }
 
     /**

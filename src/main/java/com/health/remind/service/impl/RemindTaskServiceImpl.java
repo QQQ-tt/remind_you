@@ -173,13 +173,15 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                         .in(RemindTaskInfo::getRemindTaskId,
                                 list.stream()
                                         .map(BaseEntity::getId)
-                                        .toList()))
+                                        .toList())
+                        .orderByAsc(RemindTaskInfo::getEstimatedTime))
                 .stream()
                 .map(m -> RemindTaskInfoVO.builder()
                         .name(taskMap.get(m.getRemindTaskId())
                                 .getName())
                         .time(m.getTime())
                         .isRead(m.getIsRead())
+                        .isSend(m.getIsSend())
                         .build())
                 .toList();
         RedisUtils.setObject(remindInfoKey, taskInfoVOS);

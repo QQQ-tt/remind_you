@@ -58,9 +58,7 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
     @PostConstruct
     @Override
     public void initTask() {
-        Map<UserInfo, String> map = CommonMethod.getMap();
         CompletableFuture.runAsync(() -> {
-            CommonMethod.setMap(map);
             Map<Long, List<RemindTaskInfo>> listMap = list(Wrappers.lambdaQuery(RemindTaskInfo.class)
                     .eq(RemindTaskInfo::getIsRemind, true)
                     .eq(RemindTaskInfo::getIsSend, false)
@@ -75,7 +73,7 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
                                 .toString());
                         DelayScheduledExecutor.putRemindTask(e.getId(), e.getRemindTaskId(),
                                 e.getEstimatedTime(),
-                                e.getRemindType(), map);
+                                e.getRemindType(), CommonMethod.getMap());
                     }));
         }, threadPoolExecutor);
     }

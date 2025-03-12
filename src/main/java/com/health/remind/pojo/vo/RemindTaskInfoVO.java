@@ -26,4 +26,7 @@ public class RemindTaskInfoVO {
 
     @Schema(description = "是否已读")
     private Boolean isRead;
+
+    @Schema(description = "是否已发送")
+    private Boolean isSend;
 }
