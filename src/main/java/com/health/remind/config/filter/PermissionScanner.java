@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -111,7 +110,7 @@ public class PermissionScanner {
                                 throw new RuntimeException(e);
                             }
                             if (StaticConstant.PERMISSION_KEY.equals(description) ||
-                                    StaticConstant.PERMISSION_KEY.equals(Objects.requireNonNull(tagAnnotation).description())) {
+                                    (tagAnnotation != null && StaticConstant.PERMISSION_KEY.equals(tagAnnotation.description()))) {
                                 publicPath.add(childPath);
                                 RedisUtils.hPut(
                                         RedisKeys.getTokenPermissionKey(applicationName, StaticConstant.PERMISSION_KEY),
