@@ -28,8 +28,7 @@
         WHERE time >= NOW() - INTERVAL 1 HOUR
         GROUP BY url, method, UNIX_TIMESTAMP(time) DIV 1  -- 1秒内的请求数
         HAVING request_count > 100
-        ORDER BY request_count DESC;
-
+        ORDER BY request_count DESC
     </select>
     <select id="selectErrorCountRequest" resultType="com.health.remind.pojo.bo.ErrorCountRequest">
         SELECT url, method, COUNT(*) AS error_count,
@@ -39,8 +38,7 @@
           AND time >= NOW() - INTERVAL 1 DAY
         GROUP BY url, method
         ORDER BY error_count DESC
-        LIMIT 10;
-
+        LIMIT 10
     </select>
     <select id="selectIpCountRequest" resultType="com.health.remind.pojo.bo.IpCountRequest">
         SELECT ip, COUNT(*) AS request_count
@@ -48,7 +46,6 @@
         WHERE time >= NOW() - INTERVAL 1 DAY
         GROUP BY ip
         ORDER BY request_count DESC
-        LIMIT 10;
-
+        LIMIT 10
     </select>
 </mapper>
