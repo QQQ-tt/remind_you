@@ -109,6 +109,27 @@ public class DelayScheduledExecutor extends ScheduledBase {
         remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
                 .eq(BaseEntity::getId, task.getOtherId())
                 .setSql("push_num = " + "push_num + 1"));
+        // 发送消息
+        updateStatus(task);
+    }
+
+    private void remindWxTask(DelayTask task) {
+        remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
+                .eq(BaseEntity::getId, task.getOtherId())
+                .setSql("push_num = " + "push_num + 1"));
+        // 发送消息
+        updateStatus(task);
+    }
+
+    private void textTask(DelayTask task) {
+        long start = System.currentTimeMillis();
+        long between = ChronoUnit.SECONDS.between(task.getLastExecutionTime(), LocalDateTime.now());
+        long end = System.currentTimeMillis();
+        log.info("执行任务:{},延时间隔:{}秒,任务执行时间:{}毫秒", task.getId(), between, end - start);
+        updateStatus(task);
+    }
+
+    private void updateStatus(DelayTask task) {
         RemindTaskInfo info = new RemindTaskInfo();
         info.setId(task.getId());
         info.setIsSend(true);
@@ -123,23 +144,5 @@ public class DelayScheduledExecutor extends ScheduledBase {
                 .last("limit 1"));
         putRemindTask(one.getId(), one.getRemindTaskId(), one.getEstimatedTime(), one.getRemindType(),
                 task.getCommonMethod());
-    }
-
-    private void remindWxTask(DelayTask task) {
-        remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
-                .eq(BaseEntity::getId, task.getOtherId())
-                .setSql("push_num = " + "push_num + 1"));
-        RemindTaskInfo info = new RemindTaskInfo();
-        info.setId(task.getId());
-        info.setIsSend(true);
-        // 发送消息
-        remindTaskInfoService.updateById(info);
-    }
-
-    private void textTask(DelayTask task) {
-        long start = System.currentTimeMillis();
-        long between = ChronoUnit.SECONDS.between(task.getLastExecutionTime(), LocalDateTime.now());
-        long end = System.currentTimeMillis();
-        log.info("执行任务:{},延时间隔:{}秒,任务执行时间:{}毫秒", task.getId(), between, end - start);
     }
 }
