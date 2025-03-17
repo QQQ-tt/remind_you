@@ -98,8 +98,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             Optional.ofNullable(sysUser.getSysRoleId())
                     .flatMap(e -> Optional.ofNullable(sysRoleService.getById(e)))
                     .ifPresent(byId -> map.put(StaticConstant.ROLE_ID, byId.getStatus() ? byId.getId() : ""));
-            String s = JwtUtils.generateToken(sysUser.getAccount()
-                    .toString(), map);
+            String s = JwtUtils.generateToken(account.toString(), map);
             LoginVO loginVO = new LoginVO(sysUser.getId(), sysUser.getName(), s);
             RedisUtils.setObject(RedisKeys.getLoginKey(account.toString(), sysUser.getUserType()), loginVO);
             RedisUtils.expire(RedisKeys.getLoginKey(account.toString(), sysUser.getUserType()),
