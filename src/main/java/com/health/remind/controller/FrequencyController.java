@@ -31,7 +31,7 @@ import java.util.List;
  */
 @Tag(name = "频率")
 @RestController
-@RequestMapping("/remind/frequency")
+@RequestMapping("/remind/frequencyRule")
 public class FrequencyController {
 
     private final FrequencyService frequencyService;
