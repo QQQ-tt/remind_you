@@ -43,7 +43,7 @@ public class DataSourceConfig {
     public SqlSessionFactory sysSqlSessionFactory(
             DataSource datasource) throws Exception {
         MybatisConfiguration configuration = new MybatisConfiguration();
-        configuration.setLogImpl(org.apache.ibatis.logging.stdout.StdOutImpl.class);
+        configuration.setLogImpl(org.apache.ibatis.logging.slf4j.Slf4jImpl.class);
         configuration.setDefaultExecutorType(ExecutorType.SIMPLE);
         configuration.setMapUnderscoreToCamelCase(true);
         configuration.setCallSettersOnNulls(true);

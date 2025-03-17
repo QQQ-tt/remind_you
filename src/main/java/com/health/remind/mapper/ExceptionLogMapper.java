@@ -1,7 +1,7 @@
 package com.health.remind.mapper;
 
-import com.health.remind.entity.ExceptionLog;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.health.remind.entity.ExceptionLog;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

@@ -136,7 +136,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public boolean saveOrUpdateSysUser(SysUserDTO dto) {
         boolean b = dto.getId() == null;
         long count = count(Wrappers.lambdaQuery(SysUser.class)
-                .ne(b, BaseEntity::getId, dto.getId())
+                .ne(!b, BaseEntity::getId, dto.getId())
                 .eq(StringUtils.isNotBlank(dto.getTelephone()), SysUser::getTelephone, dto.getTelephone()));
         if (count == 0) {
             SysUser sysUser = SysUser.builder()
