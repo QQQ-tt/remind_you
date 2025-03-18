@@ -19,7 +19,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -31,7 +30,7 @@ import java.util.Map;
  */
 @Slf4j
 @Order(1)
-@WebFilter("/*")
+@WebFilter("/remind/*")
 public class CommonFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper;
@@ -74,29 +73,27 @@ public class CommonFilter extends OncePerRequestFilter {
         if (!parameterMap.isEmpty()) {
             params = objectMapper.writeValueAsString(parameterMap);
         }
-        ContentCachingRequestWrapper cachedRequest = new ContentCachingRequestWrapper(request);
-        filterChain.doFilter(cachedRequest, response);
+        ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
+        filterChain.doFilter(requestWrapper, response);
 
-        if (StringUtils.isBlank(params)) {
-            params = new String(cachedRequest.getContentAsByteArray(), StandardCharsets.UTF_8).trim();
-        }
+        RequestLog requestLog = new RequestLog();
         CommonMethod.setParameter(params);
         // 计算请求时间
         long duration = System.currentTimeMillis() - startTime;
         int statusCode = response.getStatus();
         int contentLength = request.getContentLength();
-        RequestLog log = new RequestLog();
-        log.setIp(CommonMethod.getIp());
-        log.setUrl(CommonMethod.getUrl());
-        log.setMethod(CommonMethod.getMethod());
-        log.setTime(now);
-        log.setSize((int) duration);
-        log.setStatusCode(String.valueOf(statusCode));
-        log.setUserAgent(userAgent);
-        log.setParams(params);
-        log.setHeaders(headers);
-        log.setResponseLength(contentLength);
-        requestLogConsumerExecutor.putLogTask(log);
+
+        requestLog.setIp(CommonMethod.getIp());
+        requestLog.setUrl(CommonMethod.getUrl());
+        requestLog.setMethod(CommonMethod.getMethod());
+        requestLog.setTime(now);
+        requestLog.setSize((int) duration);
+        requestLog.setStatusCode(String.valueOf(statusCode));
+        requestLog.setUserAgent(userAgent);
+        requestLog.setParams(params);
+        requestLog.setHeaders(headers);
+        requestLog.setResponseLength(contentLength);
+        requestLogConsumerExecutor.putLogTask(requestLog);
         CommonMethod.clear();
     }
 
