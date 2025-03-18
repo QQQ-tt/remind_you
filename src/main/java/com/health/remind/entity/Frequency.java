@@ -32,8 +32,8 @@ import java.util.List;
 public class Frequency extends BaseEntity {
 
     @Schema(description = "频次名称")
-    @TableField("frequency_name")
-    private String frequencyName;
+    @TableField("name")
+    private String name;
 
     @Schema(description = "频次编码")
     @TableField("frequency_code")
@@ -77,7 +77,7 @@ public class Frequency extends BaseEntity {
     @Builder
     public Frequency(Long id, Long createId, String createName, LocalDateTime createTime, Long updateId, String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag, String frequencyName, String frequencyCode, String frequencyDesc, Integer frequencyNumber, Integer frequencyCycle, FrequencyEnum cycleUnit, FrequencyTypeEnum type, Boolean status, String source, Integer level) {
         super(id, createId, createName, createTime, updateId, updateName, updateTime, tenantId, deleteFlag);
-        this.frequencyName = frequencyName;
+        this.name = frequencyName;
         this.frequencyCode = frequencyCode;
         this.frequencyDesc = frequencyDesc;
         this.frequencyNumber = frequencyNumber;

@@ -47,8 +47,8 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
         return baseMapper.selectPageFrequency(dto.getPage(),
                 Wrappers.lambdaQuery(Frequency.class)
                         .eq(BaseEntity::getDeleteFlag, false)
-                        .like(StringUtils.isNotBlank(dto.getFrequencyName()),
-                                Frequency::getFrequencyName, dto.getFrequencyName())
+                        .like(StringUtils.isNotBlank(dto.getName()),
+                                Frequency::getName, dto.getName())
                         .orderByDesc(BaseEntity::getCreateTime));
     }
 
@@ -77,7 +77,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
         if (frequency != null) {
             return FrequencyVO.builder()
                     .id(frequency.getId())
-                    .frequencyName(frequency.getFrequencyName())
+                    .name(frequency.getName())
                     .frequencyCode(frequency.getFrequencyCode())
                     .frequencyDesc(frequency.getFrequencyDesc())
                     .frequencyNumber(frequency.getFrequencyNumber())
@@ -99,7 +99,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
         }
         long count = count(Wrappers.lambdaQuery(Frequency.class)
                 .ne(dto.getId() != null, BaseEntity::getId, dto.getId())
-                .and(w -> w.eq(Frequency::getFrequencyName, dto.getFrequencyName())
+                .and(w -> w.eq(Frequency::getName, dto.getFrequencyName())
                         .or()
                         .eq(Frequency::getFrequencyCode, dto.getFrequencyCode())));
         if (count == 0) {

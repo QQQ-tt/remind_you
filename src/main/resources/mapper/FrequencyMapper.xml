@@ -4,7 +4,7 @@
 
     <select id="selectPageFrequency" resultType="com.health.remind.pojo.vo.FrequencyVO">
         select id,
-               frequency_name,
+               name,
                frequency_code,
                frequency_desc,
                frequency_cycle,
@@ -15,7 +15,7 @@
     </select>
     <select id="selectListFrequency" resultType="com.health.remind.pojo.vo.FrequencyVO">
         select id,
-               frequency_name,
+               name,
                frequency_code,
                frequency_desc,
                frequency_cycle,

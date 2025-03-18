@@ -15,5 +15,5 @@ import lombok.EqualsAndHashCode;
 public class FrequencyPageDTO extends PageDTO<Frequency> {
 
     @Schema(description = "频次名称")
-    private String frequencyName;
+    private String name;
 }

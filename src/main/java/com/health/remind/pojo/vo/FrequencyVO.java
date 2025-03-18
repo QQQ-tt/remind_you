@@ -23,7 +23,7 @@ public class FrequencyVO {
     private Long id;
 
     @Schema(description = "频次名称")
-    private String frequencyName;
+    private String name;
 
     @Schema(description = "频次编码")
     private String frequencyCode;
@@ -31,7 +31,7 @@ public class FrequencyVO {
     @Schema(description = "频次描述")
     private String frequencyDesc;
 
-    @Schema(description = "频次数目")
+    @Schema(description = "执行次数")
     private Integer frequencyNumber;
 
     @Schema(description = "频次周期")
