@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -54,6 +55,18 @@ public class GlobalExceptionHandler {
                 .stackTrace(Arrays.toString(e.getStackTrace()))
                 .build());
         return new ResponseEntity<>(R.failed(e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<R<String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        log.error("HTTP消息读取异常: {}", e.getMessage());
+        exceptionConsumerExecutor.putExceptionTask(ExceptionTask.builder()
+                .exceptionName(e.getClass().getName())
+                .level(1)
+                .message(e.getMessage())
+                .stackTrace(Arrays.toString(e.getStackTrace()))
+                .build());
+        return new ResponseEntity<>(R.failed("请求参数格式错误: " + e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
