@@ -14,7 +14,8 @@
                remind_type,
                advance_num,
                cycle_unit,
-               create_time
+               create_time,
+               update_time
         from remind_task ${ew.customSqlSegment}
     </select>
     <select id="selectOneById" resultType="com.health.remind.pojo.vo.RemindTaskVO">

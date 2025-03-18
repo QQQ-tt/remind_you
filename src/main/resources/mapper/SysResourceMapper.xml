@@ -10,7 +10,9 @@
                method,
                description,
                status,
-               create_time
+               parent_id,
+               create_time,
+               update_time
         from sys_resource ${ew.customSqlSegment}
     </select>
 </mapper>

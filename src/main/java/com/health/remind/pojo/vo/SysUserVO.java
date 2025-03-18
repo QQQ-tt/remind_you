@@ -26,7 +26,7 @@ public class SysUserVO {
     @Schema(description = "是否启用")
     private Boolean status;
 
-    @Schema(description = "角色id")
+    @Schema(description = "角色名称")
     private String sysRoleName;
 
     @Schema(description = "创建时间")

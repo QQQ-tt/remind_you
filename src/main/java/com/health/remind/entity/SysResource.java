@@ -37,6 +37,10 @@ public class SysResource extends BaseEntity {
     @TableField("url")
     private String url;
 
+    @Schema(description = "图标")
+    @TableField("icon")
+    private String icon;
+
     @Schema(description = "资源类型：路由、接口")
     @TableField("type")
     private SysResourceEnum type;

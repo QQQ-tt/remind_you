@@ -34,12 +34,29 @@ public class SysResourceServiceImpl extends ServiceImpl<SysResourceMapper, SysRe
 
     @Override
     public Page<SysResourceVO> pageResource(SysResourcePageDTO dto) {
-        return baseMapper.selectPageResource(dto.getPage(),
+        Page<SysResourceVO> page = baseMapper.selectPageResource(dto.getPage(),
                 Wrappers.lambdaQuery(SysResource.class)
                         .eq(BaseEntity::getDeleteFlag, false)
-                        .eq(SysResource::getParentId, 0)
+                        .eq(StringUtils.isBlank(dto.getName()),SysResource::getParentId, 0)
                         .like(StringUtils.isNotBlank(dto.getName()), SysResource::getName, dto.getName())
                         .orderByDesc(BaseEntity::getCreateTime));
+        List<SysResourceVO> list = list(Wrappers.lambdaQuery(SysResource.class)).stream().map(e-> SysResourceVO.builder()
+                .id(e.getId())
+                .name(e.getName())
+                .url(e.getUrl())
+                .type(e.getType())
+                .method(e.getMethod())
+                .description(e.getDescription())
+                .status(e.getStatus())
+                .createTime(e.getCreateTime())
+                .updateTime(e.getUpdateTime())
+                .parentId(e.getParentId())
+                .build()).toList();
+        Map<Long, List<SysResourceVO>> hashMap = new HashMap<>();
+        list.forEach(e -> hashMap.computeIfAbsent(e.getParentId(), k -> new ArrayList<>())
+                .add(e));
+        page.getRecords().forEach(e -> setChildren(e, hashMap));
+        return page;
     }
 
     @Override
@@ -52,6 +69,7 @@ public class SysResourceServiceImpl extends ServiceImpl<SysResourceMapper, SysRe
     public List<SysResource> treeResource() {
         List<SysResource> list = list(Wrappers.lambdaQuery(SysResource.class)
                 .eq(SysResource::getStatus, true));
+        // 树结构优化构造
         Map<Long, List<SysResource>> hashMap = new HashMap<>();
         list.forEach(e -> hashMap.computeIfAbsent(e.getParentId(), k -> new ArrayList<>())
                 .add(e));
@@ -62,6 +80,14 @@ public class SysResourceServiceImpl extends ServiceImpl<SysResourceMapper, SysRe
     }
 
     private void setChildren(SysResource sysResource, Map<Long, List<SysResource>> hashMap) {
+        Optional.ofNullable(hashMap.get(sysResource.getId()))
+                .ifPresent(i -> {
+                    sysResource.setChildren(i);
+                    i.forEach(e -> setChildren(e, hashMap));
+                });
+    }
+
+    private void setChildren(SysResourceVO sysResource, Map<Long, List<SysResourceVO>> hashMap) {
         Optional.ofNullable(hashMap.get(sysResource.getId()))
                 .ifPresent(i -> {
                     sysResource.setChildren(i);
