@@ -9,8 +9,11 @@
                frequency_desc,
                frequency_cycle,
                frequency_number,
+               cycle_unit,
                type,
-               status
+               status,
+               create_time,
+               update_time
         from frequency ${ew.customSqlSegment}
     </select>
     <select id="selectListFrequency" resultType="com.health.remind.pojo.vo.FrequencyVO">

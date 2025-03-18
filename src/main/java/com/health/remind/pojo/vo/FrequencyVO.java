@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -45,6 +46,12 @@ public class FrequencyVO {
 
     @Schema(description = "是否启用")
     private Boolean status;
+
+    @Schema(description = "创建时间")
+    private LocalDateTime createTime;
+
+    @Schema(description = "更新时间")
+    private LocalDateTime updateTime;
 
     @Schema(description = "频次详情")
     private List<FrequencyDetailVO> frequencyDetailList;
