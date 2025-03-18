@@ -30,7 +30,7 @@ import java.util.Map;
  */
 @Slf4j
 @Order(1)
-@WebFilter("/remind/*")
+@WebFilter("/*")
 public class CommonFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper;
