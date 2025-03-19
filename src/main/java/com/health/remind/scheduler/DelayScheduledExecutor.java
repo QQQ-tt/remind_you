@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.health.remind.config.BaseEntity;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.UserInfo;
+import com.health.remind.config.lock.RedisLock;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.scheduler.entity.DelayTask;
@@ -98,6 +99,7 @@ public class DelayScheduledExecutor extends ScheduledBase {
         }
     }
 
+    @RedisLock(lockParameter = "task.id", retryNum = 0)
     private void executeTask(DelayTask task) {
         log.info("执行任务:{},任务类型:{}", task.getId(), task.getRemindTypeEnum());
         CommonMethod.setMap(task.getCommonMethod());

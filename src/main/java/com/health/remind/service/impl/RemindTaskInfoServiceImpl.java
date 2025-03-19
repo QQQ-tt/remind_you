@@ -2,7 +2,6 @@ package com.health.remind.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.health.remind.config.BaseEntity;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.UserInfo;
 import com.health.remind.entity.RemindTask;
@@ -10,7 +9,6 @@ import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.mapper.RemindTaskInfoMapper;
 import com.health.remind.scheduler.DelayScheduledExecutor;
 import com.health.remind.service.RemindTaskInfoService;
-import com.health.remind.service.RemindTaskService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
@@ -32,12 +30,9 @@ import java.util.stream.Collectors;
 @Service
 public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper, RemindTaskInfo> implements RemindTaskInfoService {
 
-    private final RemindTaskService remindTaskService;
-
     private final ThreadPoolExecutor threadPoolExecutor;
 
-    public RemindTaskInfoServiceImpl(RemindTaskService remindTaskService, ThreadPoolExecutor threadPoolExecutor) {
-        this.remindTaskService = remindTaskService;
+    public RemindTaskInfoServiceImpl(ThreadPoolExecutor threadPoolExecutor) {
         this.threadPoolExecutor = threadPoolExecutor;
     }
 
@@ -64,15 +59,35 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
     @Override
     public void initTask() {
         CompletableFuture.runAsync(() -> {
-            List<RemindTask> taskList = remindTaskService.list(Wrappers.lambdaQuery(RemindTask.class)
-                    .eq(RemindTask::getStatus, Boolean.TRUE));
             Map<Long, List<RemindTaskInfo>> listMap = list(Wrappers.lambdaQuery(RemindTaskInfo.class)
                     .eq(RemindTaskInfo::getIsRemind, true)
+                    .eq(RemindTaskInfo::getStatus, true)
                     .eq(RemindTaskInfo::getIsSend, false)
                     .ne(RemindTaskInfo::getEstimatedTime, LocalDateTime.now())
-                    .in(RemindTaskInfo::getRemindTaskId, taskList.stream()
-                            .map(BaseEntity::getId)
-                            .toList())
+                    .orderByAsc(RemindTaskInfo::getEstimatedTime)
+                    .orderByAsc(RemindTaskInfo::getRemindTaskId)).stream()
+                    .collect(Collectors.groupingBy(RemindTaskInfo::getRemindTaskId));
+            listMap.forEach((k, v) -> v.stream()
+                    .findFirst()
+                    .ifPresent(e -> {
+                        CommonMethod.setTenantId(e.getTenantId()
+                                .toString());
+                        DelayScheduledExecutor.putRemindTask(e.getId(), e.getRemindTaskId(),
+                                e.getEstimatedTime(),
+                                e.getRemindType(), CommonMethod.getMap());
+                    }));
+        }, threadPoolExecutor);
+    }
+
+    @Override
+    public void initTaskById(Long id) {
+        CompletableFuture.runAsync(() -> {
+            Map<Long, List<RemindTaskInfo>> listMap = list(Wrappers.lambdaQuery(RemindTaskInfo.class)
+                    .eq(RemindTaskInfo::getRemindTaskId, id)
+                    .eq(RemindTaskInfo::getIsRemind, true)
+                    .eq(RemindTaskInfo::getStatus, true)
+                    .eq(RemindTaskInfo::getIsSend, false)
+                    .ne(RemindTaskInfo::getEstimatedTime, LocalDateTime.now())
                     .orderByAsc(RemindTaskInfo::getEstimatedTime)
                     .orderByAsc(RemindTaskInfo::getRemindTaskId)).stream()
                     .collect(Collectors.groupingBy(RemindTaskInfo::getRemindTaskId));

@@ -124,10 +124,20 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         boolean update = update(Wrappers.lambdaUpdate(RemindTask.class)
                 .setSql("status = !status")
                 .eq(BaseEntity::getId, id));
+        remindTaskInfoService.update(Wrappers.lambdaUpdate(RemindTaskInfo.class)
+                .setSql("status = !status")
+                .eq(BaseEntity::getId, id));
         List<RemindTaskInfo> list = remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
                 .eq(BaseEntity::getId, id));
-        list.forEach(e -> ScheduledBase.cancelTask(e.getId(), ScheduledEnum.DELAY_SCHEDULED));
-        remindTaskInfoService.initTask();
+        list.stream()
+                .findAny()
+                .ifPresent(i -> {
+                    if (i.getStatus()) {
+                        remindTaskInfoService.initTaskById(id);
+                    } else {
+                        list.forEach(e -> ScheduledBase.cancelTask(e.getId(), ScheduledEnum.DELAY_SCHEDULED));
+                    }
+                });
         return update;
     }
 

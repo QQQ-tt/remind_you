@@ -49,6 +49,10 @@ public class RemindTaskInfo extends BaseEntity {
     @TableField("is_remind")
     private Boolean isRemind;
 
+    @Schema(description = "状态")
+    @TableField("status")
+    private Boolean status;
+
     @Schema(description = "提醒方式")
     @TableField("remind_type")
     private RemindTypeEnum remindType;

@@ -25,4 +25,11 @@ public interface RemindTaskInfoService extends IService<RemindTaskInfo> {
      * 初始化任务详情添加到队列中
      */
     void initTask();
+
+    /**
+     * 根据id初始化任务详情添加到队列中
+     *
+     * @param id 任务id
+     */
+    void initTaskById(Long id);
 }
