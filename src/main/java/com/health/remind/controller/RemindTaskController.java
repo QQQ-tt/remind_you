@@ -59,6 +59,12 @@ public class RemindTaskController {
         return R.success(remindTaskService.saveOrUpdateTask(task));
     }
 
+    @Operation(summary = "修改提醒任务状态")
+    @GetMapping("/updateStatus")
+    public R<Boolean> updateStatus(@RequestParam Long id) {
+        return R.success(remindTaskService.updateStatus(id));
+    }
+
     @Operation(summary = "测试任务详情")
     @PostMapping("/testTaskInfoNumTen")
     public R<List<LocalDateTime>> testTaskInfoNumTen(@RequestBody RemindTaskDTO task) {

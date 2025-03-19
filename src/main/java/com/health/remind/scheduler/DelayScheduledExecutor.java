@@ -8,6 +8,7 @@ import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.scheduler.entity.DelayTask;
 import com.health.remind.scheduler.enums.RemindTypeEnum;
+import com.health.remind.scheduler.enums.ScheduledEnum;
 import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RemindTaskService;
 import jakarta.annotation.PostConstruct;
@@ -51,15 +52,19 @@ public class DelayScheduledExecutor extends ScheduledBase {
     @SneakyThrows
     public static void putTestTask(Long taskId, LocalDateTime executeTime,
                                    Map<UserInfo, String> commonMethod) {
-        delayScheduledExecutorQueue.put(new DelayTask(taskId, executeTime, RemindTypeEnum.test, commonMethod, ""));
+        if (!containsTask(taskId, ScheduledEnum.DELAY_SCHEDULED)) {
+            delayScheduledExecutorQueue.put(new DelayTask(taskId, executeTime, RemindTypeEnum.test, commonMethod, ""));
+        }
     }
 
     @SneakyThrows
     public static void putRemindTask(Long taskId, Long remindId, LocalDateTime executeTime,
                                      RemindTypeEnum remindTypeEnum,
                                      Map<UserInfo, String> commonMethod) {
-        delayScheduledExecutorQueue.put(
-                new DelayTask(taskId, executeTime, remindTypeEnum, commonMethod, remindId.toString()));
+        if (!containsTask(taskId, ScheduledEnum.DELAY_SCHEDULED)) {
+            delayScheduledExecutorQueue.put(
+                    new DelayTask(taskId, executeTime, remindTypeEnum, commonMethod, remindId.toString()));
+        }
     }
 
     @PostConstruct
