@@ -41,6 +41,22 @@ public interface TestService extends IService<Test> {
     String testRedisLock(String key, Long length);
 
     /**
+     * 测试redis锁
+     *
+     * @param key 随机字符串
+     * @return 结果
+     */
+    String testRedisLockParam(String key, Long length);
+
+    /**
+     * 测试redis锁
+     *
+     * @param dto 测试参数
+     * @return 结果
+     */
+    String testRedisLockObject(TestDTO dto);
+
+    /**
      * 测试cache,使用CACHE_10
      * 强制更新缓存（总是执行方法并更新） @CachePut
      *

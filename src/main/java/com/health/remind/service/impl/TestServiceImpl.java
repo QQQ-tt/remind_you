@@ -63,6 +63,28 @@ public class TestServiceImpl extends ServiceImpl<TestMapper, Test> implements Te
         return key;
     }
 
+    @RedisLock(lockParameter = "#key")
+    @Override
+    public String testRedisLockParam(String key, Long length) {
+        try {
+            Thread.sleep(length);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return key;
+    }
+
+    @RedisLock(lockParameter = "#dto.name", autoUnlockTime = 60000000)
+    @Override
+    public String testRedisLockObject(TestDTO dto) {
+        try {
+            Thread.sleep(dto.getSize());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return dto.getName();
+    }
+
     @CachePut(value = StaticConstant.CACHE_10, key = "#value")
     @Override
     public String testCache(String value) {

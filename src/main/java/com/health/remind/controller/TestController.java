@@ -128,6 +128,12 @@ public class TestController {
         return R.success(testService.testRedisLock(key, length));
     }
 
+    @Operation(summary = "测试redis锁Object")
+    @PostMapping("/testRedisLockObject")
+    public R<String> testRedisLockObject(@RequestBody TestDTO dto) {
+        return R.success(testService.testRedisLockObject(dto));
+    }
+
     @Operation(summary = "测试异常日志")
     @PostMapping("/testExceptionLog")
     public R<Integer> testExceptionLog(@RequestBody @Valid TestEntityDTO dto) {

@@ -14,4 +14,6 @@ import lombok.Setter;
 public class TestDTO extends PageDTO<Test> {
 
     private String name;
+
+    private Long size;
 }
