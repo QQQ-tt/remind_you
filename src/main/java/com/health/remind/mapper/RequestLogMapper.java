@@ -8,6 +8,7 @@ import com.health.remind.pojo.bo.HighConcurrencyRequest;
 import com.health.remind.pojo.bo.IpCountRequest;
 import com.health.remind.pojo.bo.SlowRequest;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -22,13 +23,13 @@ import java.util.List;
 @Mapper
 public interface RequestLogMapper extends BaseMapper<RequestLog> {
 
-    List<SlowRequest> selectSlowRequest();
+    List<SlowRequest> selectSlowRequest(@Param("dayNum") int num);
 
-    List<CountRequest> selectCountRequest();
+    List<CountRequest> selectCountRequest(@Param("dayNum") int num);
 
-    List<HighConcurrencyRequest> selectHighConcurrencyRequest();
+    List<HighConcurrencyRequest> selectHighConcurrencyRequest(@Param("dayNum") int num, @Param("time") int time);
 
-    List<ErrorCountRequest> selectErrorCountRequest();
+    List<ErrorCountRequest> selectErrorCountRequest(@Param("dayNum") int num);
 
-    List<IpCountRequest> selectIpCountRequest();
+    List<IpCountRequest> selectIpCountRequest(@Param("dayNum") int num);
 }

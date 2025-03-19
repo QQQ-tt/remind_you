@@ -64,7 +64,7 @@ public class CommonFilter extends OncePerRequestFilter {
                 remoteAddr = header;
             }
             CommonMethod.setIp(remoteAddr);
-            CommonMethod.setUrl(remoteAddr + requestURI);
+            CommonMethod.setUrl(requestURI);
             log.info("用户信息:{}", CommonMethod.getMap());
         }
 

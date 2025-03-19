@@ -25,27 +25,27 @@ import java.util.List;
 public class RequestLogServiceImpl extends ServiceImpl<RequestLogMapper, RequestLog> implements RequestLogService {
 
     @Override
-    public List<SlowRequest> listSlowRequest() {
-        return baseMapper.selectSlowRequest();
+    public List<SlowRequest> listSlowRequest(int dayNum) {
+        return baseMapper.selectSlowRequest(dayNum);
     }
 
     @Override
-    public List<CountRequest> listCountRequest() {
-        return baseMapper.selectCountRequest();
+    public List<CountRequest> listCountRequest(int dayNum) {
+        return baseMapper.selectCountRequest(dayNum);
     }
 
     @Override
-    public List<HighConcurrencyRequest> listHighConcurrencyRequest() {
-        return baseMapper.selectHighConcurrencyRequest();
+    public List<HighConcurrencyRequest> listHighConcurrencyRequest(int dayNum) {
+        return baseMapper.selectHighConcurrencyRequest(dayNum, 10);
     }
 
     @Override
-    public List<ErrorCountRequest> listErrorCountRequest() {
-        return baseMapper.selectErrorCountRequest();
+    public List<ErrorCountRequest> listErrorCountRequest(int dayNum) {
+        return baseMapper.selectErrorCountRequest(dayNum);
     }
 
     @Override
-    public List<IpCountRequest> listIpCountRequest() {
-        return baseMapper.selectIpCountRequest();
+    public List<IpCountRequest> listIpCountRequest(int dayNum) {
+        return baseMapper.selectIpCountRequest(dayNum);
     }
 }
