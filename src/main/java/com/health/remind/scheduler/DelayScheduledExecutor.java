@@ -99,7 +99,7 @@ public class DelayScheduledExecutor extends ScheduledBase {
         }
     }
 
-    @RedisLock(lockParameter = "task.id", retryNum = 0)
+    @RedisLock(lockParameter = "#task.id", retryNum = 0)
     private void executeTask(DelayTask task) {
         log.info("执行任务:{},任务类型:{}", task.getId(), task.getRemindTypeEnum());
         CommonMethod.setMap(task.getCommonMethod());
