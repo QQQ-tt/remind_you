@@ -61,7 +61,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<R<String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         log.error("HTTP消息读取异常: {}", e.getMessage());
         exceptionConsumerExecutor.putExceptionTask(ExceptionTask.builder()
-                .exceptionName(e.getClass().getName())
+                .exceptionName(e.getClass()
+                        .getName())
                 .level(1)
                 .message(e.getMessage())
                 .stackTrace(Arrays.toString(e.getStackTrace()))
@@ -70,7 +71,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public R<List<String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<R<List<String>>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         log.error("参数校验异常", ex);
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
@@ -84,11 +85,11 @@ public class GlobalExceptionHandler {
                 .message(errors.toString())
                 .stackTrace(Arrays.toString(ex.getStackTrace()))
                 .build());
-        return R.verifyFailed(errors);
+        return new ResponseEntity<>(R.verifyFailed(errors), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(NullPointerException.class)
-    public R<String> nullException(NullPointerException e) {
+    public ResponseEntity<R<String>> nullException(NullPointerException e) {
         log.error("空指针异常", e);
         exceptionConsumerExecutor.putExceptionTask(ExceptionTask.builder()
                 .exceptionName(e.getClass()
@@ -97,11 +98,11 @@ public class GlobalExceptionHandler {
                 .message(e.getMessage())
                 .stackTrace(Arrays.toString(e.getStackTrace()))
                 .build());
-        return R.failed("空指针异常");
+        return new ResponseEntity<>(R.failed("空指针异常"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(DataException.class)
-    public R<String> dataException(DataException e) {
+    public ResponseEntity<R<String>> dataException(DataException e) {
         log.warn("业务异常:{}", e.getMessage());
         String msg = !e.getMsg()
                 .isEmpty() ? ":" + e.getMsg() : "";
@@ -112,11 +113,11 @@ public class GlobalExceptionHandler {
                 .message(e.getMessage() + msg)
                 .stackTrace(Arrays.toString(e.getStackTrace()))
                 .build());
-        return R.failed(e.getMessage() + msg, e.getCode());
+        return new ResponseEntity<>(R.failed(e.getMessage() + msg, e.getCode()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
-    public R<String> exception(Exception e) {
+    public ResponseEntity<R<String>> exception(Exception e) {
         log.error("系统异常", e);
         exceptionConsumerExecutor.putExceptionTask(ExceptionTask.builder()
                 .exceptionName(e.getClass()
@@ -125,6 +126,6 @@ public class GlobalExceptionHandler {
                 .message(e.getMessage())
                 .stackTrace(Arrays.toString(e.getStackTrace()))
                 .build());
-        return R.failed(e.getMessage());
+        return new ResponseEntity<>(R.failed(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
