@@ -9,6 +9,7 @@ import com.health.remind.pojo.vo.SysRoleVO;
 import com.health.remind.service.SysRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,7 +46,7 @@ public class SysRoleController {
 
     @Operation(summary = "新增或修改系统角色")
     @PutMapping("/saveOrUpdateSysRole")
-    public R<Boolean> saveOrUpdateSysRole(@RequestBody SysRoleDTO dto) {
+    public R<Boolean> saveOrUpdateSysRole(@RequestBody @Valid SysRoleDTO dto) {
         return R.success(sysRoleService.saveOrUpdateSysRole(dto));
     }
 
