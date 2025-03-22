@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * <p>
  * 系统角色 前端控制器
@@ -48,6 +50,12 @@ public class SysRoleController {
     @PutMapping("/saveOrUpdateSysRole")
     public R<Boolean> saveOrUpdateSysRole(@RequestBody @Valid SysRoleDTO dto) {
         return R.success(sysRoleService.saveOrUpdateSysRole(dto));
+    }
+
+    @Operation(summary = "根据名称查询系统角色")
+    @GetMapping("/listSysRole")
+    public R<List<SysRoleVO>> listSysRole(@RequestParam(required = false) String name) {
+        return R.success(sysRoleService.listSysRole(name));
     }
 
     @Operation(summary = "根据id查询系统角色")

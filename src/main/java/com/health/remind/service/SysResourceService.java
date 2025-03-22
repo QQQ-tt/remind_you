@@ -2,6 +2,7 @@ package com.health.remind.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.health.remind.common.enums.SysResourceEnum;
 import com.health.remind.entity.SysResource;
 import com.health.remind.pojo.dto.SysResourceDTO;
 import com.health.remind.pojo.dto.SysResourcePageDTO;
@@ -40,7 +41,7 @@ public interface SysResourceService extends IService<SysResource> {
      *
      * @return 资源信息集合
      */
-    List<SysResource> treeResource();
+    List<SysResource> treeResource(SysResourceEnum type);
 
     /**
      * 保存或更新资源信息

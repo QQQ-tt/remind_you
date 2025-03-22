@@ -1,6 +1,7 @@
 package com.health.remind.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.health.remind.common.enums.SysResourceEnum;
 import com.health.remind.config.R;
 import com.health.remind.entity.SysResource;
 import com.health.remind.pojo.dto.SysResourceDTO;
@@ -54,8 +55,8 @@ public class SysResourceController {
 
     @Operation(summary = "获取资源树")
     @GetMapping("/treeResource")
-    public R<List<SysResource>> treeResource() {
-        return R.success(sysResourceService.treeResource());
+    public R<List<SysResource>> treeResource(@RequestParam(required = false) SysResourceEnum type) {
+        return R.success(sysResourceService.treeResource(type));
     }
 
     @Operation(summary = "根据id查询资源")

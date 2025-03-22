@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.health.remind.common.enums.SysResourceEnum;
 import com.health.remind.config.BaseEntity;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
@@ -66,9 +67,10 @@ public class SysResourceServiceImpl extends ServiceImpl<SysResourceMapper, SysRe
     }
 
     @Override
-    public List<SysResource> treeResource() {
+    public List<SysResource> treeResource(SysResourceEnum type) {
         List<SysResource> list = list(Wrappers.lambdaQuery(SysResource.class)
-                .eq(SysResource::getStatus, true));
+                .eq(SysResource::getStatus, true)
+                .eq(type != null, SysResource::getType, type));
         // 树结构优化构造
         Map<Long, List<SysResource>> hashMap = new HashMap<>();
         list.forEach(e -> hashMap.computeIfAbsent(e.getParentId(), k -> new ArrayList<>())

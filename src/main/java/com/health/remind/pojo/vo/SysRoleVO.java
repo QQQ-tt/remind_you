@@ -1,7 +1,10 @@
 package com.health.remind.pojo.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +13,9 @@ import java.time.LocalDateTime;
  * @since 2025/2/19
  */
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class SysRoleVO {
 
     private Long id;

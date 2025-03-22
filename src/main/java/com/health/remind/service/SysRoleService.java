@@ -7,6 +7,8 @@ import com.health.remind.pojo.dto.SysRoleDTO;
 import com.health.remind.pojo.dto.SysRolePageDTO;
 import com.health.remind.pojo.vo.SysRoleVO;
 
+import java.util.List;
+
 /**
  * <p>
  * 系统角色 服务类
@@ -32,6 +34,14 @@ public interface SysRoleService extends IService<SysRole> {
      * @return 是否保存成功
      */
     boolean saveOrUpdateSysRole(SysRoleDTO dto);
+
+    /**
+     * 查询所有角色
+     *
+     * @param name 角色名
+     * @return 角色列表
+     */
+    List<SysRoleVO> listSysRole(String name);
 
     /**
      * 根据角色id查询角色

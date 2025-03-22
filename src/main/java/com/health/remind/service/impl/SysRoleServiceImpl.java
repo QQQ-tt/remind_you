@@ -3,6 +3,7 @@ package com.health.remind.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.health.remind.config.BaseEntity;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
@@ -12,8 +13,9 @@ import com.health.remind.pojo.dto.SysRoleDTO;
 import com.health.remind.pojo.dto.SysRolePageDTO;
 import com.health.remind.pojo.vo.SysRoleVO;
 import com.health.remind.service.SysRoleService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -51,6 +53,18 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
             return saveOrUpdate(sysRole);
         }
         throw new DataException(DataEnums.DATA_IS_ABNORMAL, "角色名称重复");
+    }
+
+    @Override
+    public List<SysRoleVO> listSysRole(String name) {
+        return list(Wrappers.lambdaQuery(SysRole.class)
+                .eq(SysRole::getStatus, true)
+                .like(StringUtils.isNotBlank(name), SysRole::getName, name)).stream()
+                .map(m -> SysRoleVO.builder()
+                        .id(m.getId())
+                        .name(m.getName())
+                        .build())
+                .toList();
     }
 
     @Override
