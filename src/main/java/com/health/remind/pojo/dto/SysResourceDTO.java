@@ -30,6 +30,9 @@ public class SysResourceDTO {
     @Schema(description = "资源类型：路由、接口")
     private SysResourceEnum type;
 
+    @Schema(description = "图标")
+    private String icon;
+
     @Schema(description = "方法类型")
     private String method;
 
