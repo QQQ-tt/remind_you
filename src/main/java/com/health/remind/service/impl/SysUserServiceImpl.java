@@ -100,6 +100,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     .ifPresent(byId -> map.put(StaticConstant.ROLE_ID, byId.getStatus() ? byId.getId() : ""));
             String s = JwtUtils.generateToken(account.toString(), map);
             LoginVO loginVO = new LoginVO(sysUser.getId(), sysUser.getName(), s);
+            RedisUtils.delete(RedisKeys.getLoginKey(sysUser.getAccount().toString(), sysUser.getUserType()));
+            RedisUtils.delete(RedisKeys.getLoginKey(sysUser.getTelephone().toString(), sysUser.getUserType()));
             RedisUtils.setObject(RedisKeys.getLoginKey(account.toString(), sysUser.getUserType()), loginVO);
             RedisUtils.expire(RedisKeys.getLoginKey(account.toString(), sysUser.getUserType()),
                     JwtUtils.EXPIRATION_TIME,
