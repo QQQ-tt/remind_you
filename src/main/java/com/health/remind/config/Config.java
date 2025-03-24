@@ -13,6 +13,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
@@ -26,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -67,6 +69,25 @@ public class Config {
         mapper.registerModule(new SimpleModule().addSerializer(Long.class, ToStringSerializer.instance));
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         return mapper;
+    }
+
+    /**
+     * 这里定义 Spring 管理的 Executor
+     *
+     * @param pool
+     * @return
+     */
+    @Bean("customExecutor")
+    public Executor executor(ThreadPoolConfigProperties pool) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(pool.getCoreSize());
+        executor.setMaxPoolSize(pool.getMaxSize());
+        executor.setQueueCapacity(1000);
+        executor.setKeepAliveSeconds(pool.getKeepAliveTime());
+        executor.setThreadNamePrefix("AsyncExecutor-");
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+        executor.initialize();
+        return executor;
     }
 
     @Bean

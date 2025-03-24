@@ -5,7 +5,9 @@ import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.pojo.vo.FrequencyDetailVO;
 import com.health.remind.pojo.vo.FrequencyVO;
 import com.health.remind.strategy.AbstractStrategy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,7 +15,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author QQQtx
@@ -22,17 +23,15 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Component
 public class WeekStrategy extends AbstractStrategy {
 
-    private final ThreadPoolExecutor threadPoolExecutor;
-
-    public WeekStrategy(ThreadPoolExecutor threadPoolExecutor) {
+    public WeekStrategy() {
         super();
-        this.threadPoolExecutor = threadPoolExecutor;
     }
-
     @Override
+    @Transactional
+    @Async("customExecutor")
     public void strategyTask(RemindTask task, FrequencyVO frequency) {
         List<RemindTaskInfo> taskInfos = getTaskInfos(task, frequency);
-        save(taskInfos, threadPoolExecutor);
+        save(taskInfos);
     }
 
     @Override
@@ -81,6 +80,7 @@ public class WeekStrategy extends AbstractStrategy {
                 .time(time)
                 .isRemind(task.getIsRemind())
                 .remindType(task.getRemindType())
+                .status(task.getStatus())
                 .build());
     }
 }

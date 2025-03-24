@@ -4,7 +4,9 @@ import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.pojo.vo.FrequencyVO;
 import com.health.remind.strategy.AbstractStrategy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -12,7 +14,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author QQQtx
@@ -21,17 +22,15 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Component
 public class HourStrategy extends AbstractStrategy {
 
-    private final ThreadPoolExecutor threadPoolExecutor;
-
-    public HourStrategy(ThreadPoolExecutor threadPoolExecutor) {
+    public HourStrategy() {
         super();
-        this.threadPoolExecutor = threadPoolExecutor;
     }
-
     @Override
+    @Transactional
+    @Async("customExecutor")
     public void strategyTask(RemindTask task, FrequencyVO frequency) {
         List<RemindTaskInfo> taskInfos = getTaskInfos(task, frequency);
-        save(taskInfos, threadPoolExecutor);
+        save(taskInfos);
     }
 
     @Override
@@ -75,6 +74,7 @@ public class HourStrategy extends AbstractStrategy {
                     .time(time)
                     .isRemind(task.getIsRemind())
                     .remindType(task.getRemindType())
+                    .status(task.getStatus())
                     .build());
         });
     }

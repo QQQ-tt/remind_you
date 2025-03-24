@@ -1,7 +1,5 @@
 package com.health.remind.strategy;
 
-import com.health.remind.config.CommonMethod;
-import com.health.remind.config.enums.UserInfo;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.pojo.vo.FrequencyDetailVO;
@@ -11,9 +9,6 @@ import com.health.remind.util.SpringUtils;
 
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author QQQtx
@@ -82,14 +77,10 @@ public abstract class AbstractStrategy implements FrequencyStrategy {
         return time;
     }
 
-    protected void save(List<RemindTaskInfo> taskInfos, ThreadPoolExecutor threadPoolExecutor) {
+    protected void save(List<RemindTaskInfo> taskInfos) {
         if (!taskInfos.isEmpty()) {
             AbstractStrategy.addCount(taskInfos.size());
-            Map<UserInfo, String> map = CommonMethod.getMap();
-            CompletableFuture.runAsync(() -> {
-                CommonMethod.setMap(map);
-                remindTaskInfoService.saveBatch(taskInfos);
-            }, threadPoolExecutor);
+            remindTaskInfoService.saveBatch(taskInfos);
         }
     }
 }
