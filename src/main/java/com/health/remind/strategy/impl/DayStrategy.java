@@ -21,10 +21,6 @@ import java.util.List;
 @Component
 public class DayStrategy extends AbstractStrategy {
 
-    public DayStrategy() {
-        super();
-    }
-
     @Override
     @Transactional
     @Async("customExecutor")

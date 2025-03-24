@@ -22,9 +22,6 @@ import java.util.List;
 @Component
 public class HourStrategy extends AbstractStrategy {
 
-    public HourStrategy() {
-        super();
-    }
     @Override
     @Transactional
     @Async("customExecutor")

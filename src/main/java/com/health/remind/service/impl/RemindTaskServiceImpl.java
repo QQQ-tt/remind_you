@@ -29,7 +29,6 @@ import com.health.remind.service.FrequencyDetailService;
 import com.health.remind.service.FrequencyService;
 import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RemindTaskService;
-import com.health.remind.strategy.AbstractStrategy;
 import com.health.remind.strategy.FrequencyUtils;
 import com.health.remind.util.RedisUtils;
 import jakarta.servlet.http.HttpServletResponse;
@@ -112,8 +111,6 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         boolean b = saveOrUpdate(build);
         if (task.getId() == null) {
             frequencyUtils.splitTask(build, FrequencySqlTypeEnum.INSERT);
-            build.setNum(AbstractStrategy.getCount());
-            updateById(build);
             remindTaskInfoService.putTask(build);
             Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getUserId(), null, null));
             RedisUtils.delete(keys);

@@ -1,16 +1,21 @@
 package com.health.remind.strategy;
 
 import com.health.remind.strategy.impl.DoNothing;
+import com.health.remind.util.SpringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author QQQtx
  * @since 2025/1/27 16:28
  */
+@Component
 public class StrategyContext {
 
     private static final Logger log = LoggerFactory.getLogger(StrategyContext.class);
@@ -25,17 +30,22 @@ public class StrategyContext {
 
     public static StrategyContext getInstance() {
         if (instance == null) {
-            instance = new StrategyContext();
+            instance = SpringUtils.getBean(StrategyContext.class);
         }
         return instance;
     }
 
-    public static void registerStrategy(String type, FrequencyStrategy frequency) {
-        getInstance().insertIntoRegisterMap(type, frequency);
-    }
-
-    private void insertIntoRegisterMap(String type, FrequencyStrategy frequency) {
-        REGISTER_MAP.putIfAbsent(type, frequency);
+    @Autowired
+    public void initStrategies(List<FrequencyStrategy> strategies) {
+        strategies.forEach(strategy ->
+                REGISTER_MAP.put(
+                        strategy.getClass()
+                                .getSimpleName()
+                                .replaceAll("\\$\\$.*", "")
+                                .toLowerCase(),
+                        strategy
+                )
+        );
     }
 
     public static FrequencyStrategy getStrategy(String type) {

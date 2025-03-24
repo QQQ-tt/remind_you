@@ -1,10 +1,13 @@
 package com.health.remind.strategy;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.health.remind.config.BaseEntity;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.pojo.vo.FrequencyDetailVO;
 import com.health.remind.pojo.vo.FrequencyVO;
 import com.health.remind.service.RemindTaskInfoService;
+import com.health.remind.service.RemindTaskService;
 import com.health.remind.util.SpringUtils;
 
 import java.time.LocalTime;
@@ -16,29 +19,9 @@ import java.util.List;
  */
 public abstract class AbstractStrategy implements FrequencyStrategy {
 
-    private final static ThreadLocal<Integer> count = ThreadLocal.withInitial(() -> 0);
-
     protected final RemindTaskInfoService remindTaskInfoService = SpringUtils.getBean(RemindTaskInfoService.class);
 
-    public AbstractStrategy() {
-        register();
-    }
-
-    /**
-     * 类注册方法
-     */
-    public void register() {
-        StrategyContext.registerStrategy(getClass().getSimpleName()
-                .toLowerCase(), this);
-    }
-
-    public static int getCount() {
-        return count.get();
-    }
-
-    public static void addCount(int size) {
-        count.set(count.get() + size);
-    }
+    protected final RemindTaskService remindTaskService = SpringUtils.getBean(RemindTaskService.class);
 
     public List<FrequencyDetailVO> filter(RemindTask task, FrequencyVO frequency) {
         return frequency.getFrequencyDetailList()
@@ -79,7 +62,12 @@ public abstract class AbstractStrategy implements FrequencyStrategy {
 
     protected void save(List<RemindTaskInfo> taskInfos) {
         if (!taskInfos.isEmpty()) {
-            AbstractStrategy.addCount(taskInfos.size());
+            taskInfos.stream()
+                    .findAny()
+                    .map(RemindTaskInfo::getRemindTaskId)
+                    .ifPresent(id -> remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
+                            .eq(BaseEntity::getId, id)
+                            .setSql("num = num +" + taskInfos.size())));
             remindTaskInfoService.saveBatch(taskInfos);
         }
     }

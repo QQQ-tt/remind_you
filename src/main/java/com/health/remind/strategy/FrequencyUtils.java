@@ -35,9 +35,11 @@ public class FrequencyUtils {
         if (typeEnum.equals(FrequencySqlTypeEnum.INSERT)) {
             for (; startTime.isBefore(endTime); startTime = startTime.plusDays(1)) {
                 task.setInitTime(startTime.toLocalDate());
+                long l = System.currentTimeMillis();
                 StrategyContext.getStrategy(frequency.getCycleUnit()
                                 .getValue() + "strategy")
                         .strategyTask(task, frequency);
+                System.out.println("耗时：" + (System.currentTimeMillis() - l));
             }
         }
         if (typeEnum.equals(FrequencySqlTypeEnum.SELECT)) {

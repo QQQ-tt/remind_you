@@ -23,9 +23,6 @@ import java.util.Optional;
 @Component
 public class WeekStrategy extends AbstractStrategy {
 
-    public WeekStrategy() {
-        super();
-    }
     @Override
     @Transactional
     @Async("customExecutor")
