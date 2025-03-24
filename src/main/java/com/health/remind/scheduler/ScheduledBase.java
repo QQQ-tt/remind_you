@@ -9,7 +9,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
 
 /**
- * 仅适用小规模任我
+ * 仅适用小规模使用
  *
  * @author QQQtx
  * @since 2025/2/6 13:24
