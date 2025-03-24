@@ -45,10 +45,10 @@ public class FrequencyDTO {
     private Boolean status = Boolean.FALSE;
 
     @Schema(description = "等级")
-    private int level;
+    private int level = 1;
 
     @Schema(description = "来源")
-    private String source;
+    private String source = "sys";
 
 
 }
