@@ -133,7 +133,10 @@ public class SysResourceServiceImpl extends ServiceImpl<SysResourceMapper, SysRe
     }
 
     @Override
-    public boolean removeResource(Long id) {
+    public boolean removeByResourceId(Long id) {
+        if (!listResourceByParentId(id).isEmpty()) {
+            throw new DataException(DataEnums.DATA_IS_ABNORMAL, "存在子资源，请先删除子资源");
+        }
         return removeById(id);
     }
 }

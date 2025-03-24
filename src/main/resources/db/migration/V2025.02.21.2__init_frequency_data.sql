@@ -1,4 +1,4 @@
-insert into remind_you.frequency (id, frequency_name, frequency_code, frequency_desc, frequency_number, frequency_cycle, cycle_unit, type, status, source, level, tenant_id, create_id, create_name, create_time, update_id, update_name, update_time, delete_flag)
+insert into remind_you.frequency (id, name, frequency_code, frequency_desc, frequency_number, frequency_cycle, cycle_unit, type, status, source, level, tenant_id, create_id, create_name, create_time, update_id, update_name, update_time, delete_flag)
 values  (1887042190151270401, '每日一次', 'qd', '每日指定时间服用一次', 1, 1, 'DAY', 'UNKNOWN', true, 'system', 0, 1234, 1, 'admin', '2025-02-05 15:34:52', 1, 'admin', '2025-02-05 15:55:40', false),
         (1887049265166184449, '每日两次', 'bid', '每日指定时间服用两次', 2, 1, 'DAY', 'UNKNOWN', true, 'system', 0, 1234, 1, 'admin', '2025-02-05 16:02:59', 1, 'admin', '2025-02-05 16:13:21', false),
         (1887312708300607489, '隔日一次', 'qod', '每隔一天服用一次', 1, 2, 'DAY', 'UNKNOWN', false, 'system', 0, 1234, 1, 'admin', '2025-02-06 09:29:49', null, null, null, false),

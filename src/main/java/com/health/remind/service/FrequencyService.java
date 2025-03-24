@@ -75,5 +75,5 @@ public interface FrequencyService extends IService<Frequency> {
      * @param id 频次id
      * @return 是否删除成功
      */
-    boolean removeFrequency(Long id);
+    boolean removeFrequencyById(Long id);
 }

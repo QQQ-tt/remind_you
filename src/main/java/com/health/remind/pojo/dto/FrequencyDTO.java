@@ -39,7 +39,7 @@ public class FrequencyDTO {
     private FrequencyEnum cycleUnit;
 
     @Schema(description = "开始方式:0自然周,1逻辑周")
-    private FrequencyTypeEnum type = FrequencyTypeEnum.NATURAL_WEEK;
+    private FrequencyTypeEnum type = FrequencyTypeEnum.UNKNOWN;
 
     @Schema(description = "是否启用")
     private Boolean status = Boolean.FALSE;

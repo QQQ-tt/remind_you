@@ -84,8 +84,8 @@ public class RemindTaskController {
     }
 
     @Operation(summary = "删除提醒任务")
-    @DeleteMapping("/removeTask")
-    public R<Boolean> removeTask(@RequestParam Long id) {
-        return R.success(remindTaskService.removeTask(id));
+    @DeleteMapping("/removeTaskById")
+    public R<Boolean> removeTaskById(@RequestParam Long id) {
+        return R.success(remindTaskService.removeTaskById(id));
     }
 }

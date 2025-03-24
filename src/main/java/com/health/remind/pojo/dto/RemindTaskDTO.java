@@ -31,6 +31,9 @@ public class RemindTaskDTO {
     @Schema(description = "是否提醒")
     private Boolean isRemind;
 
+    @Schema(description = "是否启用")
+    private Boolean status;
+
     @Schema(description = "提醒方式")
     private RemindTypeEnum remindType;
 

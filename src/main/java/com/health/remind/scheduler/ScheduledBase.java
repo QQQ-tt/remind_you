@@ -30,13 +30,13 @@ public class ScheduledBase {
     protected final static ConcurrentHashMap<Long, ScheduledFuture<?>> delayAttenuationScheduledExecutorFutureMap =
             new ConcurrentHashMap<>();
 
-    public static void cancelTask(Long taskId, ScheduledEnum scheduledEnum) {
+    public static void cancelTask(Long taskId, ScheduledEnum scheduledEnum, boolean removeTaskAll) {
         switch (scheduledEnum) {
             case DELAY_SCHEDULED:
-                removeTask(taskId, delayScheduledExecutorFutureMap);
+                removeTask(taskId, delayScheduledExecutorFutureMap, removeTaskAll);
                 break;
             case DELAY_ATTENUATION_SCHEDULED:
-                removeTask(taskId, delayAttenuationScheduledExecutorFutureMap);
+                removeTask(taskId, delayAttenuationScheduledExecutorFutureMap, removeTaskAll);
                 break;
             default:
                 break;
@@ -67,15 +67,16 @@ public class ScheduledBase {
         };
     }
 
-    private static void removeTask(Long taskId, ConcurrentHashMap<Long, ScheduledFuture<?>> map) {
+    private static void removeTask(Long taskId, ConcurrentHashMap<Long, ScheduledFuture<?>> map, boolean removeTaskAll) {
         if (taskId != null) {
-            ScheduledFuture<?> future = map.get(taskId);
-            if (future != null) {
+            if (map.containsKey(taskId)) {
+                ScheduledFuture<?> future = map.get(taskId);
                 if (future.cancel(true)) {
                     map.remove(taskId);
                 }
             }
-        } else {
+        }
+        if (taskId == null && removeTaskAll) {
             map.forEach((k, v) -> {
                 if (v.cancel(true)) {
                     map.remove(k);

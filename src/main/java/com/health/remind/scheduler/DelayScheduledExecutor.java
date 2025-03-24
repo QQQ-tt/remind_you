@@ -105,6 +105,7 @@ public class DelayScheduledExecutor extends ScheduledBase {
         CommonMethod.setMap(task.getCommonMethod());
         switch (task.getRemindTypeEnum()) {
             case test -> textTask(task);
+            case remind_email -> remindEmailTask(task);
             case remind_text -> remindTextTask(task);
             case remind_wx -> remindWxTask(task);
             default -> throw new IllegalArgumentException("无效的任务类型");
@@ -113,6 +114,14 @@ public class DelayScheduledExecutor extends ScheduledBase {
     }
 
     private void remindTextTask(DelayTask task) {
+        remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
+                .eq(BaseEntity::getId, task.getOtherId())
+                .setSql("push_num = " + "push_num + 1"));
+        // 发送消息
+        updateStatus(task);
+    }
+
+    private void remindEmailTask(DelayTask task) {
         remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
                 .eq(BaseEntity::getId, task.getOtherId())
                 .setSql("push_num = " + "push_num + 1"));

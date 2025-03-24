@@ -142,7 +142,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
     }
 
     @Override
-    public boolean removeFrequency(Long id) {
+    public boolean removeFrequencyById(Long id) {
         removeRedis();
         return removeById(id);
     }

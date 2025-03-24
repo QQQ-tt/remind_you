@@ -74,6 +74,6 @@ public interface SysResourceService extends IService<SysResource> {
      * @param id 资源id
      * @return 是否成功
      */
-    boolean removeResource(Long id);
+    boolean removeByResourceId(Long id);
 
 }

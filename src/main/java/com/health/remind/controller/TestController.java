@@ -100,7 +100,7 @@ public class TestController {
     @Operation(summary = "取消任务")
     @GetMapping("/cancelTask")
     public R<String> cancelTask(@RequestParam(required = false) Long taskId, @RequestParam ScheduledEnum scheduledEnum) {
-        ScheduledBase.cancelTask(taskId, scheduledEnum);
+        ScheduledBase.cancelTask(taskId, scheduledEnum, false);
         return R.success("ok");
     }
 

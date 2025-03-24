@@ -2,7 +2,7 @@ create table frequency
 (
     id               bigint                        not null
         primary key,
-    frequency_name   varchar(50)                   null comment '频次名称',
+    name             varchar(50)                   null comment '频次名称',
     frequency_code   varchar(50)                   null comment '频次编码',
     frequency_desc   varchar(200)                  null comment '频次描述',
     frequency_number int                           null comment '频次数目',

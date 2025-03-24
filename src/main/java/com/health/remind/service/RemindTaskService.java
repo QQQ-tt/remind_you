@@ -93,5 +93,5 @@ public interface RemindTaskService extends IService<RemindTask> {
      * @param id 任务id
      * @return 是否删除成功
      */
-    boolean removeTask(Long id);
+    boolean removeTaskById(Long id);
 }

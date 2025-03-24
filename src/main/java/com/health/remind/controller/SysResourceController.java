@@ -78,8 +78,8 @@ public class SysResourceController {
     }
 
     @Operation(summary = "删除资源")
-    @DeleteMapping("/removeResource")
-    public R<Boolean> removeResource(@RequestParam Long id) {
-        return R.success(sysResourceService.removeResource(id));
+    @DeleteMapping("/removeByResourceId")
+    public R<Boolean> removeByResourceId(@RequestParam Long id) {
+        return R.success(sysResourceService.removeByResourceId(id));
     }
 }

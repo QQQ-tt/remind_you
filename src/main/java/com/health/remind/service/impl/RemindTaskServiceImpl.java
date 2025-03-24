@@ -72,6 +72,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     public Page<RemindTaskVO> pageTask(RemindTaskPageDTO dto) {
         return baseMapper.selectPageTask(dto.getPage(),
                 Wrappers.lambdaQuery(RemindTask.class)
+                        .eq(BaseEntity::getDeleteFlag, false)
                         .like(StringUtils.isNotBlank(dto.getName()), RemindTask::getName, dto.getName())
                         .orderByDesc(BaseEntity::getCreateTime));
     }
@@ -100,6 +101,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .startTime(task.getStartTime())
                 .endTime(task.getEndTime())
                 .remark(task.getRemark())
+                .status(task.getStatus())
                 .isRemind(task.getIsRemind())
                 .remindType(task.getRemindType())
                 .advanceNum(task.getAdvanceNum())
@@ -135,7 +137,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                     if (i.getStatus()) {
                         remindTaskInfoService.initTaskById(id);
                     } else {
-                        list.forEach(e -> ScheduledBase.cancelTask(e.getId(), ScheduledEnum.DELAY_SCHEDULED));
+                        list.forEach(e -> ScheduledBase.cancelTask(e.getId(), ScheduledEnum.DELAY_SCHEDULED, false));
                     }
                 });
         return update;
@@ -211,16 +213,17 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     }
 
     @Override
-    public boolean removeTask(Long id) {
-        if (removeById(id)) {
+    public boolean removeTaskById(Long id) {
+        boolean b = removeById(id);
+        if (b) {
             List<RemindTaskInfo> list = remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
                     .eq(RemindTaskInfo::getRemindTaskId, id)
                     .eq(RemindTaskInfo::getIsRead, false));
             remindTaskInfoService.remove(Wrappers.lambdaQuery(RemindTaskInfo.class)
                     .eq(RemindTaskInfo::getRemindTaskId, id));
-            list.forEach(e -> ScheduledBase.cancelTask(e.getId(), ScheduledEnum.DELAY_SCHEDULED));
+            list.forEach(e -> ScheduledBase.cancelTask(e.getId(), ScheduledEnum.DELAY_SCHEDULED, false));
         }
-        return false;
+        return b;
     }
 
     private void saveFrequency(RemindTaskDTO task) {
