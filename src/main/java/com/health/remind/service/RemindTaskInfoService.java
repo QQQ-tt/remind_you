@@ -32,4 +32,11 @@ public interface RemindTaskInfoService extends IService<RemindTaskInfo> {
      * @param id 任务id
      */
     void initTaskById(Long id);
+
+    /**
+     * 定时任务执行时间误差
+     *
+     * @return 秒
+     */
+    Integer listDelayTaskError();
 }

@@ -51,4 +51,10 @@ public interface RequestLogService extends IService<RequestLog> {
      */
     List<IpCountRequest> listIpCountRequest(int dayNum);
 
+    /**
+     * 定时任务执行时间误差
+     *
+     * @return Integer
+     */
+    Integer listDelayTaskError();
 }

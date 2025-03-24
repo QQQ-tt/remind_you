@@ -1,5 +1,6 @@
 package com.health.remind.service.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.health.remind.entity.RequestLog;
 import com.health.remind.mapper.RequestLogMapper;
 import com.health.remind.pojo.bo.CountRequest;
@@ -7,8 +8,8 @@ import com.health.remind.pojo.bo.ErrorCountRequest;
 import com.health.remind.pojo.bo.HighConcurrencyRequest;
 import com.health.remind.pojo.bo.IpCountRequest;
 import com.health.remind.pojo.bo.SlowRequest;
+import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RequestLogService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,12 @@ import java.util.List;
  */
 @Service
 public class RequestLogServiceImpl extends ServiceImpl<RequestLogMapper, RequestLog> implements RequestLogService {
+
+    private final RemindTaskInfoService remindTaskInfoService;
+
+    public RequestLogServiceImpl(RemindTaskInfoService remindTaskInfoService) {
+        this.remindTaskInfoService = remindTaskInfoService;
+    }
 
     @Override
     public List<SlowRequest> listSlowRequest(int dayNum) {
@@ -47,5 +54,10 @@ public class RequestLogServiceImpl extends ServiceImpl<RequestLogMapper, Request
     @Override
     public List<IpCountRequest> listIpCountRequest(int dayNum) {
         return baseMapper.selectIpCountRequest(dayNum);
+    }
+
+    @Override
+    public Integer listDelayTaskError() {
+        return remindTaskInfoService.listDelayTaskError();
     }
 }

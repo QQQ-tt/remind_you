@@ -6,6 +6,8 @@ import com.health.remind.pojo.bo.ErrorCountRequest;
 import com.health.remind.pojo.bo.HighConcurrencyRequest;
 import com.health.remind.pojo.bo.IpCountRequest;
 import com.health.remind.pojo.bo.SlowRequest;
+import com.health.remind.scheduler.ScheduledBase;
+import com.health.remind.scheduler.enums.ScheduledEnum;
 import com.health.remind.service.RequestLogService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -63,5 +65,17 @@ public class RequestLogController {
     @GetMapping("/listIpCountRequest")
     public R<List<IpCountRequest>> listIpCountRequest(@RequestParam int dayNum) {
         return R.success(requestLogService.listIpCountRequest(dayNum));
+    }
+
+    @Operation(summary = "定时任务安排数量")
+    @GetMapping("/listDelayTaskNum")
+    public R<Integer> listDelayTaskNum() {
+        return R.success(ScheduledBase.getFutureSize(ScheduledEnum.DELAY_SCHEDULED));
+    }
+
+    @Operation(summary = "定时任务执行时间误差")
+    @GetMapping("/listDelayTaskError")
+    public R<Integer> listDelayTaskError() {
+        return R.success(requestLogService.listDelayTaskError());
     }
 }

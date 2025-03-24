@@ -102,4 +102,9 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
                     }));
         }, threadPoolExecutor);
     }
+
+    @Override
+    public Integer listDelayTaskError() {
+        return baseMapper.selectTaskError();
+    }
 }
