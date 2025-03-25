@@ -35,11 +35,10 @@ public class FrequencyUtils {
         if (typeEnum.equals(FrequencySqlTypeEnum.INSERT)) {
             for (; startTime.isBefore(endTime); startTime = startTime.plusDays(1)) {
                 task.setInitTime(startTime.toLocalDate());
-                long l = System.currentTimeMillis();
+                RemindTask remindTask = copyTask(task);
                 StrategyContext.getStrategy(frequency.getCycleUnit()
                                 .getValue() + "strategy")
-                        .strategyTask(task, frequency);
-                System.out.println("耗时：" + (System.currentTimeMillis() - l));
+                        .strategyTask(remindTask, frequency);
             }
         }
         if (typeEnum.equals(FrequencySqlTypeEnum.SELECT)) {
@@ -54,5 +53,22 @@ public class FrequencyUtils {
             return list.size() > 10 ? list.subList(0, 10) : list;
         }
         return List.of();
+    }
+
+    private RemindTask copyTask(RemindTask source) {
+        return RemindTask.builder()
+                .id(source.getId())
+                .name(source.getName())
+                .startTime(source.getStartTime())
+                .endTime(source.getEndTime())
+                .remark(source.getRemark())
+                .status(source.getStatus())
+                .isRemind(source.getIsRemind())
+                .remindType(source.getRemindType())
+                .advanceNum(source.getAdvanceNum())
+                .cycleUnit(source.getCycleUnit())
+                .frequencyId(source.getFrequencyId())
+                .initTime(source.getInitTime())
+                .build();
     }
 }

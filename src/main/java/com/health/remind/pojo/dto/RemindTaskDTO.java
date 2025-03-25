@@ -35,7 +35,7 @@ public class RemindTaskDTO {
     private Boolean status;
 
     @Schema(description = "提醒方式")
-    private RemindTypeEnum remindType;
+    private RemindTypeEnum remindType = RemindTypeEnum.none;
 
     @Schema(description = "提前时间的数量")
     private Integer advanceNum;

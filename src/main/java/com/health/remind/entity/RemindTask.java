@@ -86,7 +86,8 @@ public class RemindTask extends BaseEntity {
                       String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag, String name,
                       LocalDateTime startTime, LocalDateTime endTime, Integer pushNum, Integer num, Boolean status,
                       String remark,
-                      Boolean isRemind, RemindTypeEnum remindType, Integer advanceNum, FrequencyEnum cycleUnit, Long frequencyId) {
+                      Boolean isRemind, RemindTypeEnum remindType, Integer advanceNum, FrequencyEnum cycleUnit,
+                      Long frequencyId,LocalDate initTime) {
         super(id, createId, createName, createTime, updateId, updateName, updateTime, tenantId, deleteFlag);
         this.name = name;
         this.startTime = startTime;
@@ -100,5 +101,6 @@ public class RemindTask extends BaseEntity {
         this.advanceNum = advanceNum;
         this.cycleUnit = cycleUnit;
         this.frequencyId = frequencyId;
+        this.initTime = initTime;
     }
 }

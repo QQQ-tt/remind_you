@@ -31,6 +31,9 @@ public class RemindTaskVO {
     @Schema(description = "提醒次数(计算得出)")
     private Integer num;
 
+    @Schema(description = "是否启用")
+    private Boolean status;
+
     @Schema(description = "备注")
     private String remark;
 
