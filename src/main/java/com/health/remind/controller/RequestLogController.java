@@ -78,4 +78,11 @@ public class RequestLogController {
     public R<Integer> listDelayTaskError() {
         return R.success(requestLogService.listDelayTaskError());
     }
+
+    // todo 统计用户量,7天环比
+    // todo 统计用户请求量
+    // todo 任务完成率
+    // todo 提醒方式分布
+    // todo 任务频率分析
+    // todo 用户行为分析
 }
