@@ -40,9 +40,14 @@ public class SysUser extends BaseEntity {
     @TableField("password")
     private String password;
 
+    @JsonIgnore
     @Schema(description = "电话")
     @TableField("telephone")
     private Long telephone;
+
+    @Schema(description = "加密后的电话")
+    @TableField("encrypted_telephone")
+    private String encryptedTelephone;
 
     @Schema(description = "是否启用")
     @TableField("status")
@@ -57,7 +62,7 @@ public class SysUser extends BaseEntity {
     private Long sysRoleId;
 
     @Builder
-    public SysUser(Long id, String name, Long account, String password, Long telephone, Boolean status,
+    public SysUser(Long id, String name, Long account, String password, Long telephone,String encryptedTelephone, Boolean status,
                    String userType,
                    Long sysRoleId) {
         super(id);
@@ -65,6 +70,7 @@ public class SysUser extends BaseEntity {
         this.account = account;
         this.password = password;
         this.telephone = telephone;
+        this.encryptedTelephone = encryptedTelephone;
         this.status = status;
         this.userType = userType;
         this.sysRoleId = sysRoleId;

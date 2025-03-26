@@ -6,7 +6,7 @@
         with info as (select su.id,
                              su.name,
                              su.account,
-                             su.telephone,
+                             su.encrypted_telephone,
                              su.status,
                              su.create_time,
                              su.update_time,

@@ -21,7 +21,7 @@ public class SysUserVO {
     private Long account;
 
     @Schema(description = "电话")
-    private String telephone;
+    private String encryptedTelephone;
 
     @Schema(description = "是否启用")
     private Boolean status;
