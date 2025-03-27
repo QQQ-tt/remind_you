@@ -6,6 +6,7 @@ import com.health.remind.common.StaticConstant;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.R;
 import com.health.remind.entity.Test;
+import com.health.remind.mail.MailService;
 import com.health.remind.pojo.dto.TestDTO;
 import com.health.remind.pojo.dto.TestEntityDTO;
 import com.health.remind.scheduler.DelayAttenuationScheduledExecutor;
@@ -46,8 +47,11 @@ public class TestController {
 
     private final TestService testService;
 
-    public TestController(TestService testService) {
+    private final MailService mailService;
+
+    public TestController(TestService testService, MailService mailService) {
         this.testService = testService;
+        this.mailService = mailService;
     }
 
     @Operation(summary = "分页查询")
@@ -189,5 +193,15 @@ public class TestController {
     @GetMapping("/testCache4")
     public R<String> testCache4(@RequestParam String value) {
         return R.success(testService.testCache4(value));
+    }
+
+    @Operation(summary = "测试邮件")
+    @GetMapping("/sendMainTest")
+    public void sendMainTest() {
+        try {
+            mailService.test();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
