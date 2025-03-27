@@ -69,7 +69,7 @@ public class DelayScheduledExecutor extends ScheduledBase {
     public static void putRemindTask(Long taskId, Long remindId, LocalDateTime executeTime,
                                      RemindTypeEnum remindTypeEnum,
                                      Map<UserInfo, String> commonMethod, Map<String, String> otherMap) {
-        log.info("放入任务:{},任务类型:{},执行时间:{},是否存在:{},otherMap:{}", taskId, remindTypeEnum, executeTime,
+        log.debug("放入任务:{},任务类型:{},执行时间:{},是否存在:{},otherMap:{}", taskId, remindTypeEnum, executeTime,
                 containsTask(taskId, ScheduledEnum.DELAY_SCHEDULED), otherMap);
         if (!containsTask(taskId, ScheduledEnum.DELAY_SCHEDULED)) {
             delayScheduledExecutorQueue.put(
@@ -83,7 +83,8 @@ public class DelayScheduledExecutor extends ScheduledBase {
         scheduler.scheduleAtFixedRate(this::processTasks, 0, 1, TimeUnit.SECONDS);
     }
 
-    private void processTasks() {
+    @Transactional(rollbackFor = Exception.class)
+    public void processTasks() {
         try {
             // 获取队列中的任务
             List<DelayTask> list = new ArrayList<>();
@@ -108,10 +109,9 @@ public class DelayScheduledExecutor extends ScheduledBase {
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
     @RedisLock(lockParameter = "#task.id", retryNum = 0)
     public void executeTask(DelayTask task) {
-        log.info("执行任务:{},任务类型:{}", task.getId(), task.getRemindTypeEnum());
+        log.debug("执行任务:{},任务类型:{}", task.getId(), task.getRemindTypeEnum());
         CommonMethod.setMap(task.getCommonMethod());
         switch (task.getRemindTypeEnum()) {
             case test -> textTask(task);

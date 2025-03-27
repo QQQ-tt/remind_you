@@ -45,7 +45,7 @@ public class MailService {
 
     @SneakyThrows
     public void send(String to, String subject, String text) {
-        log.info("发送邮件:{},{},{}", to, subject, text);
+        log.debug("发送邮件:{},{},{}", to, subject, text);
         // 创建一个邮件消息
         MimeMessage message = javaMailSender.createMimeMessage();
         // 创建 MimeMessageHelper
