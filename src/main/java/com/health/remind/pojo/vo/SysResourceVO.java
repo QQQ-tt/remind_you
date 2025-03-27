@@ -1,6 +1,5 @@
 package com.health.remind.pojo.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.health.remind.common.enums.SysResourceEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -47,7 +46,6 @@ public class SysResourceVO {
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
 
-    @JsonIgnore
     private Long parentId;
 
     private List<SysResourceVO> children;
