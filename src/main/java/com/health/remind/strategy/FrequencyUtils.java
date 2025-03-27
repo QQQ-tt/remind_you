@@ -68,6 +68,7 @@ public class FrequencyUtils {
                 .advanceNum(source.getAdvanceNum())
                 .cycleUnit(source.getCycleUnit())
                 .frequencyId(source.getFrequencyId())
+                .email(source.getEmail())
                 .initTime(source.getInitTime())
                 .build();
     }

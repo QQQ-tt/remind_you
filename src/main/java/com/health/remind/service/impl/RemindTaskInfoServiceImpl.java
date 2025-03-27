@@ -8,6 +8,7 @@ import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.mapper.RemindTaskInfoMapper;
 import com.health.remind.scheduler.DelayScheduledExecutor;
+import com.health.remind.scheduler.enums.RemindTypeEnum;
 import com.health.remind.service.RemindTaskInfoService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,9 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
                 list.stream()
                         .findFirst()
                         .ifPresent(e -> DelayScheduledExecutor.putRemindTask(e.getId(), task.getId(),
-                                e.getEstimatedTime(), e.getRemindType(), map));
+                                e.getEstimatedTime(), e.getRemindType(), map,
+                                Map.of(RemindTypeEnum.remind_email.toString(), task.getEmail(), "NAME",
+                                        task.getName())));
             }, threadPoolExecutor);
         }
     }
@@ -67,15 +70,7 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
                     .orderByAsc(RemindTaskInfo::getEstimatedTime)
                     .orderByAsc(RemindTaskInfo::getRemindTaskId)).stream()
                     .collect(Collectors.groupingBy(RemindTaskInfo::getRemindTaskId));
-            listMap.forEach((k, v) -> v.stream()
-                    .findFirst()
-                    .ifPresent(e -> {
-                        CommonMethod.setTenantId(e.getTenantId()
-                                .toString());
-                        DelayScheduledExecutor.putRemindTask(e.getId(), e.getRemindTaskId(),
-                                e.getEstimatedTime(),
-                                e.getRemindType(), CommonMethod.getMap());
-                    }));
+            putTask(listMap);
         }, threadPoolExecutor);
     }
 
@@ -91,16 +86,22 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
                     .orderByAsc(RemindTaskInfo::getEstimatedTime)
                     .orderByAsc(RemindTaskInfo::getRemindTaskId)).stream()
                     .collect(Collectors.groupingBy(RemindTaskInfo::getRemindTaskId));
-            listMap.forEach((k, v) -> v.stream()
-                    .findFirst()
-                    .ifPresent(e -> {
-                        CommonMethod.setTenantId(e.getTenantId()
-                                .toString());
-                        DelayScheduledExecutor.putRemindTask(e.getId(), e.getRemindTaskId(),
-                                e.getEstimatedTime(),
-                                e.getRemindType(), CommonMethod.getMap());
-                    }));
+            putTask(listMap);
         }, threadPoolExecutor);
+    }
+
+    private void putTask(Map<Long, List<RemindTaskInfo>> listMap) {
+        listMap.forEach((k, v) -> v.stream()
+                .findFirst()
+                .ifPresent(e -> {
+                    CommonMethod.setTenantId(e.getTenantId()
+                            .toString());
+                    DelayScheduledExecutor.putRemindTask(e.getId(), e.getRemindTaskId(),
+                            e.getEstimatedTime(),
+                            e.getRemindType(), CommonMethod.getMap(),
+                            Map.of(RemindTypeEnum.remind_email.toString(), e.getEmail(), "NAME",
+                                    e.getRemindTaskName()));
+                }));
     }
 
     @Override

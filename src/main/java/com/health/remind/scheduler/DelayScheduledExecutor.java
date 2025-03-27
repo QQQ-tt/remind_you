@@ -7,6 +7,7 @@ import com.health.remind.config.enums.UserInfo;
 import com.health.remind.config.lock.RedisLock;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
+import com.health.remind.mail.MailService;
 import com.health.remind.scheduler.entity.DelayTask;
 import com.health.remind.scheduler.enums.RemindTypeEnum;
 import com.health.remind.scheduler.enums.ScheduledEnum;
@@ -16,6 +17,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -23,6 +25,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -44,27 +47,33 @@ public class DelayScheduledExecutor extends ScheduledBase {
 
     private final RemindTaskInfoService remindTaskInfoService;
 
-    public DelayScheduledExecutor(ScheduledExecutorService scheduler, RemindTaskService remindTaskService, RemindTaskInfoService remindTaskInfoService) {
+    private final MailService mailService;
+
+    public DelayScheduledExecutor(ScheduledExecutorService scheduler, RemindTaskService remindTaskService, RemindTaskInfoService remindTaskInfoService, MailService mailService) {
         this.scheduler = scheduler;
         this.remindTaskService = remindTaskService;
         this.remindTaskInfoService = remindTaskInfoService;
+        this.mailService = mailService;
     }
 
     @SneakyThrows
     public static void putTestTask(Long taskId, LocalDateTime executeTime,
                                    Map<UserInfo, String> commonMethod) {
         if (!containsTask(taskId, ScheduledEnum.DELAY_SCHEDULED)) {
-            delayScheduledExecutorQueue.put(new DelayTask(taskId, executeTime, RemindTypeEnum.test, commonMethod, ""));
+            delayScheduledExecutorQueue.put(
+                    new DelayTask(taskId, executeTime, RemindTypeEnum.test, commonMethod, "", null));
         }
     }
 
     @SneakyThrows
     public static void putRemindTask(Long taskId, Long remindId, LocalDateTime executeTime,
                                      RemindTypeEnum remindTypeEnum,
-                                     Map<UserInfo, String> commonMethod) {
+                                     Map<UserInfo, String> commonMethod, Map<String, String> otherMap) {
+        log.info("放入任务:{},任务类型:{},执行时间:{},是否存在:{},otherMap:{}", taskId, remindTypeEnum, executeTime,
+                containsTask(taskId, ScheduledEnum.DELAY_SCHEDULED), otherMap);
         if (!containsTask(taskId, ScheduledEnum.DELAY_SCHEDULED)) {
             delayScheduledExecutorQueue.put(
-                    new DelayTask(taskId, executeTime, remindTypeEnum, commonMethod, remindId.toString()));
+                    new DelayTask(taskId, executeTime, remindTypeEnum, commonMethod, remindId.toString(), otherMap));
         }
     }
 
@@ -99,8 +108,9 @@ public class DelayScheduledExecutor extends ScheduledBase {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @RedisLock(lockParameter = "#task.id", retryNum = 0)
-    private void executeTask(DelayTask task) {
+    public void executeTask(DelayTask task) {
         log.info("执行任务:{},任务类型:{}", task.getId(), task.getRemindTypeEnum());
         CommonMethod.setMap(task.getCommonMethod());
         switch (task.getRemindTypeEnum()) {
@@ -125,6 +135,12 @@ public class DelayScheduledExecutor extends ScheduledBase {
         remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
                 .eq(BaseEntity::getId, task.getOtherId())
                 .setSql("push_num = " + "push_num + 1"));
+        Optional.ofNullable(task.getOtherMap())
+                .ifPresent(map -> {
+                    if (map.containsKey(RemindTypeEnum.remind_email.toString()) && map.containsKey("NAME")) {
+                        mailService.send(map.get(RemindTypeEnum.remind_email.toString()), "提醒", getRemindMsg(8, map.get("NAME")));
+                    }
+                });
         // 发送消息
         updateStatus(task);
     }
@@ -159,6 +175,43 @@ public class DelayScheduledExecutor extends ScheduledBase {
                 .orderByAsc(RemindTaskInfo::getEstimatedTime)
                 .last("limit 1"));
         putRemindTask(one.getId(), one.getRemindTaskId(), one.getEstimatedTime(), one.getRemindType(),
-                task.getCommonMethod());
+                task.getCommonMethod(), task.getOtherMap());
+    }
+
+    private String getRemindMsg(int i, String name) {
+        switch (i) {
+            case 1 -> {
+                return "尊敬的用户，您的任务“<strong> {任务名称} </strong>”已到达设定时间，请及时处理。".replace(
+                        "{任务名称}", name);
+            }
+            case 2 -> {
+                return "嘿，您的任务“<strong> {任务名称} </strong>”时间到啦！快去完成吧~".replace("{任务名称}", name);
+            }
+            case 3 -> {
+                return "哎呀，时间老人敲门啦！您的任务“<strong> {任务名称} </strong>”该行动了，别让机会溜走哦！".replace(
+                        "{任务名称}", name);
+            }
+            case 4 -> {
+                return "嗨，您的任务“<strong> {任务名称} </strong>”快要到期了！请及时处理。".replace("{任务名称}", name);
+            }
+            case 5 -> {
+                return "任务“<strong> {任务名称} </strong>”时间到！请处理。".replace("{任务名称}", name);
+            }
+            case 6 -> {
+                return "现在是完成任务“<strong> {任务名称} </strong>”的最佳时刻！加油，您一定行！".replace("{任务名称}",
+                        name);
+            }
+            case 7 -> {
+                return "系统提示：任务“<strong> {任务名称} </strong>”已到达指定时间，请立即执行操作。".replace(
+                        "{任务名称}", name);
+            }
+            case 8 -> {
+                return "时光流转，此刻正是完成“<strong> {任务名称} </strong>”的良辰。愿您在这一刻书写完美的篇章。".replace(
+                        "{任务名称}", name);
+            }
+            default -> {
+                return "您的任务“<strong> {任务名称} </strong>”已到达设定时间，请及时处理。".replace("{任务名称}", name);
+            }
+        }
     }
 }

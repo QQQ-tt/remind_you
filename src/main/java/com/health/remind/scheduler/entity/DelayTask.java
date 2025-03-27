@@ -57,6 +57,8 @@ public class DelayTask {
      */
     private final String otherId;
 
+    private final Map<String, String> otherMap;
+
     /**
      * 上次执行时间
      */
@@ -70,15 +72,17 @@ public class DelayTask {
         this.otherId = "";
         this.executeTime = LocalDateTime.now();
         this.outTradeNo = "";
+        this.otherMap = null;
     }
 
     public DelayTask(Long id, LocalDateTime executeTime,
-                     RemindTypeEnum remindTypeEnum, Map<UserInfo, String> commonMethod, String otherId) {
+                     RemindTypeEnum remindTypeEnum, Map<UserInfo, String> commonMethod, String otherId, Map<String, String> otherMap) {
         this.id = id;
         this.remindTypeEnum = remindTypeEnum;
         this.commonMethod = commonMethod;
         this.executeTime = executeTime;
         this.otherId = otherId;
         this.outTradeNo = "";
+        this.otherMap = otherMap;
     }
 }

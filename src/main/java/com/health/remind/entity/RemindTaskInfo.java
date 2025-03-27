@@ -33,6 +33,10 @@ public class RemindTaskInfo extends BaseEntity {
     @TableField("remind_task_id")
     private Long remindTaskId;
 
+    @Schema(description = "任务名称")
+    @TableField("remind_task_name")
+    private String remindTaskName;
+
     @Schema(description = "预计发送时间")
     @TableField("estimated_time")
     private LocalDateTime estimatedTime;
@@ -56,6 +60,10 @@ public class RemindTaskInfo extends BaseEntity {
     @Schema(description = "提醒方式")
     @TableField("remind_type")
     private RemindTypeEnum remindType;
+
+    @Schema(description = "邮箱")
+    @TableField("email")
+    private String email;
 
     @Schema(description = "是否发送")
     @TableField("is_send")

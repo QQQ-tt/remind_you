@@ -103,6 +103,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .status(task.getStatus())
                 .isRemind(task.getIsRemind())
                 .remindType(task.getRemindType())
+                .email(task.getEmail())
                 .advanceNum(task.getAdvanceNum())
                 .cycleUnit(task.getCycleUnit())
                 // 频率不可修改

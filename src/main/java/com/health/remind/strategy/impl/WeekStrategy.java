@@ -73,11 +73,13 @@ public class WeekStrategy extends AbstractStrategy {
         LocalDateTime time = LocalDateTime.of(task.getInitTime(), e.getFrequencyTime());
         remindTaskInfos.add(RemindTaskInfo.builder()
                 .remindTaskId(task.getId())
+                .remindTaskName(task.getName())
                 .estimatedTime(time.minusHours(i))
                 .time(time)
                 .isRemind(task.getIsRemind())
                 .remindType(task.getRemindType())
                 .status(task.getStatus())
+                .email(task.getEmail())
                 .build());
     }
 }

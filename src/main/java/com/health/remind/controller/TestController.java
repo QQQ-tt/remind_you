@@ -196,10 +196,20 @@ public class TestController {
     }
 
     @Operation(summary = "测试邮件")
-    @GetMapping("/sendMainTest")
-    public void sendMainTest() {
+    @GetMapping("/sendEmailTest")
+    public void sendEmailTest() {
         try {
             mailService.test();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Operation(summary = "测试邮件")
+    @GetMapping("/sendEmail")
+    public void sendEmail(@RequestParam String to, @RequestParam String subject) {
+        try {
+            mailService.send(to, subject, "test");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

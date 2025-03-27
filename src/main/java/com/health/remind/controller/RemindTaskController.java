@@ -11,6 +11,7 @@ import com.health.remind.service.RemindTaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -55,7 +56,7 @@ public class RemindTaskController {
 
     @Operation(summary = "保存提醒任务")
     @PostMapping("/saveOrUpdateTask")
-    public R<Boolean> saveOrUpdateTask(@RequestBody RemindTaskDTO task) {
+    public R<Boolean> saveOrUpdateTask(@RequestBody @Valid RemindTaskDTO task) {
         return R.success(remindTaskService.saveOrUpdateTask(task));
     }
 
