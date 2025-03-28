@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -132,16 +133,17 @@ public class DelayScheduledExecutor extends ScheduledBase {
     }
 
     private void remindEmailTask(DelayTask task) {
-        remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
-                .eq(BaseEntity::getId, task.getOtherId())
-                .setSql("push_num = " + "push_num + 1"));
+        // 发送消息
         Optional.ofNullable(task.getOtherMap())
                 .ifPresent(map -> {
                     if (map.containsKey(RemindTypeEnum.remind_email.toString()) && map.containsKey("NAME")) {
-                        mailService.send(map.get(RemindTypeEnum.remind_email.toString()), "提醒", getRemindMsg(8, map.get("NAME")));
+                        mailService.send(map.get(RemindTypeEnum.remind_email.toString()), "提醒",
+                                getRemindMsg(0, map.get("NAME")));
                     }
                 });
-        // 发送消息
+        remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
+                .eq(BaseEntity::getId, task.getOtherId())
+                .setSql("push_num = " + "push_num + 1"));
         updateStatus(task);
     }
 
@@ -166,7 +168,6 @@ public class DelayScheduledExecutor extends ScheduledBase {
         info.setId(task.getId());
         info.setIsSend(true);
         info.setActualTime(LocalDateTime.now());
-        // 发送消息
         remindTaskInfoService.updateById(info);
         RemindTaskInfo one = remindTaskInfoService.getOne(Wrappers.lambdaQuery(RemindTaskInfo.class)
                 .eq(RemindTaskInfo::getRemindTaskId,
@@ -179,38 +180,42 @@ public class DelayScheduledExecutor extends ScheduledBase {
     }
 
     private String getRemindMsg(int i, String name) {
+        if (i == 0) {
+            Random random = new Random();
+            i = random.nextInt(8) + 1;
+        }
         switch (i) {
             case 1 -> {
-                return "尊敬的用户，您的任务“<strong> {任务名称} </strong>”已到达设定时间，请及时处理。".replace(
+                return "尊敬的用户，您的任务:“<strong> {任务名称} </strong>”已到达设定时间，请及时处理。".replace(
                         "{任务名称}", name);
             }
             case 2 -> {
-                return "嘿，您的任务“<strong> {任务名称} </strong>”时间到啦！快去完成吧~".replace("{任务名称}", name);
+                return "嘿，您的任务:“<strong> {任务名称} </strong>”时间到啦！快去完成吧~".replace("{任务名称}", name);
             }
             case 3 -> {
-                return "哎呀，时间老人敲门啦！您的任务“<strong> {任务名称} </strong>”该行动了，别让机会溜走哦！".replace(
+                return "哎呀，时间老人敲门啦！您的任务:“<strong> {任务名称} </strong>”该行动了，别让机会溜走哦！".replace(
                         "{任务名称}", name);
             }
             case 4 -> {
-                return "嗨，您的任务“<strong> {任务名称} </strong>”快要到期了！请及时处理。".replace("{任务名称}", name);
+                return "嗨，您的任务:“<strong> {任务名称} </strong>”快要到期了！请及时处理。".replace("{任务名称}", name);
             }
             case 5 -> {
-                return "任务“<strong> {任务名称} </strong>”时间到！请处理。".replace("{任务名称}", name);
+                return "您的任务:“<strong> {任务名称} </strong>”时间到了！请处理。".replace("{任务名称}", name);
             }
             case 6 -> {
-                return "现在是完成任务“<strong> {任务名称} </strong>”的最佳时刻！加油，您一定行！".replace("{任务名称}",
+                return "现在是完成任务:“<strong> {任务名称} </strong>”的最佳时刻！加油，您一定行！".replace("{任务名称}",
                         name);
             }
             case 7 -> {
-                return "系统提示：任务“<strong> {任务名称} </strong>”已到达指定时间，请立即执行操作。".replace(
+                return "系统提示：您的任务:“<strong> {任务名称} </strong>”已到达指定时间，请立即执行操作。".replace(
                         "{任务名称}", name);
             }
             case 8 -> {
-                return "时光流转，此刻正是完成“<strong> {任务名称} </strong>”的良辰。愿您在这一刻书写完美的篇章。".replace(
+                return "时光流转，此刻正是完成:“<strong> {任务名称} </strong>”的良辰。愿您在这一刻书写完美的篇章。".replace(
                         "{任务名称}", name);
             }
             default -> {
-                return "您的任务“<strong> {任务名称} </strong>”已到达设定时间，请及时处理。".replace("{任务名称}", name);
+                return "您的任务:“<strong> {任务名称} </strong>”已到达设定时间，请及时处理。".replace("{任务名称}", name);
             }
         }
     }
