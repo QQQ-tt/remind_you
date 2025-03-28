@@ -55,6 +55,10 @@ public class RemindTask extends BaseEntity {
     @TableField("status")
     private Boolean status;
 
+    @Schema(description = "完成状态")
+    @TableField("is_finish")
+    private Boolean isFinish;
+
     @Schema(description = "备注")
     @TableField("remark")
     private String remark;

@@ -160,15 +160,25 @@ public class DelayScheduledExecutor extends ScheduledBase {
         info.setIsSend(true);
         info.setActualTime(LocalDateTime.now());
         remindTaskInfoService.updateById(info);
+        long count = remindTaskInfoService.count(Wrappers.lambdaQuery(RemindTaskInfo.class)
+                .eq(RemindTaskInfo::getRemindTaskId,
+                        task.getOtherId())
+                .eq(RemindTaskInfo::getIsSend, true));
         remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
                 .eq(BaseEntity::getId, task.getOtherId())
-                .setSql("push_num = " + "push_num + 1"));
+                .set(RemindTask::getPushNum, count));
         RemindTaskInfo one = remindTaskInfoService.getOne(Wrappers.lambdaQuery(RemindTaskInfo.class)
                 .eq(RemindTaskInfo::getRemindTaskId,
                         task.getOtherId())
                 .eq(RemindTaskInfo::getIsSend, false)
                 .orderByAsc(RemindTaskInfo::getEstimatedTime)
                 .last("limit 1"));
+        if (one == null) {
+            remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
+                    .eq(BaseEntity::getId, task.getOtherId())
+                    .set(RemindTask::getIsFinish, true));
+            return;
+        }
         putRemindTask(one.getId(), one.getRemindTaskId(), one.getEstimatedTime(), one.getRemindType(),
                 task.getCommonMethod(), task.getOtherMap());
     }
