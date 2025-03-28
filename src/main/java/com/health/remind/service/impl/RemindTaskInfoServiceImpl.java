@@ -47,7 +47,8 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
                 Wrappers.lambdaQuery(RemindTaskInfo.class)
                         .eq(BaseEntity::getDeleteFlag, false)
                         .eq(dto.getId() != null, RemindTaskInfo::getId, dto.getId())
-                        .eq(RemindTaskInfo::getRemindTaskId, dto.getRemindTaskId()));
+                        .eq(RemindTaskInfo::getRemindTaskId, dto.getRemindTaskId())
+                        .orderByAsc(RemindTaskInfo::getEstimatedTime));
     }
 
     @Override
