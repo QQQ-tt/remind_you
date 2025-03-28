@@ -11,8 +11,11 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
+import com.health.remind.config.enums.UserInfo;
+import lombok.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskDecorator;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -88,8 +92,25 @@ public class Config {
         executor.setKeepAliveSeconds(pool.getKeepAliveTime());
         executor.setThreadNamePrefix("AsyncExecutor-");
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+        executor.setTaskDecorator(new ContextCopyingDecorator());
         executor.initialize();
         return executor;
+    }
+
+    private static class ContextCopyingDecorator implements TaskDecorator {
+        @Override
+        @NonNull
+        public Runnable decorate(@NonNull Runnable runnable) {
+            Map<UserInfo, String> contextMap = CommonMethod.getMap();
+            return () -> {
+                try {
+                    CommonMethod.setMap(contextMap);
+                    runnable.run();
+                } finally {
+                    CommonMethod.clear();
+                }
+            };
+        }
     }
 
     @Bean
