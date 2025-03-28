@@ -125,9 +125,6 @@ public class DelayScheduledExecutor extends ScheduledBase {
     }
 
     private void remindTextTask(DelayTask task) {
-        remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
-                .eq(BaseEntity::getId, task.getOtherId())
-                .setSql("push_num = " + "push_num + 1"));
         // 发送消息
         updateStatus(task);
     }
@@ -141,16 +138,10 @@ public class DelayScheduledExecutor extends ScheduledBase {
                                 getRemindMsg(0, map.get("NAME")));
                     }
                 });
-        remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
-                .eq(BaseEntity::getId, task.getOtherId())
-                .setSql("push_num = " + "push_num + 1"));
         updateStatus(task);
     }
 
     private void remindWxTask(DelayTask task) {
-        remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
-                .eq(BaseEntity::getId, task.getOtherId())
-                .setSql("push_num = " + "push_num + 1"));
         // 发送消息
         updateStatus(task);
     }
@@ -169,6 +160,9 @@ public class DelayScheduledExecutor extends ScheduledBase {
         info.setIsSend(true);
         info.setActualTime(LocalDateTime.now());
         remindTaskInfoService.updateById(info);
+        remindTaskService.update(Wrappers.lambdaUpdate(RemindTask.class)
+                .eq(BaseEntity::getId, task.getOtherId())
+                .setSql("push_num = " + "push_num + 1"));
         RemindTaskInfo one = remindTaskInfoService.getOne(Wrappers.lambdaQuery(RemindTaskInfo.class)
                 .eq(RemindTaskInfo::getRemindTaskId,
                         task.getOtherId())
