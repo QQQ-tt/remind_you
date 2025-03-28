@@ -5,7 +5,6 @@ import com.health.remind.entity.SysRoleResource;
 import com.health.remind.pojo.dto.SysRoleResourceDTO;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -37,7 +36,6 @@ public interface SysRoleResourceService extends IService<SysRoleResource> {
      * 根据角色id查询角色请求地址url资源
      *
      * @param roleIds 角色id集合
-     * @return 资源集合
      */
-    Map<Long, List<String>> listRoleResourceByRoleId(List<Long> roleIds);
+    void listRoleResourceByRoleId(List<Long> roleIds);
 }

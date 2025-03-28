@@ -11,6 +11,7 @@
                push_num,
                num,
                status,
+               is_finish,
                remark,
                remind_type,
                advance_num,

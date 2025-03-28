@@ -1,8 +1,11 @@
 package com.health.remind.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.health.remind.pojo.dto.RemindTaskInfoPageDTO;
+import com.health.remind.pojo.vo.RemindTaskInfoVO;
 
 /**
  * <p>
@@ -13,6 +16,14 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2025-01-27
  */
 public interface RemindTaskInfoService extends IService<RemindTaskInfo> {
+
+    /**
+     * 分页获取任务详情
+     *
+     * @param dto 查询条件
+     * @return 分页集合
+     */
+    Page<RemindTaskInfoVO> pageTaskInfo(RemindTaskInfoPageDTO dto);
 
     /**
      * 将任务详情添加到队列中

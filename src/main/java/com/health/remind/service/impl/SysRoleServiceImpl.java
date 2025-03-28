@@ -35,6 +35,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                         .eq(BaseEntity::getDeleteFlag, false)
                         .eq(dto.getStatus() != null, SysRole::getStatus, dto.getStatus())
                         .like(StringUtils.isNotBlank(dto.getName()), SysRole::getName, dto.getName())
+                        .orderByDesc(BaseEntity::getUpdateTime)
                         .orderByDesc(BaseEntity::getCreateTime));
     }
 

@@ -46,14 +46,15 @@ public class SysRoleResourceServiceImpl extends ServiceImpl<SysRoleResourceMappe
         Optional<List<Long>> sysResources = Optional.ofNullable(dto.getSysResources());
         sysResources.ifPresent(list -> {
             if (!list.isEmpty()) {
-                saveBatch(list.stream()
+                List<SysRoleResource> roleResources = list.stream()
                         .map(m -> {
                             SysRoleResource sysRoleResource = new SysRoleResource();
                             sysRoleResource.setSysRoleId(sysRoleId);
                             sysRoleResource.setSysResource(m);
                             return sysRoleResource;
                         })
-                        .toList());
+                        .toList();
+                saveBatch(roleResources, 500);
                 listRoleResourceByRoleId(Collections.singletonList(sysRoleId));
             }
         });
@@ -65,8 +66,13 @@ public class SysRoleResourceServiceImpl extends ServiceImpl<SysRoleResourceMappe
         return baseMapper.selectListRoleResourceByRoleId(roleId);
     }
 
+    /**
+     * 根据角色id集合设置角色资源
+     *
+     * @param roleIds 角色id集合
+     */
     @Override
-    public Map<Long, List<String>> listRoleResourceByRoleId(List<Long> roleIds) {
+    public void listRoleResourceByRoleId(List<Long> roleIds) {
         List<SysRoleResourceBO> list = baseMapper.selectUrlListByRoleIds(roleIds);
         Map<Long, List<String>> listMap = list.stream()
                 .collect(Collectors.groupingBy(SysRoleResourceBO::getSysRoleId,
@@ -77,6 +83,5 @@ public class SysRoleResourceServiceImpl extends ServiceImpl<SysRoleResourceMappe
             RedisUtils.setObject(RedisKeys.getRoleResourceKey(k), node);
             RedisUtils.persist(RedisKeys.getRoleResourceKey(k));
         });
-        return listMap;
     }
 }

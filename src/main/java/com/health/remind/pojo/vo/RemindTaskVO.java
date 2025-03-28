@@ -34,6 +34,9 @@ public class RemindTaskVO {
     @Schema(description = "是否启用")
     private Boolean status;
 
+    @Schema(description = "完成状态")
+    private Boolean isFinish;
+
     @Schema(description = "备注")
     private String remark;
 

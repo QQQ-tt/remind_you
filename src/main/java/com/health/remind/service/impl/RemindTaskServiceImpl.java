@@ -225,7 +225,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     }
 
     private void saveFrequency(RemindTaskDTO task) {
-        if (task.getFrequencyId() != null) {
+        if (task.getFrequencyId() != null || task.getId() != null) {
             return;
         }
         if (task.getFrequency() == null) {

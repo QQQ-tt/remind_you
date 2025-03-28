@@ -1,12 +1,16 @@
 package com.health.remind.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.health.remind.config.BaseEntity;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.UserInfo;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.mapper.RemindTaskInfoMapper;
+import com.health.remind.pojo.dto.RemindTaskInfoPageDTO;
+import com.health.remind.pojo.vo.RemindTaskInfoVO;
 import com.health.remind.scheduler.DelayScheduledExecutor;
 import com.health.remind.scheduler.enums.RemindTypeEnum;
 import com.health.remind.service.RemindTaskInfoService;
@@ -35,6 +39,15 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
 
     public RemindTaskInfoServiceImpl(ThreadPoolExecutor threadPoolExecutor) {
         this.threadPoolExecutor = threadPoolExecutor;
+    }
+
+    @Override
+    public Page<RemindTaskInfoVO> pageTaskInfo(RemindTaskInfoPageDTO dto) {
+        return baseMapper.selectPageTaskInfo(dto.getPage(),
+                Wrappers.lambdaQuery(RemindTaskInfo.class)
+                        .eq(BaseEntity::getDeleteFlag, false)
+                        .eq(dto.getId() != null, RemindTaskInfo::getId, dto.getId())
+                        .eq(RemindTaskInfo::getRemindTaskId, dto.getRemindTaskId()));
     }
 
     @Override
