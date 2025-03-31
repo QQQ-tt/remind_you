@@ -18,7 +18,7 @@ public class FrequencyDetailDTO {
     @NotNull(message = "频次id不能为空")
     private Long frequencyId;
 
-    @Schema(description = "星期数")
+    @Schema(description = "星期")
     private Integer frequencyWeekday;
 
     @Schema(description = "提醒时间(HH:mm)")

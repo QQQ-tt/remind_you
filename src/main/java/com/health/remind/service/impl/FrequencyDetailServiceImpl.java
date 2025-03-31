@@ -71,7 +71,7 @@ public class FrequencyDetailServiceImpl extends ServiceImpl<FrequencyDetailMappe
     }
 
     @Override
-    public boolean removeFrequencyDetail(Long id) {
+    public boolean removeFrequencyDetailById(Long id) {
         return removeById(id);
     }
 

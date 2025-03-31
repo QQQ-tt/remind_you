@@ -48,8 +48,8 @@ public class FrequencyDetailController {
     }
 
     @Operation(summary = "删除")
-    @DeleteMapping("/removeFrequencyDetail")
-    public R<Boolean> removeFrequencyDetail(@RequestParam Long id) {
-        return R.success(frequencyDetailService.removeFrequencyDetail(id));
+    @DeleteMapping("/removeFrequencyDetailById")
+    public R<Boolean> removeFrequencyDetailById(@RequestParam Long id) {
+        return R.success(frequencyDetailService.removeFrequencyDetailById(id));
     }
 }

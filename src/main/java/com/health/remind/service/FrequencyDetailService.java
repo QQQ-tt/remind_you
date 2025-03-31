@@ -49,6 +49,6 @@ public interface FrequencyDetailService extends IService<FrequencyDetail> {
      * @param id 频次详情id
      * @return 是否成功
      */
-    boolean removeFrequencyDetail(Long id);
+    boolean removeFrequencyDetailById(Long id);
 
 }
