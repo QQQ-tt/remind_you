@@ -47,6 +47,7 @@ public class SysResourceServiceImpl extends ServiceImpl<SysResourceMapper, SysRe
                 .url(e.getUrl())
                 .type(e.getType())
                 .method(e.getMethod())
+                .icon(e.getIcon())
                 .description(e.getDescription())
                 .status(e.getStatus())
                 .createTime(e.getCreateTime())

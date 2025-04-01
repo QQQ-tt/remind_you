@@ -51,7 +51,7 @@ public class MailService {
         // 创建 MimeMessageHelper
         MimeMessageHelper helper = new MimeMessageHelper(message, false);
         // 发件人邮箱和名称
-        helper.setFrom(name, "QQQtx");
+        helper.setFrom(name, "Remind");
         // 收件人邮箱
         helper.setTo(to);
         // 邮件标题
