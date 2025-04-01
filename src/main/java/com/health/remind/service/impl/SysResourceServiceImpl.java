@@ -110,6 +110,7 @@ public class SysResourceServiceImpl extends ServiceImpl<SysResourceMapper, SysRe
                     .status(dto.getStatus())
                     .type(dto.getType())
                     .method(dto.getMethod())
+                    .icon(dto.getIcon())
                     .url(dto.getUrl())
                     .parentId(dto.getParentId())
                     .description(dto.getDescription())

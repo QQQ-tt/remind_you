@@ -34,6 +34,9 @@ public class SysResourceVO {
     @Schema(description = "方法类型")
     private String method;
 
+    @Schema(description = "图标")
+    private String icon;
+
     @Schema(description = "详细描述")
     private String description;
 

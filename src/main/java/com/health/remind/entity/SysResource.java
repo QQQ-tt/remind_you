@@ -65,12 +65,15 @@ public class SysResource extends BaseEntity {
     private List<SysResource> children;
 
     @Builder
-    public SysResource(Long id, String name, String url, SysResourceEnum type, String method, String description, Boolean status, Long parentId) {
+    public SysResource(Long id, String name, String url, SysResourceEnum type, String method,
+                       String icon, String description,
+                       Boolean status, Long parentId) {
         super(id);
         this.name = name;
         this.url = url;
         this.type = type;
         this.method = method;
+        this.icon = icon;
         this.description = description;
         this.status = status;
         this.parentId = parentId;
