@@ -2,6 +2,7 @@ package com.health.remind.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.health.remind.config.R;
+import com.health.remind.pojo.dto.RemindTaskInfoDTO;
 import com.health.remind.pojo.dto.RemindTaskInfoPageDTO;
 import com.health.remind.pojo.vo.RemindTaskInfoVO;
 import com.health.remind.service.RemindTaskInfoService;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * <p>
@@ -36,5 +39,11 @@ public class RemindTaskInfoController {
     @PostMapping("/pageTaskInfo")
     public R<Page<RemindTaskInfoVO>> pageTaskInfo(@RequestBody @Valid RemindTaskInfoPageDTO dto) {
         return R.success(remindTaskInfoService.pageTaskInfo(dto));
+    }
+
+    @Operation(summary = "查询任务详情")
+    @PostMapping("/listTaskInfo")
+    public R<List<RemindTaskInfoVO>> listTaskInfo(@RequestBody @Valid RemindTaskInfoDTO dto) {
+        return R.success(remindTaskInfoService.listTaskInfo(dto));
     }
 }

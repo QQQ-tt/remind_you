@@ -9,6 +9,7 @@ import com.health.remind.config.enums.UserInfo;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.mapper.RemindTaskInfoMapper;
+import com.health.remind.pojo.dto.RemindTaskInfoDTO;
 import com.health.remind.pojo.dto.RemindTaskInfoPageDTO;
 import com.health.remind.pojo.vo.RemindTaskInfoVO;
 import com.health.remind.scheduler.DelayScheduledExecutor;
@@ -46,9 +47,15 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
         return baseMapper.selectPageTaskInfo(dto.getPage(),
                 Wrappers.lambdaQuery(RemindTaskInfo.class)
                         .eq(BaseEntity::getDeleteFlag, false)
-                        .eq(dto.getId() != null, RemindTaskInfo::getId, dto.getId())
                         .eq(RemindTaskInfo::getRemindTaskId, dto.getRemindTaskId())
                         .orderByAsc(RemindTaskInfo::getEstimatedTime));
+    }
+
+    @Override
+    public List<RemindTaskInfoVO> listTaskInfo(RemindTaskInfoDTO dto) {
+        return baseMapper.selectTaskInfo(Wrappers.lambdaQuery(RemindTaskInfo.class)
+                .eq(RemindTaskInfo::getRemindTaskId, dto.getRemindTaskId())
+                .between(RemindTaskInfo::getEstimatedTime, dto.getStartTime(), dto.getEndTime()));
     }
 
     @Override

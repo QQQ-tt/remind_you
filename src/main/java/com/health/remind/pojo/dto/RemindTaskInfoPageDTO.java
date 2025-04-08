@@ -14,8 +14,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class RemindTaskInfoPageDTO extends PageDTO<RemindTaskInfo> {
 
-    private Long id;
-
     @NotBlank(message = "提醒任务id不能为空")
     private String remindTaskId;
 }

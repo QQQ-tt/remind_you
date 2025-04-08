@@ -9,6 +9,8 @@ import com.health.remind.pojo.vo.RemindTaskInfoVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * <p>
  * 任务执行详情数据 Mapper 接口
@@ -24,4 +26,6 @@ public interface RemindTaskInfoMapper extends BaseMapper<RemindTaskInfo> {
 
     Page<RemindTaskInfoVO> selectPageTaskInfo(Page<RemindTaskInfo> page,
                                               @Param(Constants.WRAPPER) LambdaQueryWrapper<RemindTaskInfo> eq);
+
+    List<RemindTaskInfoVO> selectTaskInfo(@Param(Constants.WRAPPER) LambdaQueryWrapper<RemindTaskInfo> eq);
 }

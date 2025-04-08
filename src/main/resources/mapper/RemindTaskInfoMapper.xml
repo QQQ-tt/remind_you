@@ -13,4 +13,8 @@
         select id, remind_task_id, estimated_time, actual_time, time, is_send, is_read
         from remind_task_info ${ew.customSqlSegment}
     </select>
+    <select id="selectTaskInfo" resultType="com.health.remind.pojo.vo.RemindTaskInfoVO">
+        select id, remind_task_id, estimated_time, actual_time, time, is_send, is_read
+        from remind_task_info ${ew.customSqlSegment}
+    </select>
 </mapper>
