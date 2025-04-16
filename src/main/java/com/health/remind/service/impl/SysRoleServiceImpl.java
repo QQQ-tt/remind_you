@@ -8,10 +8,12 @@ import com.health.remind.config.BaseEntity;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
 import com.health.remind.entity.SysRole;
+import com.health.remind.entity.SysRoleResource;
 import com.health.remind.mapper.SysRoleMapper;
 import com.health.remind.pojo.dto.SysRoleDTO;
 import com.health.remind.pojo.dto.SysRolePageDTO;
 import com.health.remind.pojo.vo.SysRoleVO;
+import com.health.remind.service.SysRoleResourceService;
 import com.health.remind.service.SysRoleService;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,12 @@ import java.util.List;
  */
 @Service
 public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> implements SysRoleService {
+
+    private final SysRoleResourceService sysRoleResourceService;
+
+    public SysRoleServiceImpl(SysRoleResourceService sysRoleResourceService) {
+        this.sysRoleResourceService = sysRoleResourceService;
+    }
 
     @Override
     public Page<SysRoleVO> pageSysRole(SysRolePageDTO dto) {
@@ -83,6 +91,8 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
     @Override
     public boolean removeByRoleId(Long id) {
+        sysRoleResourceService.remove(Wrappers.lambdaQuery(SysRoleResource.class)
+                .eq(SysRoleResource::getSysRoleId, id));
         return removeById(id);
     }
 }

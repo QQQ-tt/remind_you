@@ -1,6 +1,8 @@
 package com.health.remind.scheduler;
 
+import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.service.SysRoleResourceService;
+import com.health.remind.util.RedisUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -24,9 +26,10 @@ public class ScheduledTasks {
         // 定时删除过期数据
     }
 
-    @Scheduled(fixedDelay = 1000 * 60 * 10)
+    @Scheduled(fixedDelay = 1000 * 60 * 20)
     public void initRoleResource() {
         // 定时初始化角色资源
+        RedisUtils.delete(RedisUtils.keys(RedisKeys.getRoleResourceKey(null)));
         sysRoleResourceService.listRoleResourceByRoleId(new ArrayList<>());
     }
 }

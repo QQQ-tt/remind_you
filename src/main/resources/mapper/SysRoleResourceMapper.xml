@@ -8,6 +8,7 @@
         from sys_resource sr
                  left join sys_role_resource srr on sr.id = srr.sys_resource
         where sr.delete_flag = 0
+          and srr.delete_flag = 0
           and sr.status = 1
           and srr.sys_role_id = #{roleId}
     </select>

@@ -133,8 +133,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             SysUser sysUser = SysUser.builder()
                     .id(dto.getId())
                     .name(dto.getName())
-                    .telephone(Long.valueOf(dto.getTelephone()))
-                    .encryptedTelephone(dto.getTelephone().replaceFirst("(\\d{3})\\d{4}(\\d{4})", "$1****$2"))
                     .status(dto.isStatus())
                     .userType(USER_TYPE)
                     .sysRoleId(dto.getSysRoleId())
@@ -144,6 +142,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             }
             if (b) {
                 sysUser.setAccount(getAccount());
+                sysUser.setTelephone(Long.valueOf(dto.getTelephone()));
+                sysUser.setEncryptedTelephone(dto.getTelephone().replaceFirst("(\\d{3})\\d{4}(\\d{4})", "$1****$2"));
             }
             if (!b && !dto.isStatus()) {
                 SysUser byId = getById(dto.getId());
