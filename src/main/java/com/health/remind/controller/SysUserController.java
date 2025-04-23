@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.health.remind.common.StaticConstant;
 import com.health.remind.config.R;
 import com.health.remind.entity.SysUser;
+import com.health.remind.pojo.dto.LoginAppDTO;
 import com.health.remind.pojo.dto.SignDTO;
 import com.health.remind.pojo.dto.SysUserDTO;
 import com.health.remind.pojo.dto.SysUserPageDTO;
@@ -53,6 +54,13 @@ public class SysUserController {
     @PostMapping("/loginUser")
     public R<LoginVO> loginUser(@RequestBody @Valid LoginDTO dto) {
         return R.success(sysUserService.loginUser(Long.parseLong(dto.getAccount()), dto.getPassword()));
+    }
+
+    @Operation(summary = "用户登录（用户端）", description = StaticConstant.PERMISSION_KEY)
+    @PostMapping("/loginAppUser")
+    public R<LoginVO> loginAppUser(@RequestBody LoginAppDTO dto) {
+        System.out.println(dto);
+        return R.success();
     }
 
     @Operation(summary = "分页查询")
