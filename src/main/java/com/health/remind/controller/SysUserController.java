@@ -59,8 +59,7 @@ public class SysUserController {
     @Operation(summary = "用户登录（用户端）", description = StaticConstant.PERMISSION_KEY)
     @PostMapping("/loginAppUser")
     public R<LoginVO> loginAppUser(@RequestBody LoginAppDTO dto) {
-        System.out.println(dto);
-        return R.success();
+        return R.success(sysUserService.loginAppUser(dto));
     }
 
     @Operation(summary = "分页查询")

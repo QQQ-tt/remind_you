@@ -49,6 +49,14 @@ public class SysUser extends BaseEntity {
     @TableField("encrypted_telephone")
     private String encryptedTelephone;
 
+    @Schema(description = "微信openId")
+    @TableField("open_id")
+    private String openId;
+
+    @Schema(description = "用户信息")
+    @TableField("user_info")
+    private String userInfo;
+
     @Schema(description = "是否启用")
     @TableField("status")
     private Boolean status;
@@ -62,13 +70,17 @@ public class SysUser extends BaseEntity {
     private Long sysRoleId;
 
     @Builder
-    public SysUser(Long id, String name, Long account, String password, Long telephone,String encryptedTelephone, Boolean status,
+    public SysUser(Long id, String name, Long account, String password, String openId, String userInfo, Long telephone,
+                   String encryptedTelephone,
+                   Boolean status,
                    String userType,
                    Long sysRoleId) {
         super(id);
         this.name = name;
         this.account = account;
         this.password = password;
+        this.openId = openId;
+        this.userInfo = userInfo;
         this.telephone = telephone;
         this.encryptedTelephone = encryptedTelephone;
         this.status = status;

@@ -23,14 +23,14 @@ public class DataException extends RuntimeException {
         this.msg = "";
     }
 
-    public DataException(DataEnums dataEnums,String msg) {
+    public DataException(DataEnums dataEnums, String msg) {
         super(dataEnums.toString());
         this.code = dataEnums.getCode();
         this.dataEnums = dataEnums;
         this.msg = msg;
     }
 
-    public DataException(String msg, int code, String msg1) {
+    public DataException(String msg, int code) {
         super(msg);
         this.code = code;
         this.msg = "";

@@ -12,6 +12,7 @@ import com.health.remind.config.exception.DataException;
 import com.health.remind.config.lock.RedisLock;
 import com.health.remind.entity.SysUser;
 import com.health.remind.mapper.SysUserMapper;
+import com.health.remind.pojo.dto.LoginAppDTO;
 import com.health.remind.pojo.dto.SignDTO;
 import com.health.remind.pojo.dto.SysUserDTO;
 import com.health.remind.pojo.dto.SysUserPageDTO;
@@ -23,6 +24,10 @@ import com.health.remind.service.SysUserService;
 import com.health.remind.util.JwtUtils;
 import com.health.remind.util.NumUtils;
 import com.health.remind.util.RedisUtils;
+import com.health.remind.wx.WxApiService;
+import com.health.remind.wx.entity.Code2Session;
+import com.health.remind.wx.entity.WXUserInfo;
+import org.apache.commons.math3.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -41,15 +46,20 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
 
-    private static final String USER_TYPE = "sys";
+    private static final String USER_TYPE_SYS = "sys";
+
+    private static final String USER_TYPE_APP = "app";
 
     private final PasswordEncoder passwordEncoder;
 
     private final SysRoleService sysRoleService;
 
-    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysRoleService sysRoleService) {
+    private final WxApiService wxApiService;
+
+    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysRoleService sysRoleService, WxApiService wxApiService) {
         this.passwordEncoder = passwordEncoder;
         this.sysRoleService = sysRoleService;
+        this.wxApiService = wxApiService;
     }
 
     @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getIp()", autoUnlockTime = 6000)
@@ -73,7 +83,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .password(encode)
                 .telephone(Long.valueOf(signDTO.getTelephone()))
                 .encryptedTelephone(signDTO.getTelephone().replaceFirst("(\\d{3})\\d{4}(\\d{4})", "$1****$2"))
-                .userType(USER_TYPE)
+                .userType(USER_TYPE_SYS)
                 .status(false)
                 .build());
         return new SignVO(l);
@@ -83,7 +93,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public LoginVO loginUser(Long account, String password) {
         SysUser sysUser = Optional.ofNullable(getOne(Wrappers.lambdaQuery(SysUser.class)
-                        .eq(SysUser::getUserType, USER_TYPE)
+                        .eq(SysUser::getUserType, USER_TYPE_SYS)
                         .and(e -> e.eq(SysUser::getAccount, account)
                                 .or()
                                 .eq(SysUser::getTelephone, account))))
@@ -92,22 +102,63 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new DataException(DataEnums.USER_STATUS_ERROR);
         }
         if (passwordEncoder.matches(password, sysUser.getPassword())) {
-            HashMap<String, Object> map = new HashMap<>();
-            map.put(StaticConstant.USER_TYPE, sysUser.getUserType());
-            Optional.ofNullable(sysUser.getSysRoleId())
-                    .flatMap(e -> Optional.ofNullable(sysRoleService.getById(e)))
-                    .ifPresent(byId -> map.put(StaticConstant.ROLE_ID, byId.getStatus() ? byId.getId() : ""));
-            String s = JwtUtils.generateToken(account.toString(), map);
-            LoginVO loginVO = new LoginVO(sysUser.getId(), sysUser.getName(), s);
-            RedisUtils.delete(RedisKeys.getLoginKey(sysUser.getAccount().toString(), sysUser.getUserType()));
-            RedisUtils.delete(RedisKeys.getLoginKey(sysUser.getTelephone().toString(), sysUser.getUserType()));
-            RedisUtils.setObject(RedisKeys.getLoginKey(account.toString(), sysUser.getUserType()), loginVO);
-            RedisUtils.expire(RedisKeys.getLoginKey(account.toString(), sysUser.getUserType()),
-                    JwtUtils.EXPIRATION_TIME,
-                    TimeUnit.MILLISECONDS);
-            return loginVO;
+            return getLoginVO(sysUser);
         }
         throw new DataException(DataEnums.PASSWORD_ERROR);
+    }
+
+    @Override
+    public LoginVO loginAppUser(LoginAppDTO dto) {
+        Code2Session code2Session = wxApiService.getCode2Session(dto.getCode());
+        SysUser one = getOne(Wrappers.lambdaQuery(SysUser.class)
+                .eq(SysUser::getOpenId, code2Session.getOpenid()));
+        if (one == null) {
+            Pair<String, WXUserInfo> decrypt = wxApiService.decrypt(dto.getEncryptedData(),
+                    code2Session.getSession_key(),
+                    dto.getIv());
+            long account = getAccount();
+            SysUser user = SysUser.builder()
+                    .name(decrypt.getSecond()
+                            .getNickName())
+                    .account(account)
+                    .password(passwordEncoder.encode(String.valueOf(account)))
+                    .userType(USER_TYPE_APP)
+                    .openId(code2Session.getOpenid())
+                    .userInfo(decrypt.getFirst())
+                    .build();
+            save(user);
+            one = user;
+        }
+        return getLoginVO(one);
+    }
+
+    /**
+     * 获取登录信息
+     *
+     * @param sysUser 用户信息
+     * @return
+     */
+    private LoginVO getLoginVO(SysUser sysUser) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put(StaticConstant.USER_TYPE, sysUser.getUserType());
+        Optional.ofNullable(sysUser.getSysRoleId())
+                .flatMap(e -> Optional.ofNullable(sysRoleService.getById(e)))
+                .ifPresent(byId -> map.put(StaticConstant.ROLE_ID, byId.getStatus() ? byId.getId() : ""));
+        String s = JwtUtils.generateToken(sysUser.getAccount()
+                .toString(), map);
+        LoginVO loginVO = new LoginVO(sysUser.getId(), sysUser.getName(), s, JwtUtils.EXPIRATION_TIME);
+        RedisUtils.delete(RedisKeys.getLoginKey(sysUser.getAccount()
+                .toString(), sysUser.getUserType()));
+        Optional.ofNullable(sysUser.getTelephone())
+                .ifPresent(e -> RedisUtils.setObject(RedisKeys.getLoginKey(e
+                        .toString(), sysUser.getUserType()), loginVO));
+        RedisUtils.setObject(RedisKeys.getLoginKey(sysUser.getAccount()
+                .toString(), sysUser.getUserType()), loginVO);
+        RedisUtils.expire(RedisKeys.getLoginKey(sysUser.getAccount()
+                        .toString(), sysUser.getUserType()),
+                JwtUtils.EXPIRATION_TIME,
+                TimeUnit.MILLISECONDS);
+        return loginVO;
     }
 
     @Override
@@ -134,7 +185,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     .id(dto.getId())
                     .name(dto.getName())
                     .status(dto.isStatus())
-                    .userType(USER_TYPE)
+                    .userType(USER_TYPE_SYS)
                     .sysRoleId(dto.getSysRoleId())
                     .build();
             if (b && StringUtils.isNotBlank(dto.getPassword())) {

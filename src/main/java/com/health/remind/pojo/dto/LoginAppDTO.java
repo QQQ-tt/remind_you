@@ -1,5 +1,6 @@
 package com.health.remind.pojo.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -9,7 +10,12 @@ import lombok.Data;
 @Data
 public class LoginAppDTO {
 
+    @Schema(description = "微信code")
     private String code;
 
-    private WxAppDTO userInfo;
+    @Schema(description = "用户信息")
+    private String encryptedData;
+
+    @Schema(description = "加密算法的初始向量")
+    private String iv;
 }

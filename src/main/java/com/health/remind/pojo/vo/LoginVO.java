@@ -18,4 +18,6 @@ public class LoginVO {
     private String name;
 
     private String token;
+
+    private Long expireTime;
 }
