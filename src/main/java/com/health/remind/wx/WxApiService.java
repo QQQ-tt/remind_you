@@ -31,11 +31,16 @@ public class WxApiService {
     }
 
     public Code2Session getCode2Session(String code) {
-        return restClient.get()
-                .uri("/sns/jscode2session?appid={appId}&secret={secret}&js_code={code}&grant_type=authorization_code",
-                        appId, secret, code)
-                .retrieve()
-                .body(Code2Session.class);
+        try {
+            return restClient.get()
+                    .uri("/sns/jscode2session?appid={appId}&secret={secret}&js_code={code}&grant_type=authorization_code",
+                            appId, secret, code)
+                    .retrieve()
+                    .body(Code2Session.class);
+        } catch (Exception e) {
+            log.error("获取微信session失败", e);
+            throw new DataException("获取微信session失败", 500);
+        }
     }
 
     public Pair<String, WXUserInfo> decrypt(String encryptedData, String sessionKey, String iv) {
