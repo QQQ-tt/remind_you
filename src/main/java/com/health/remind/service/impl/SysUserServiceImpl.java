@@ -149,9 +149,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private LoginVO getLoginVO(SysUser sysUser) {
         HashMap<String, Object> map = new HashMap<>();
         map.put(StaticConstant.USER_TYPE, sysUser.getUserType());
+        // 设置角色id
         Optional.ofNullable(sysUser.getSysRoleId())
                 .flatMap(e -> Optional.ofNullable(sysRoleService.getById(e)))
                 .ifPresent(byId -> map.put(StaticConstant.ROLE_ID, byId.getStatus() ? byId.getId() : ""));
+        // 生成token
         String s = JwtUtils.generateToken(sysUser.getAccount()
                 .toString(), map);
         LoginVO loginVO = new LoginVO(sysUser.getId(), sysUser.getName(), s, JwtUtils.EXPIRATION_TIME);
@@ -185,9 +187,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public boolean saveOrUpdateSysUser(SysUserDTO dto) {
         boolean b = dto.getId() == null;
-        long count = count(Wrappers.lambdaQuery(SysUser.class)
-                .ne(!b, BaseEntity::getId, dto.getId())
-                .eq(StringUtils.isNotBlank(dto.getTelephone()), SysUser::getTelephone, dto.getTelephone()));
+        long count = 0;
+        if (StringUtils.isNotBlank(dto.getTelephone())) {
+            count = count(Wrappers.lambdaQuery(SysUser.class)
+                    .ne(!b, BaseEntity::getId, dto.getId())
+                    .eq(SysUser::getTelephone, dto.getTelephone()));
+        }
         if (count == 0) {
             SysUser sysUser = SysUser.builder()
                     .id(dto.getId())

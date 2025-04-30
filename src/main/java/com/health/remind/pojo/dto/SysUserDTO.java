@@ -19,7 +19,6 @@ public class SysUserDTO {
     @Schema(description = "用户名称")
     private String name;
 
-    @NotBlank(message = "电话不能为空")
     @Schema(description = "电话")
     private String telephone;
 
