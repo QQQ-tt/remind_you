@@ -1,5 +1,6 @@
 package com.health.remind.pojo.dto;
 
+import com.health.remind.common.enums.FrequencyEnum;
 import com.health.remind.config.PageDTO;
 import com.health.remind.entity.Frequency;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,4 +17,10 @@ public class FrequencyPageDTO extends PageDTO<Frequency> {
 
     @Schema(description = "频次名称")
     private String name;
+
+    @Schema(description = "频次状态")
+    private Boolean status;
+
+    @Schema(description = "周期单位")
+    private FrequencyEnum cycleUnit;
 }
