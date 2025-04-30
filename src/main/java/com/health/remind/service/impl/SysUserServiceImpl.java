@@ -198,7 +198,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     .id(dto.getId())
                     .name(dto.getName())
                     .status(dto.isStatus())
-                    .userType(USER_TYPE_SYS)
+                    .userType(dto.getUserType())
                     .sysRoleId(dto.getSysRoleId())
                     .build();
             if (b && StringUtils.isNotBlank(dto.getPassword())) {

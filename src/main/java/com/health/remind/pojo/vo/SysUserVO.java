@@ -26,6 +26,9 @@ public class SysUserVO {
     @Schema(description = "是否启用")
     private Boolean status;
 
+    @Schema(description = "用户类型")
+    private String userType;
+
     @Schema(description = "角色名称")
     private String sysRoleName;
 

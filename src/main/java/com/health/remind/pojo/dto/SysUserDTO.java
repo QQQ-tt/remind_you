@@ -28,6 +28,10 @@ public class SysUserDTO {
     @Schema(description = "状态")
     private boolean status;
 
+    @NotBlank(message = "用户类型不能为空")
+    @Schema(description = "用户类型")
+    private String userType;
+
     @Schema(description = "角色id")
     private Long sysRoleId;
 }
