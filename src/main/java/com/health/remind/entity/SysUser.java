@@ -31,6 +31,10 @@ public class SysUser extends BaseEntity {
     @TableField("name")
     private String name;
 
+    @Schema(description = "头像")
+    @TableField("avatar")
+    private String avatar;
+
     @Schema(description = "账户")
     @TableField("account")
     private Long account;
@@ -57,6 +61,10 @@ public class SysUser extends BaseEntity {
     @TableField("user_info")
     private String userInfo;
 
+    @Schema(description = "授权状态 0 拒绝 1 待同意 2 已同意")
+    @TableField("authorized")
+    private Integer authorized;
+
     @Schema(description = "是否启用")
     @TableField("status")
     private Boolean status;
@@ -70,7 +78,8 @@ public class SysUser extends BaseEntity {
     private Long sysRoleId;
 
     @Builder
-    public SysUser(Long id, String name, Long account, String password, String openId, String userInfo, Long telephone,
+    public SysUser(Long id, String name, Long account, String password, String openId, String userInfo,
+                   Integer authorized, Long telephone,
                    String encryptedTelephone,
                    Boolean status,
                    String userType,
@@ -86,5 +95,6 @@ public class SysUser extends BaseEntity {
         this.status = status;
         this.userType = userType;
         this.sysRoleId = sysRoleId;
+        this.authorized = authorized;
     }
 }

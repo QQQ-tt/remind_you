@@ -123,9 +123,9 @@ public class CommonMethod {
                 .get(UserInfo.TOKEN);
     }
 
-    public static Long getUserId() {
+    public static Long getAccount() {
         return Long.parseLong(THREAD_LOCAL.get()
-                .get(UserInfo.USER_ID));
+                .get(UserInfo.ACCOUNT));
     }
 
     public static String getUrl() {
@@ -187,10 +187,10 @@ public class CommonMethod {
         }
     }
 
-    public static void setUserId(String userId) {
+    public static void setAccount(String userId) {
         if (StringUtils.isNotBlank(userId)) {
             THREAD_LOCAL.get()
-                    .put(UserInfo.USER_ID, userId);
+                    .put(UserInfo.ACCOUNT, userId);
         }
     }
 
@@ -208,7 +208,7 @@ public class CommonMethod {
 
     public static HashMap<UserInfo, String> initialize() {
         HashMap<UserInfo, String> value = new HashMap<>();
-        value.put(UserInfo.USER_ID, "1");
+        value.put(UserInfo.ACCOUNT, "1");
         value.put(UserInfo.USER_NAME, "admin");
         value.put(UserInfo.TENANT_ID, "1234");
         return value;

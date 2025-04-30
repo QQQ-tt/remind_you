@@ -7,11 +7,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.health.remind.common.StaticConstant;
 import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.BaseEntity;
+import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
 import com.health.remind.config.lock.RedisLock;
 import com.health.remind.entity.SysUser;
 import com.health.remind.mapper.SysUserMapper;
+import com.health.remind.pojo.dto.AppUserDTO;
 import com.health.remind.pojo.dto.LoginAppDTO;
 import com.health.remind.pojo.dto.SignDTO;
 import com.health.remind.pojo.dto.SysUserDTO;
@@ -82,7 +84,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .account(l)
                 .password(encode)
                 .telephone(Long.valueOf(signDTO.getTelephone()))
-                .encryptedTelephone(signDTO.getTelephone().replaceFirst("(\\d{3})\\d{4}(\\d{4})", "$1****$2"))
+                .encryptedTelephone(signDTO.getTelephone()
+                        .replaceFirst("(\\d{3})\\d{4}(\\d{4})", "$1****$2"))
                 .userType(USER_TYPE_SYS)
                 .status(false)
                 .build());
@@ -111,6 +114,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public LoginVO loginAppUser(LoginAppDTO dto) {
         Code2Session code2Session = wxApiService.getCode2Session(dto.getCode());
         SysUser one = getOne(Wrappers.lambdaQuery(SysUser.class)
+                .eq(SysUser::getStatus, true)
                 .eq(SysUser::getOpenId, code2Session.getOpenid()));
         if (one == null) {
             Pair<String, WXUserInfo> decrypt = wxApiService.decrypt(dto.getEncryptedData(),
@@ -125,18 +129,22 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     .userType(USER_TYPE_APP)
                     .openId(code2Session.getOpenid())
                     .userInfo(decrypt.getFirst())
+                    .status(true)
+                    .authorized(1)
                     .build();
             save(user);
             one = user;
         }
-        return getLoginVO(one);
+        LoginVO loginVO = getLoginVO(one);
+        loginVO.setAuthorized(one.getAuthorized() == 1);
+        return loginVO;
     }
 
     /**
      * 获取登录信息
      *
      * @param sysUser 用户信息
-     * @return
+     * @return token
      */
     private LoginVO getLoginVO(SysUser sysUser) {
         HashMap<String, Object> map = new HashMap<>();
@@ -194,7 +202,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             if (b) {
                 sysUser.setAccount(getAccount());
                 sysUser.setTelephone(Long.valueOf(dto.getTelephone()));
-                sysUser.setEncryptedTelephone(dto.getTelephone().replaceFirst("(\\d{3})\\d{4}(\\d{4})", "$1****$2"));
+                sysUser.setEncryptedTelephone(dto.getTelephone()
+                        .replaceFirst("(\\d{3})\\d{4}(\\d{4})", "$1****$2"));
             }
             if (!b && !dto.isStatus()) {
                 SysUser byId = getById(dto.getId());
@@ -204,6 +213,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return saveOrUpdate(sysUser);
         }
         throw new DataException(DataEnums.DATA_REPEAT, "手机号重复");
+    }
+
+    @Override
+    public boolean updateAppUser(AppUserDTO dto) {
+        return update(Wrappers.lambdaUpdate(SysUser.class)
+                .eq(SysUser::getAccount, CommonMethod.getAccount())
+                .eq(SysUser::getUserType, USER_TYPE_APP)
+                .set(StringUtils.isNotBlank(dto.getName()), SysUser::getName, dto.getName())
+                .set(StringUtils.isNotBlank(dto.getAvatar()), SysUser::getAvatar, dto.getAvatar())
+                .set(SysUser::getAuthorized, dto.getAuthorized()));
     }
 
     @Override

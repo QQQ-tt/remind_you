@@ -54,7 +54,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
 
     @Override
     public List<FrequencyVO> listFrequency() {
-        String frequencyAllKey = RedisKeys.getFrequencyAllKey(CommonMethod.getUserId());
+        String frequencyAllKey = RedisKeys.getFrequencyAllKey(CommonMethod.getAccount());
         boolean flag = RedisUtils.hasKey(frequencyAllKey);
         if (flag) {
             return RedisUtils.getObject(frequencyAllKey, new TypeReference<>() {
@@ -65,7 +65,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
                 .le(Frequency::getLevel, getLevel())
                 .eq(Frequency::getStatus, true)
                 .in(Frequency::getSource, "system",
-                        CommonMethod.getUserId()));
+                        CommonMethod.getAccount()));
         Optional.ofNullable(sys)
                 .ifPresent(s -> RedisUtils.setObject(frequencyAllKey, s));
         return sys;
@@ -114,7 +114,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
                     .type(dto.getType())
                     .status(dto.getStatus())
                     .level(dto.getLevel())
-                    .source(StringUtils.isBlank(dto.getSource()) ? dto.getSource() : CommonMethod.getUserId()
+                    .source(StringUtils.isBlank(dto.getSource()) ? dto.getSource() : CommonMethod.getAccount()
                             .toString())
                     .build();
             boolean savedOrUpdate = saveOrUpdate(frequency);

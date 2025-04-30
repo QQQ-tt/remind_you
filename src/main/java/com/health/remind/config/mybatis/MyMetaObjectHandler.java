@@ -19,7 +19,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         log.debug("start insert fill ....");
-        this.strictInsertFill(metaObject, "createId", Long.class, CommonMethod.getUserId());
+        this.strictInsertFill(metaObject, "createId", Long.class, CommonMethod.getAccount());
         this.strictInsertFill(metaObject, "createName", String.class, CommonMethod.getUserName());
         this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
         this.strictInsertFill(metaObject, "tenantId", Long.class, CommonMethod.getTenantId());
@@ -29,7 +29,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void updateFill(MetaObject metaObject) {
         log.debug("start update fill ....");
-        this.strictUpdateFill(metaObject, "updateId", Long.class, CommonMethod.getUserId());
+        this.strictUpdateFill(metaObject, "updateId", Long.class, CommonMethod.getAccount());
         this.strictUpdateFill(metaObject, "updateName", String.class, CommonMethod.getUserName());
         this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
         log.debug("end update fill ...");

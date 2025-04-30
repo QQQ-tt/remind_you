@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.health.remind.common.StaticConstant;
 import com.health.remind.config.R;
 import com.health.remind.entity.SysUser;
+import com.health.remind.pojo.dto.AppUserDTO;
 import com.health.remind.pojo.dto.LoginAppDTO;
 import com.health.remind.pojo.dto.SignDTO;
 import com.health.remind.pojo.dto.SysUserDTO;
@@ -72,6 +73,12 @@ public class SysUserController {
     @PutMapping("/saveOrUpdateSysUser")
     public R<Boolean> saveOrUpdateSysUser(@RequestBody @Valid SysUserDTO dto) {
         return R.success(sysUserService.saveOrUpdateSysUser(dto));
+    }
+
+    @Operation(summary = "更新用户")
+    @PutMapping("/updateAppUser")
+    public R<Boolean> updateAppUser(@RequestBody @Valid AppUserDTO dto) {
+        return R.success(sysUserService.updateAppUser(dto));
     }
 
     @Operation(summary = "取消角色")

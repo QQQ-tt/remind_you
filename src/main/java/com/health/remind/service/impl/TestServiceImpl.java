@@ -52,7 +52,7 @@ public class TestServiceImpl extends ServiceImpl<TestMapper, Test> implements Te
     }
 
     //    @RedisLock(lockParameter = "#key")
-    @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getUserId()", autoUnlockTime = 60000000)
+    @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getAccount()", autoUnlockTime = 60000000)
     @Override
     public String testRedisLock(String key, Long length) {
         try {

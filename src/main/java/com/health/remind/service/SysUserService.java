@@ -3,6 +3,7 @@ package com.health.remind.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.health.remind.entity.SysUser;
+import com.health.remind.pojo.dto.AppUserDTO;
 import com.health.remind.pojo.dto.LoginAppDTO;
 import com.health.remind.pojo.dto.SignDTO;
 import com.health.remind.pojo.dto.SysUserDTO;
@@ -62,6 +63,13 @@ public interface SysUserService extends IService<SysUser> {
      */
     boolean saveOrUpdateSysUser(SysUserDTO dto);
 
+    /**
+     * 编辑用户
+     *
+     * @param dto 用户信息
+     * @return 是否成功
+     */
+    boolean updateAppUser(AppUserDTO dto);
     /**
      * 取消角色
      *

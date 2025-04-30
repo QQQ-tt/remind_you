@@ -20,4 +20,13 @@ public class LoginVO {
     private String token;
 
     private Long expireTime;
+
+    private boolean authorized;
+
+    public LoginVO(Long id, String name, String token, Long expireTime) {
+        this.id = id;
+        this.name = name;
+        this.token = token;
+        this.expireTime = expireTime;
+    }
 }

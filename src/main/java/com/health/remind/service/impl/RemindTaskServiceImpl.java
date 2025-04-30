@@ -80,18 +80,18 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     public Page<RemindTaskVO> pageTaskByUserId(RemindTaskPageDTO dto) {
         return baseMapper.selectPageTask(dto.getPage(),
                 Wrappers.lambdaQuery(RemindTask.class)
-                        .eq(RemindTask::getCreateId, CommonMethod.getUserId())
+                        .eq(RemindTask::getCreateId, CommonMethod.getAccount())
                         .like(StringUtils.isNotBlank(dto.getName()), RemindTask::getName, dto.getName())
                         .orderByDesc(BaseEntity::getCreateTime));
     }
 
     @Override
     public RemindTaskVO getTaskById(Long id) {
-        return baseMapper.selectOneById(id, CommonMethod.getUserId());
+        return baseMapper.selectOneById(id, CommonMethod.getAccount());
     }
 
     @Override
-    @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getUserId()")
+    @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getAccount()")
     public boolean saveOrUpdateTask(RemindTaskDTO task) {
         saveFrequency(task);
         RemindTask build = RemindTask.builder()
@@ -113,7 +113,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         if (task.getId() == null) {
             frequencyUtils.splitTask(build, FrequencySqlTypeEnum.INSERT);
             remindTaskInfoService.putTask(build);
-            Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getUserId(), null, null));
+            Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), null, null));
             RedisUtils.delete(keys);
         }
         return b;
@@ -175,7 +175,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
 
     @Override
     public List<RemindTaskInfoVO> getTaskInfoByUserId(RemindTaskIndoDTO dto) {
-        String remindInfoKey = RedisKeys.getRemindInfoKey(CommonMethod.getUserId(), dto.getStartTime(),
+        String remindInfoKey = RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), dto.getStartTime(),
                 dto.getEndTime());
         boolean flag = RedisUtils.hasKey(remindInfoKey);
         if (flag) {
@@ -183,7 +183,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
             });
         }
         List<RemindTask> list = list(Wrappers.lambdaQuery(RemindTask.class)
-                .eq(BaseEntity::getCreateId, CommonMethod.getUserId())
+                .eq(BaseEntity::getCreateId, CommonMethod.getAccount())
                 .ge(RemindTask::getStartTime, dto.getStartTime())
                 .le(RemindTask::getEndTime, dto.getEndTime()));
         if (list.isEmpty()) {
