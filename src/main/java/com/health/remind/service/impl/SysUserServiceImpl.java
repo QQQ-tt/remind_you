@@ -33,6 +33,7 @@ import org.apache.commons.math3.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -137,6 +138,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         LoginVO loginVO = getLoginVO(one);
         loginVO.setAuthorized(one.getAuthorized() == 1);
+        loginVO.setAvatar(one.getAvatar());
         return loginVO;
     }
 
@@ -225,7 +227,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return update(Wrappers.lambdaUpdate(SysUser.class)
                 .eq(SysUser::getAccount, CommonMethod.getAccount())
                 .eq(SysUser::getUserType, USER_TYPE_APP)
-                .set(StringUtils.isNotBlank(dto.getName()), SysUser::getName, dto.getName())
+                .set(BaseEntity::getUpdateTime, LocalDateTime.now())
+                .set(BaseEntity::getUpdateId, CommonMethod.getAccount())
+                .set(BaseEntity::getUpdateName, CommonMethod.getUserName())
+                .set(StringUtils.isNotBlank(dto.getNickname()), SysUser::getName, dto.getNickname())
                 .set(StringUtils.isNotBlank(dto.getAvatar()), SysUser::getAvatar, dto.getAvatar())
                 .set(SysUser::getAuthorized, dto.getAuthorized()));
     }

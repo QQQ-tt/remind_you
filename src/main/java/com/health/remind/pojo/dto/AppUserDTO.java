@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 public class AppUserDTO {
 
-    private String name;
+    private String nickname;
 
     private String avatar;
 

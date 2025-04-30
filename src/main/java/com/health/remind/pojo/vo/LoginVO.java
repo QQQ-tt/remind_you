@@ -17,6 +17,8 @@ public class LoginVO {
 
     private String name;
 
+    private String avatar;
+
     private String token;
 
     private Long expireTime;
