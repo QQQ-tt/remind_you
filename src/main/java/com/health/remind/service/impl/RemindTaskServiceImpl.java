@@ -36,11 +36,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -124,7 +127,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         if (task.getId() == null) {
             frequencyUtils.splitTask(build, FrequencySqlTypeEnum.INSERT);
             remindTaskInfoService.putTask(build);
-            Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), null, null));
+            Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), null));
             RedisUtils.delete(keys);
         }
         return b;
@@ -186,8 +189,8 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
 
     @Override
     public Map<LocalDate, List<RemindTaskInfoVO>> getTaskInfoByUserId(RemindTaskIndoDTO dto) {
-        String remindInfoKey = RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), dto.getStartTime(),
-                dto.getEndTime());
+        LocalDateTime now = LocalDateTime.now();
+        String remindInfoKey = RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), now.toLocalDate());
         boolean flag = RedisUtils.hasKey(remindInfoKey);
         if (flag) {
             return RedisUtils.getObject(remindInfoKey, new TypeReference<>() {
@@ -195,8 +198,11 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         }
         List<RemindTask> list = list(Wrappers.lambdaQuery(RemindTask.class)
                 .eq(BaseEntity::getCreateId, CommonMethod.getAccount())
-                .ge(RemindTask::getStartTime, dto.getStartTime())
-                .le(RemindTask::getEndTime, dto.getEndTime()));
+                .eq(RemindTask::getStatus, true)
+                .eq(RemindTask::getIsFinish, false)
+                .le(dto.getEndTime() == null && dto.getStartTime() == null, RemindTask::getStartTime, now)
+                .ge(dto.getStartTime() != null, RemindTask::getStartTime, dto.getStartTime())
+                .le(dto.getEndTime() != null, RemindTask::getEndTime, dto.getEndTime()));
         if (list.isEmpty()) {
             return Map.of();
         }
@@ -213,6 +219,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                         .name(taskMap.get(m.getRemindTaskId())
                                 .getName())
                         .time(m.getTime())
+                        .estimatedTime(m.getEstimatedTime())
                         .isRead(m.getIsRead())
                         .isSend(m.getIsSend())
                         .build())
@@ -222,6 +229,9 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .collect(Collectors.groupingBy(e -> e.getTime()
                         .toLocalDate(), LinkedHashMap::new, Collectors.toList()));
         RedisUtils.setObject(remindInfoKey, map);
+        LocalTime endOfDay = LocalTime.of(23, 59, 59);
+        RedisUtils.expire(remindInfoKey, now.toLocalTime()
+                .until(endOfDay, ChronoUnit.SECONDS), TimeUnit.SECONDS);
         return map;
     }
 
