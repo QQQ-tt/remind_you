@@ -75,6 +75,10 @@ public class RemindTask extends BaseEntity {
     @TableField("email")
     private String email;
 
+    @Schema(description = "手机号")
+    @TableField("telephone")
+    private String telephone;
+
     @Schema(description = "提前时间的数量")
     @TableField("advance_num")
     private Integer advanceNum;
@@ -93,7 +97,7 @@ public class RemindTask extends BaseEntity {
     public RemindTask(Long id, Long createId, String createName, LocalDateTime createTime, Long updateId,
                       String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag, String name,
                       LocalDateTime startTime, LocalDateTime endTime, Integer pushNum, Integer num, Boolean status,
-                      String remark,
+                      String remark,String telephone,
                       Boolean isRemind, RemindTypeEnum remindType,String email, Integer advanceNum,
                       FrequencyEnum cycleUnit,
                       Long frequencyId,LocalDate initTime) {
@@ -108,6 +112,7 @@ public class RemindTask extends BaseEntity {
         this.isRemind = isRemind;
         this.remindType = remindType;
         this.email = email;
+        this.telephone = telephone;
         this.advanceNum = advanceNum;
         this.cycleUnit = cycleUnit;
         this.frequencyId = frequencyId;

@@ -34,7 +34,10 @@ import com.health.remind.util.RedisUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,6 +96,12 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     @Override
     @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getAccount()")
     public boolean saveOrUpdateTask(RemindTaskDTO task) {
+        if (task.getId() != null) {
+            RemindTask byId = getById(task.getId());
+            if (byId == null) {
+                throw new DataException(DataEnums.DATA_NOT_EXIST);
+            }
+        }
         saveFrequency(task);
         RemindTask build = RemindTask.builder()
                 .id(task.getId())
@@ -104,6 +113,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .isRemind(task.getIsRemind())
                 .remindType(task.getRemindType())
                 .email(task.getEmail())
+                .telephone(task.getTelephone())
                 .advanceNum(task.getAdvanceNum())
                 .cycleUnit(task.getCycleUnit())
                 // 频率不可修改
@@ -174,7 +184,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     }
 
     @Override
-    public List<RemindTaskInfoVO> getTaskInfoByUserId(RemindTaskIndoDTO dto) {
+    public Map<LocalDate, List<RemindTaskInfoVO>> getTaskInfoByUserId(RemindTaskIndoDTO dto) {
         String remindInfoKey = RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), dto.getStartTime(),
                 dto.getEndTime());
         boolean flag = RedisUtils.hasKey(remindInfoKey);
@@ -187,7 +197,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .ge(RemindTask::getStartTime, dto.getStartTime())
                 .le(RemindTask::getEndTime, dto.getEndTime()));
         if (list.isEmpty()) {
-            return List.of();
+            return Map.of();
         }
         Map<Long, RemindTask> taskMap = list.stream()
                 .collect(Collectors.toMap(BaseEntity::getId, Function.identity()));
@@ -206,8 +216,12 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                         .isSend(m.getIsSend())
                         .build())
                 .toList();
-        RedisUtils.setObject(remindInfoKey, taskInfoVOS);
-        return taskInfoVOS;
+        LinkedHashMap<LocalDate, List<RemindTaskInfoVO>> map = taskInfoVOS.stream()
+                .sorted(Comparator.comparing(RemindTaskInfoVO::getTime))
+                .collect(Collectors.groupingBy(e -> e.getTime()
+                        .toLocalDate(), LinkedHashMap::new, Collectors.toList()));
+        RedisUtils.setObject(remindInfoKey, map);
+        return map;
     }
 
     @Override

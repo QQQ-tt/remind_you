@@ -10,8 +10,10 @@ import com.health.remind.pojo.vo.RemindTaskInfoVO;
 import com.health.remind.pojo.vo.RemindTaskVO;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -85,7 +87,7 @@ public interface RemindTaskService extends IService<RemindTask> {
      * @param dto 查询条件
      * @return 任务详情
      */
-    List<RemindTaskInfoVO> getTaskInfoByUserId(RemindTaskIndoDTO dto);
+    Map<LocalDate, List<RemindTaskInfoVO>> getTaskInfoByUserId(RemindTaskIndoDTO dto);
 
     /**
      * 删除任务

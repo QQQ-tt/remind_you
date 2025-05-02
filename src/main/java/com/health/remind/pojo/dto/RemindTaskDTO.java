@@ -1,5 +1,6 @@
 package com.health.remind.pojo.dto;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.health.remind.common.enums.FrequencyEnum;
 import com.health.remind.scheduler.enums.RemindTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -44,6 +45,11 @@ public class RemindTaskDTO {
     @Email(message = "邮箱格式不正确")
     @Schema(description = "邮箱")
     private String email;
+
+    @Size(max = 11, message = "手机号长度不能超过11个字符")
+    @Schema(description = "手机号")
+    @TableField(value = "telephone")
+    private String telephone;
 
     @Schema(description = "提前时间的数量")
     private Integer advanceNum;

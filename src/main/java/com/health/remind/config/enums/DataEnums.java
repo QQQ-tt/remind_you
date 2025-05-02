@@ -54,6 +54,10 @@ public enum DataEnums {
      */
     DATA_REPEAT("数据重复", 409),
     /**
+     * 数据不存在
+     */
+    DATA_NOT_EXIST("数据不存在", 404),
+    /**
      * 系统繁忙
      */
     SYSTEM_BUSY("系统繁忙", 429);

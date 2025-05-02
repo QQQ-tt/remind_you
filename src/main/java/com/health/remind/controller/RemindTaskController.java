@@ -12,10 +12,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -80,7 +88,7 @@ public class RemindTaskController {
 
     @Operation(summary = "根据用户id查询时间范围内提醒任务详情")
     @PostMapping("/getTaskInfoByUserId")
-    public R<List<RemindTaskInfoVO>> getTaskInfoByUserId(@RequestBody RemindTaskIndoDTO dto) {
+    public R<Map<LocalDate, List<RemindTaskInfoVO>>> getTaskInfoByUserId(@RequestBody RemindTaskIndoDTO dto) {
         return R.success(remindTaskService.getTaskInfoByUserId(dto));
     }
 
