@@ -83,6 +83,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     public Page<RemindTaskVO> pageTaskByUserId(RemindTaskPageDTO dto) {
         return baseMapper.selectPageTask(dto.getPage(),
                 Wrappers.lambdaQuery(RemindTask.class)
+                        .eq(BaseEntity::getDeleteFlag, false)
                         .eq(RemindTask::getCreateId, CommonMethod.getAccount())
                         .like(StringUtils.isNotBlank(dto.getName()), RemindTask::getName, dto.getName())
                         .orderByDesc(BaseEntity::getCreateTime));

@@ -3,6 +3,7 @@ package com.health.remind.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.health.remind.config.R;
 import com.health.remind.pojo.dto.RemindTaskDTO;
+import com.health.remind.pojo.dto.RemindTaskDelDTO;
 import com.health.remind.pojo.dto.RemindTaskIndoDTO;
 import com.health.remind.pojo.dto.RemindTaskPageDTO;
 import com.health.remind.pojo.vo.RemindTaskInfoVO;
@@ -81,7 +82,7 @@ public class RemindTaskController {
     }
 
     @Operation(summary = "导出任务时间详情")
-    @PostMapping("/exportTaskInfo")
+    @GetMapping("/exportTaskInfo")
     public void exportTaskInfo(@RequestParam Long id, HttpServletResponse response) {
         remindTaskService.exportTaskInfo(id, response);
     }
@@ -94,7 +95,7 @@ public class RemindTaskController {
 
     @Operation(summary = "删除提醒任务")
     @DeleteMapping("/removeTaskById")
-    public R<Boolean> removeTaskById(@RequestParam Long id) {
-        return R.success(remindTaskService.removeTaskById(id));
+    public R<Boolean> removeTaskById(@RequestBody RemindTaskDelDTO dto) {
+        return R.success(remindTaskService.removeTaskById(dto.getId()));
     }
 }
