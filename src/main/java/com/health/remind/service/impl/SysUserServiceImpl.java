@@ -132,6 +132,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     .userInfo(decrypt.getFirst())
                     .status(true)
                     .authorized(1)
+                    .sysRoleId(1901928991601274882L)
                     .build();
             save(user);
             one = user;
