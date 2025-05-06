@@ -127,9 +127,9 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         if (task.getId() == null) {
             frequencyUtils.splitTask(build, FrequencySqlTypeEnum.INSERT);
             remindTaskInfoService.putTask(build);
-            Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), null));
-            RedisUtils.delete(keys);
         }
+        Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), null));
+        RedisUtils.delete(keys);
         return b;
     }
 
