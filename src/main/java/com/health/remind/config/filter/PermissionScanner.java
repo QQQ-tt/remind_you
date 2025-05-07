@@ -73,10 +73,14 @@ public class PermissionScanner {
                             String childPath = parentPath;
                             // 获取 @Operation 信息
                             Operation operation = method.getAnnotation(Operation.class);
-                            // 接口描述
-                            String summary = operation.summary();
-                            // 权限描述
-                            String description = operation.description();
+                            String summary = "";
+                            String description = "";
+                            if (operation != null) {
+                                // 接口描述
+                                summary = operation.summary();
+                                // 权限描述
+                                description = operation.description();
+                            }
                             // HTTP 方法
                             String httpMethod = "GET";
                             if (method.isAnnotationPresent(PostMapping.class)) {
@@ -110,7 +114,8 @@ public class PermissionScanner {
                                 throw new RuntimeException(e);
                             }
                             if (StaticConstant.PERMISSION_KEY.equals(description) ||
-                                    (tagAnnotation != null && StaticConstant.PERMISSION_KEY.equals(tagAnnotation.description()))) {
+                                    (tagAnnotation != null && StaticConstant.PERMISSION_KEY.equals(
+                                            tagAnnotation.description()))) {
                                 publicPath.add(childPath);
                                 RedisUtils.hPut(
                                         RedisKeys.getTokenPermissionKey(applicationName, StaticConstant.PERMISSION_KEY),
