@@ -9,7 +9,9 @@ import com.health.remind.service.UserFeedbackService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,19 +44,19 @@ public class UserFeedbackController {
     }
 
     @Operation(summary = "通过用户查询")
-    @PostMapping("/listUserFeedbackByUser")
+    @GetMapping("/listUserFeedbackByUser")
     public R<List<UserFeedback>> listUserFeedbackByUser() {
         return R.success(userFeedbackService.listUserFeedbackByUser());
     }
 
     @Operation(summary = "保存意见反馈")
-    @PostMapping("/saveOrUpdate")
+    @PutMapping("/saveOrUpdate")
     public R<Boolean> saveOrUpdate(@RequestBody @Valid UserFeedback dto) {
         return R.success(userFeedbackService.saveUserFeedback(dto));
     }
 
     @Operation(summary = "处理意见")
-    @PostMapping("/handlingComments")
+    @PutMapping("/handlingComments")
     public R<Boolean> handlingComments(@RequestBody @Valid UserFeedbackDTO dto) {
         return R.success(userFeedbackService.handlingComments(dto));
     }

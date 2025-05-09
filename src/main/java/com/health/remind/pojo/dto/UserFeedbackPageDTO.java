@@ -16,4 +16,6 @@ public class UserFeedbackPageDTO extends PageDTO<UserFeedback> {
     private Integer type;
 
     private String content;
+
+    private Integer adopted;
 }

@@ -32,6 +32,7 @@ public class UserFeedbackServiceImpl extends ServiceImpl<UserFeedbackMapper, Use
         return page(dto.getPage(), Wrappers.lambdaQuery(UserFeedback.class)
                 .like(StringUtils.isNotBlank(dto.getTitle()), UserFeedback::getTitle, dto.getTitle())
                 .eq(dto.getType() != null, UserFeedback::getType, dto.getType())
+                .eq(dto.getAdopted() != null, UserFeedback::getAdopted, dto.getAdopted())
                 .like(StringUtils.isNotBlank(dto.getContent()), UserFeedback::getContent, dto.getContent())
                 .orderByDesc(BaseEntity::getCreateTime));
     }
