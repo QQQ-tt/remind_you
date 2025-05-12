@@ -116,7 +116,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
                     .type(dto.getType())
                     .status(dto.getStatus())
                     .level(dto.getLevel())
-                    .source(StringUtils.isBlank(dto.getSource()) ? dto.getSource() : CommonMethod.getAccount()
+                    .source(StringUtils.isNotBlank(dto.getSource()) ? dto.getSource() : CommonMethod.getAccount()
                             .toString())
                     .build();
             boolean savedOrUpdate = saveOrUpdate(frequency);

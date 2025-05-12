@@ -1,5 +1,7 @@
 package com.health.remind.pojo.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.health.remind.common.enums.FrequencyEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -29,4 +31,7 @@ public class FrequencyDetailVO {
 
     @Schema(description = "时间字符串")
     private String frequencyTimeName;
+
+    @JsonIgnore
+    private FrequencyEnum cycleUnit;
 }

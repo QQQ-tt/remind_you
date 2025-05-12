@@ -3,8 +3,20 @@
 <mapper namespace="com.health.remind.mapper.FrequencyDetailMapper">
 
     <select id="selectPageFrequencyDetail" resultType="com.health.remind.pojo.vo.FrequencyDetailVO">
-        select id, frequency_id, frequency_weekday, frequency_time, before_rule_time, after_rule_time
-        from frequency_detail ${ew.customSqlSegment}
+        with info as (select fd.id,
+                             frequency_id,
+                             frequency_weekday,
+                             frequency_time,
+                             before_rule_time,
+                             after_rule_time,
+                             f.cycle_unit,
+                             fd.delete_flag,
+                             fd.create_time,
+                             fd.tenant_id
+                      from frequency_detail fd
+                               left join frequency f on fd.frequency_id = f.id)
+        select *
+        from info ${ew.customSqlSegment}
     </select>
     <select id="selectListByFrequencyId" resultType="com.health.remind.pojo.vo.FrequencyDetailVO">
         select id, frequency_id, frequency_weekday, frequency_time, before_rule_time, after_rule_time
