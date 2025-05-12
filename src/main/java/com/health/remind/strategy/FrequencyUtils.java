@@ -43,7 +43,7 @@ public class FrequencyUtils {
         }
         if (typeEnum.equals(FrequencySqlTypeEnum.SELECT)) {
             List<RemindTaskInfo> list = new ArrayList<>();
-            while (list.size() < 10 && startTime.isBefore(endTime)) {
+            while (list.size() < 10) {
                 task.setInitTime(startTime.toLocalDate());
                 list.addAll(StrategyContext.getStrategy(frequency.getCycleUnit()
                                 .getValue() + "strategy")
