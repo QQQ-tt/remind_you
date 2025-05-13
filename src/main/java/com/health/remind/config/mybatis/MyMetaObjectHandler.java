@@ -19,6 +19,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         log.debug("start insert fill ....");
+        // strictInsertFill 是为null时更新
         this.strictInsertFill(metaObject, "createId", Long.class, CommonMethod.getAccount());
         this.strictInsertFill(metaObject, "createName", String.class, CommonMethod.getUserName());
         this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
@@ -29,9 +30,10 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void updateFill(MetaObject metaObject) {
         log.debug("start update fill ....");
-        this.strictUpdateFill(metaObject, "updateId", Long.class, CommonMethod.getAccount());
-        this.strictUpdateFill(metaObject, "updateName", String.class, CommonMethod.getUserName());
-        this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+        // setFieldValByName 强制更新对应字段
+        this.setFieldValByName("updateId", CommonMethod.getAccount(), metaObject);
+        this.setFieldValByName("updateName", CommonMethod.getUserName(), metaObject);
+        this.setFieldValByName("updateTime", LocalDateTime.now(), metaObject);
         log.debug("end update fill ...");
     }
 }
