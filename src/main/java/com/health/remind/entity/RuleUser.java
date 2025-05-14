@@ -2,6 +2,7 @@ package com.health.remind.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.health.remind.common.enums.RuleTypeEnum;
 import com.health.remind.config.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -28,6 +29,10 @@ public class RuleUser extends BaseEntity {
 
     @TableField("sys_user_id")
     private Long sysUserId;
+
+    @Schema(description = "权益类型")
+    @TableField("rule_type")
+    private RuleTypeEnum ruleType;
 
     @Schema(description = "已使用数量")
     @TableField("use_value")

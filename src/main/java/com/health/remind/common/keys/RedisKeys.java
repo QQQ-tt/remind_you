@@ -1,5 +1,8 @@
 package com.health.remind.common.keys;
 
+import com.health.remind.config.enums.DataEnums;
+import com.health.remind.config.exception.DataException;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -80,5 +83,18 @@ public class RedisKeys {
             return "role:*";
         }
         return "role:" + roleId;
+    }
+
+    /**
+     * 获取规则用户key
+     *
+     * @param account 账号
+     * @return rule:user:account
+     */
+    public static String getRuleUser(Long account) {
+        if (account == null) {
+            throw new DataException(DataEnums.DATA_NOT_EXIST);
+        }
+        return "rule:user:" + account;
     }
 }
