@@ -108,6 +108,11 @@ public class CommonMethod {
     private static final ThreadLocal<Map<UserInfo, String>> THREAD_LOCAL = ThreadLocal.withInitial(
             CommonMethod::initialize);
 
+    public static Long getUserId() {
+        return Long.parseLong(THREAD_LOCAL.get()
+                .get(UserInfo.USER_ID));
+    }
+
     public static String getUserName() {
         return THREAD_LOCAL.get()
                 .get(UserInfo.USER_NAME);
@@ -146,6 +151,13 @@ public class CommonMethod {
     public static String getMethod() {
         return THREAD_LOCAL.get()
                 .get(UserInfo.METHOD);
+    }
+
+    public static void setUserId(String userId) {
+        if (StringUtils.isNotBlank(userId)) {
+            THREAD_LOCAL.get()
+                    .put(UserInfo.USER_ID, userId);
+        }
     }
 
     public static void setMethod(String method) {

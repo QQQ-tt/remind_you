@@ -151,6 +151,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      */
     private LoginVO getLoginVO(SysUser sysUser) {
         HashMap<String, Object> map = new HashMap<>();
+        map.put(StaticConstant.USER_ID, sysUser.getId());
         map.put(StaticConstant.USER_TYPE, sysUser.getUserType());
         // 设置角色id
         Optional.ofNullable(sysUser.getSysRoleId())

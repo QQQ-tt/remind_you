@@ -54,6 +54,7 @@ public class AuthFilter extends OncePerRequestFilter {
         if (resource(request, response, result.claims())) return;
 
         CommonMethod.setAccount(result.bodyFromToken());
+        CommonMethod.setUserId((String) result.claims.get(StaticConstant.USER_ID));
         String userName = request.getHeader(UserInfo.USER_NAME.toString());
         if (userName != null && userName.contains("%")) {
             userName = URLDecoder.decode(userName, StandardCharsets.UTF_8);
