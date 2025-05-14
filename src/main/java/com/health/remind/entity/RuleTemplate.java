@@ -59,6 +59,10 @@ public class RuleTemplate extends BaseEntity {
     @TableField("expired_period_type")
     private Integer expiredPeriodType;
 
+    @Schema(description = "优先级，越小越先")
+    @TableField("priority")
+    private Integer priority;
+
     @Schema(description = "描述")
     @TableField("description")
     private String description;

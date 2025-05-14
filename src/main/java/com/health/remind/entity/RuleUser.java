@@ -30,6 +30,10 @@ public class RuleUser extends BaseEntity {
     @TableField("sys_user_id")
     private Long sysUserId;
 
+    @Schema(description = "规则名称")
+    @TableField("name")
+    private String name;
+
     @Schema(description = "权益类型")
     @TableField("rule_type")
     private RuleTypeEnum ruleType;
@@ -49,4 +53,8 @@ public class RuleUser extends BaseEntity {
     @Schema(description = "过期时间")
     @TableField("expired_at")
     private LocalDateTime expiredAt;
+
+    @Schema(description = "优先级，越小越先")
+    @TableField("priority")
+    private Integer priority;
 }

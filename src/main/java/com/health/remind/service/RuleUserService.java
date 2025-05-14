@@ -39,7 +39,6 @@ public interface RuleUserService extends IService<RuleUser> {
      *
      * @param ruleType 规则类型
      * @param num      数量
-     * @return 是否验证通过
      */
-    boolean verify(RuleTypeEnum ruleType, int num);
+    void verify(RuleTypeEnum ruleType, int num);
 }

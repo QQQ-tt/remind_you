@@ -11,14 +11,16 @@ import com.health.remind.config.exception.DataException;
 import com.health.remind.entity.RuleTemplate;
 import com.health.remind.entity.RuleUser;
 import com.health.remind.mapper.RuleUserMapper;
+import com.health.remind.pojo.bo.RuleUserRedisBO;
 import com.health.remind.service.RuleUserService;
 import com.health.remind.util.RedisUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <p>
@@ -49,47 +51,65 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
     }
 
     @Override
-    public boolean verify(RuleTypeEnum ruleType, int num) {
+    @Transactional(rollbackFor = Exception.class)
+    public void verify(RuleTypeEnum ruleType, int num) {
         Long account = CommonMethod.getAccount();
-        String s = (String) RedisUtils.hGet(RedisKeys.getRuleUser(account), ruleType.toString());
-        AtomicReference<RuleUser> ruleUser = new AtomicReference<>();
-        if (s == null) {
-            List<RuleUser> list = list(Wrappers.lambdaQuery(RuleUser.class)
-                    .eq(RuleUser::getSysUserId, CommonMethod.getUserId())
-                    .eq(RuleUser::getRuleType, ruleType));
-            if (list.isEmpty()) {
-                return false;
+        Object o = RedisUtils.hGet(RedisKeys.getRuleUser(account), ruleType.toString());
+        RuleUserRedisBO ruleUser;
+        LocalDateTime now = LocalDateTime.now();
+        List<RuleUser> value = list(Wrappers.lambdaQuery(RuleUser.class)
+                .eq(RuleUser::getSysUserId, CommonMethod.getUserId())
+                .eq(RuleUser::getRuleType, ruleType)
+                .le(RuleUser::getStartedAt, now)
+                .ge(RuleUser::getExpiredAt, now)
+                .orderByAsc(RuleUser::getPriority, RuleUser::getExpiredAt));// 优先级+快过期的先用)
+        List<RuleUser> ruleUsers = new ArrayList<>();
+        if (o != null) {
+            ruleUser = JSONObject.parseObject((String) o, RuleUserRedisBO.class);
+            if (ruleUser.getUseValue() + num <= ruleUser.getValue()) {
+                ruleUser.setUseValue(ruleUser.getUseValue() + num);
+            } else {
+                throw new DataException(DataEnums.USER_RESOURCE_ERROR);
             }
-            Integer i = list.stream()
-                    .map(RuleUser::getValue)
-                    .reduce(Integer::sum)
-                    .orElse(0);
-            list.stream().findFirst().ifPresent(e -> {
-                ruleUser.set(e);
-                ruleUser.get().setValue(i);
-            });
+            for (RuleUser rule : value) {
+                int available = rule.getValue() - rule.getUseValue();
+                if (available >= num) {
+                    rule.setUseValue(rule.getUseValue() + num);
+                    ruleUsers.add(rule);
+                    break;
+                } else {
+                    rule.setUseValue(rule.getValue());
+                    ruleUsers.add(rule);
+                    num -= available;
+                }
+            }
         } else {
-            ruleUser.set(JSONObject.parseObject(s, RuleUser.class));
+            int allValue = 0;
+            int allUseValue = 0;
+            ruleUser = new RuleUserRedisBO();
+            for (RuleUser rule : value) {
+                ruleUser.setName(rule.getName());
+                allValue += rule.getValue();
+                int available = rule.getValue() - rule.getUseValue();
+                if (num > 0) {
+                    if (available >= num) {
+                        rule.setUseValue(rule.getUseValue() + num);
+                        num = 0;
+                    } else {
+                        rule.setUseValue(rule.getValue());
+                        num -= available;
+                    }
+                    ruleUsers.add(rule);
+                }
+                allUseValue += rule.getUseValue();
+            }
+            ruleUser.setValue(allValue);
+            ruleUser.setUseValue(allUseValue);
         }
-        if (ruleUser.get() == null) {
-            return false;
+        if (num > 0) {
+            throw new DataException(DataEnums.USER_RESOURCE_ERROR);
         }
-        if (ruleUser.get()
-                .getUseValue() + num <= ruleUser.get()
-                .getValue()) {
-            ruleUser.get()
-                    .setUseValue(ruleUser.get()
-                            .getUseValue() + num);
-            RedisUtils.hPut(RedisKeys.getRuleUser(account), ruleType.toString(), JSONObject.toJSONString(ruleUser));
-            update(Wrappers.lambdaUpdate(RuleUser.class)
-                    .eq(RuleUser::getSysUserId, CommonMethod.getUserId())
-                    .eq(RuleUser::getRuleTemplateId, ruleUser.get()
-                            .getRuleTemplateId())
-                    .set(RuleUser::getUseValue, ruleUser.get()
-                            .getUseValue()));
-            return true;
-        }
-        return false;
+        updateBatchById(ruleUsers);
+        RedisUtils.hPut(RedisKeys.getRuleUser(account), ruleType.toString(), JSONObject.toJSONString(ruleUser));
     }
-
 }
