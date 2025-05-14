@@ -3,10 +3,11 @@ package com.health.remind.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.health.remind.config.BaseEntity;
-import java.time.LocalDateTime;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -35,6 +36,10 @@ public class RuleUser extends BaseEntity {
     @Schema(description = "默认值")
     @TableField("value")
     private Integer value;
+
+    @Schema(description = "开始时间")
+    @TableField("started_at")
+    private LocalDateTime startedAt;
 
     @Schema(description = "过期时间")
     @TableField("expired_at")

@@ -2,6 +2,8 @@ package com.health.remind.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.health.remind.common.enums.InterestsLevelEnum;
+import com.health.remind.common.enums.RuleTypeEnum;
 import com.health.remind.config.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -39,11 +41,11 @@ public class RuleTemplate extends BaseEntity {
 
     @Schema(description = "权益类型")
     @TableField("rule_type")
-    private String ruleType;
+    private RuleTypeEnum ruleType;
 
-    @Schema(description = "用户等级：vip_0,vip_1,ad_boost ")
-    @TableField("user_level")
-    private String userLevel;
+    @Schema(description = "权益等级：vip_0,vip_1,ad_boost ")
+    @TableField("interests_level")
+    private InterestsLevelEnum interestsLevel;
 
     @Schema(description = "过期数值")
     @TableField("expired_period_value")
