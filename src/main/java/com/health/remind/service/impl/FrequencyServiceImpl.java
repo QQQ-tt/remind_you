@@ -87,6 +87,8 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
                     .cycleUnit(frequency.getCycleUnit())
                     .type(frequency.getType())
                     .status(frequency.getStatus())
+                    .startTime(frequency.getStartTime())
+                    .endTime(frequency.getEndTime())
                     .frequencyDetailList(frequencyDetailService.getFrequencyDetail(id))
                     .build();
         }
@@ -116,6 +118,8 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
                     .type(dto.getType())
                     .status(dto.getStatus())
                     .level(dto.getLevel())
+                    .startTime(dto.getStartTime())
+                    .endTime(dto.getEndTime())
                     .source(StringUtils.isNotBlank(dto.getSource()) ? dto.getSource() : CommonMethod.getAccount()
                             .toString())
                     .build();

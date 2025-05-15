@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.time.LocalTime;
+
 /**
  * @author QQQtx
  * @since 2025/2/5 13:59
@@ -46,6 +48,12 @@ public class FrequencyDTO {
 
     @Schema(description = "等级")
     private int level = 1;
+
+    @Schema(description = "开始时间(小时类型设置)")
+    private LocalTime startTime;
+
+    @Schema(description = "结束时间(小时类型设置)")
+    private LocalTime endTime;
 
     @Schema(description = "来源")
     private String source = "sys";

@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 /**
@@ -71,11 +72,23 @@ public class Frequency extends BaseEntity {
     @TableField("level")
     private Integer level;
 
+    @Schema(description = "开始时间(小时类型设置)")
+    @TableField("start_time")
+    private LocalTime startTime;
+
+    @Schema(description = "结束时间(小时类型设置)")
+    @TableField("end_time")
+    private LocalTime endTime;
+
     @TableField(exist = false)
     private List<FrequencyDetail> frequencyDetailList;
 
     @Builder
-    public Frequency(Long id, Long createId, String createName, LocalDateTime createTime, Long updateId, String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag, String frequencyName, String frequencyCode, String frequencyDesc, Integer frequencyNumber, Integer frequencyCycle, FrequencyEnum cycleUnit, FrequencyTypeEnum type, Boolean status, String source, Integer level) {
+    public Frequency(Long id, Long createId, String createName, LocalDateTime createTime, Long updateId,
+                     String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag,
+                     String frequencyName, String frequencyCode, String frequencyDesc, Integer frequencyNumber,
+                     Integer frequencyCycle, FrequencyEnum cycleUnit, FrequencyTypeEnum type, Boolean status,
+                     String source, Integer level,LocalTime startTime,LocalTime endTime) {
         super(id, createId, createName, createTime, updateId, updateName, updateTime, tenantId, deleteFlag);
         this.name = frequencyName;
         this.frequencyCode = frequencyCode;
@@ -87,5 +100,7 @@ public class Frequency extends BaseEntity {
         this.status = status;
         this.source = source;
         this.level = level;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 }

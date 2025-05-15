@@ -12,6 +12,8 @@
                cycle_unit,
                type,
                status,
+               start_time,
+               end_time,
                create_time,
                update_time
         from frequency ${ew.customSqlSegment}

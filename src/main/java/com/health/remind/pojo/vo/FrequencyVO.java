@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 /**
@@ -46,6 +47,12 @@ public class FrequencyVO {
 
     @Schema(description = "是否启用")
     private Boolean status;
+
+    @Schema(description = "开始时间(小时类型设置)")
+    private LocalTime startTime;
+
+    @Schema(description = "结束时间(小时类型设置)")
+    private LocalTime endTime;
 
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
