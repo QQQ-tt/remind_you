@@ -5,12 +5,14 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.health.remind.common.StaticConstant;
+import com.health.remind.common.enums.InterestsLevelEnum;
 import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.BaseEntity;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
 import com.health.remind.config.lock.RedisLock;
+import com.health.remind.entity.RuleTemplate;
 import com.health.remind.entity.SysUser;
 import com.health.remind.mapper.SysUserMapper;
 import com.health.remind.pojo.dto.AppUserDTO;
@@ -21,6 +23,8 @@ import com.health.remind.pojo.dto.SysUserPageDTO;
 import com.health.remind.pojo.vo.LoginVO;
 import com.health.remind.pojo.vo.SignVO;
 import com.health.remind.pojo.vo.SysUserVO;
+import com.health.remind.service.RuleTemplateService;
+import com.health.remind.service.RuleUserService;
 import com.health.remind.service.SysRoleService;
 import com.health.remind.service.SysUserService;
 import com.health.remind.util.JwtUtils;
@@ -35,6 +39,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -49,20 +54,22 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
 
-    public static final String USER_TYPE_SYS = "sys";
-
-    public static final String USER_TYPE_APP = "app";
-
     private final PasswordEncoder passwordEncoder;
 
     private final SysRoleService sysRoleService;
 
     private final WxApiService wxApiService;
 
-    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysRoleService sysRoleService, WxApiService wxApiService) {
+    private final RuleTemplateService ruleTemplateService;
+
+    private final RuleUserService ruleUserService;
+
+    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysRoleService sysRoleService, WxApiService wxApiService, RuleTemplateService ruleTemplateService, RuleUserService ruleUserService) {
         this.passwordEncoder = passwordEncoder;
         this.sysRoleService = sysRoleService;
         this.wxApiService = wxApiService;
+        this.ruleTemplateService = ruleTemplateService;
+        this.ruleUserService = ruleUserService;
     }
 
     @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getIp()", autoUnlockTime = 6000)
@@ -87,7 +94,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .telephone(Long.valueOf(signDTO.getTelephone()))
                 .encryptedTelephone(signDTO.getTelephone()
                         .replaceFirst("(\\d{3})\\d{4}(\\d{4})", "$1****$2"))
-                .userType(USER_TYPE_SYS)
+                .userType(StaticConstant.USER_TYPE_SYS)
                 .status(false)
                 .build());
         return new SignVO(l);
@@ -97,7 +104,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public LoginVO loginUser(Long account, String password) {
         SysUser sysUser = Optional.ofNullable(getOne(Wrappers.lambdaQuery(SysUser.class)
-                        .eq(SysUser::getUserType, USER_TYPE_SYS)
+                        .eq(SysUser::getUserType, StaticConstant.USER_TYPE_SYS)
                         .and(e -> e.eq(SysUser::getAccount, account)
                                 .or()
                                 .eq(SysUser::getTelephone, account))))
@@ -127,15 +134,21 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                             .getNickName())
                     .account(account)
                     .password(passwordEncoder.encode(String.valueOf(account)))
-                    .userType(USER_TYPE_APP)
+                    .userType(StaticConstant.USER_TYPE_APP)
                     .openId(code2Session.getOpenid())
                     .userInfo(decrypt.getFirst())
                     .status(true)
                     .authorized(1)
                     .sysRoleId(1901928991601274882L)
+                    .interestsLevel(InterestsLevelEnum.VIP_0)
                     .build();
             save(user);
             one = user;
+            List<RuleTemplate> list = ruleTemplateService.list(Wrappers.lambdaQuery(RuleTemplate.class)
+                    .eq(RuleTemplate::getStatus, true)
+                    .eq(RuleTemplate::getInterestsLevel, InterestsLevelEnum.VIP_0));
+            CommonMethod.setAccount(String.valueOf(account));
+            ruleUserService.saveRuleByUserId(one.getId(), list, Boolean.TRUE);
         }
         LoginVO loginVO = getLoginVO(one);
         loginVO.setAuthorized(one.getAuthorized() == 1);
@@ -150,9 +163,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      * @return token
      */
     private LoginVO getLoginVO(SysUser sysUser) {
+        update(Wrappers.lambdaUpdate(SysUser.class)
+                .eq(BaseEntity::getId, sysUser.getId())
+                .set(SysUser::getLoginTime,
+                        LocalDateTime.now()));
         HashMap<String, Object> map = new HashMap<>();
         map.put(StaticConstant.USER_ID, sysUser.getId());
         map.put(StaticConstant.USER_TYPE, sysUser.getUserType());
+        map.put(StaticConstant.INTERESTS_LEVEL, sysUser.getInterestsLevel());
         // 设置角色id
         Optional.ofNullable(sysUser.getSysRoleId())
                 .flatMap(e -> Optional.ofNullable(sysRoleService.getById(e)))
@@ -228,7 +246,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public boolean updateAppUser(AppUserDTO dto) {
         return update(Wrappers.lambdaUpdate(SysUser.class)
                 .eq(SysUser::getAccount, CommonMethod.getAccount())
-                .eq(SysUser::getUserType, USER_TYPE_APP)
+                .eq(SysUser::getUserType, StaticConstant.USER_TYPE_APP)
                 .set(BaseEntity::getUpdateTime, LocalDateTime.now())
                 .set(BaseEntity::getUpdateId, CommonMethod.getAccount())
                 .set(BaseEntity::getUpdateName, CommonMethod.getUserName())

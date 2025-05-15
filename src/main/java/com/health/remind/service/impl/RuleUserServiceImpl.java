@@ -3,6 +3,8 @@ package com.health.remind.service.impl;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.health.remind.common.StaticConstant;
 import com.health.remind.common.enums.RuleTypeEnum;
 import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.CommonMethod;
@@ -12,15 +14,22 @@ import com.health.remind.entity.RuleTemplate;
 import com.health.remind.entity.RuleUser;
 import com.health.remind.mapper.RuleUserMapper;
 import com.health.remind.pojo.bo.RuleUserRedisBO;
+import com.health.remind.service.RuleTemplateService;
 import com.health.remind.service.RuleUserService;
 import com.health.remind.util.RedisUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -33,32 +42,103 @@ import java.util.Optional;
 @Service
 public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> implements RuleUserService {
 
+    private final RuleTemplateService ruleTemplateService;
+
+    public RuleUserServiceImpl(RuleTemplateService ruleTemplateService) {
+        this.ruleTemplateService = ruleTemplateService;
+    }
+
     @Override
-    public List<RuleUser> getRuleUserByUserId(Long userId) {
+    public Map<RuleTypeEnum, RuleUserRedisBO> getRuleUserByUserId(Long userId) {
+        String ruleUser = RedisKeys.getRuleUser(CommonMethod.getAccount());
+        if (RedisUtils.hasKey(ruleUser)) {
+            return RedisUtils.getObject(ruleUser, new TypeReference<>() {
+            });
+        }
         Long l =
                 Optional.of(userId != null ? userId : CommonMethod.getUserId())
                         .orElseThrow(() -> new DataException(
                                 DataEnums.USER_NOT_LOGIN));
-        return list(Wrappers.lambdaQuery(RuleUser.class)
+        List<RuleUser> list = list(Wrappers.lambdaQuery(RuleUser.class)
                 .eq(RuleUser::getSysUserId, l)
                 .le(RuleUser::getStartedAt, LocalDateTime.now())
                 .gt(RuleUser::getExpiredAt, LocalDateTime.now()));
+        return setRedis(list, ruleUser);
     }
 
     @Override
-    public boolean saveRuleByUserId(Long userId, List<RuleTemplate> rules) {
-        return false;
+    @Transactional(rollbackFor = Exception.class)
+    public void saveRuleByUserId(Long userId, List<RuleTemplate> rules, Boolean isRedis) {
+        Long l =
+                Optional.of(userId != null ? userId : CommonMethod.getUserId())
+                        .orElseThrow(() -> new DataException(
+                                DataEnums.USER_NOT_LOGIN));
+        List<RuleUser> list = new ArrayList<>();
+        rules.forEach(e -> {
+            RuleUser ruleUser = new RuleUser();
+            ruleUser.setRuleTemplateId(e.getId());
+            ruleUser.setSysUserId(l);
+            ruleUser.setName(e.getName());
+            ruleUser.setValue(e.getValue());
+            ruleUser.setPriority(e.getPriority());
+            setTime(ruleUser, e);
+            list.add(ruleUser);
+        });
+        if (isRedis) {
+            setRedis(list, RedisKeys.getRuleUser(CommonMethod.getAccount()));
+        }
+        saveBatch(list);
+    }
+
+    private static Map<RuleTypeEnum, RuleUserRedisBO> setRedis(List<RuleUser> list, String ruleUser) {
+        Map<RuleTypeEnum, RuleUserRedisBO> map = list.stream()
+                .collect(Collectors.toMap(RuleUser::getRuleType, e -> {
+                    RuleUserRedisBO bo = new RuleUserRedisBO();
+                    bo.setName(e.getName());
+                    bo.setValue(e.getValue());
+                    bo.setUseValue(e.getUseValue());
+                    return bo;
+                }));
+        map.forEach((k, v) -> RedisUtils.hPut(ruleUser, k.toString(), JSONObject.toJSONString(v)));
+        setExpireTime(ruleUser);
+        return map;
+    }
+
+
+    private void setTime(RuleUser ruleUser, RuleTemplate ruleTemplate) {
+        Optional.ofNullable(ruleTemplate.getExpiredPeriodValue())
+                .ifPresentOrElse(i -> {
+                    if (ruleTemplate.getExpiredPeriodType() == 1) {
+                        ruleUser.setStartedAt(LocalDateTime.now());
+                        switch (ruleTemplate.getExpiredPeriodUnit()) {
+                            case DAY -> ruleUser.setExpiredAt(LocalDateTime.now()
+                                    .plusDays(i));
+                            case MONTH -> ruleUser.setExpiredAt(LocalDateTime.now()
+                                    .plusMonths(i));
+                        }
+                    } else {
+                        ruleUser.setStartedAt(LocalDateTime.now());
+                        switch (ruleTemplate.getExpiredPeriodUnit()) {
+                            case DAY -> ruleUser.setExpiredAt(getNextFour(LocalTime.now()));
+                            case MONTH -> ruleUser.setExpiredAt(getNextMonthOne(LocalDateTime.now()));
+                        }
+                    }
+                }, () -> {
+                    ruleUser.setStartedAt(LocalDateTime.now());
+                    ruleUser.setExpiredAt(LocalDateTime.of(LocalDate.of(2099, 12, 31), LocalTime.of(23, 59, 59)));
+                });
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void verify(RuleTypeEnum ruleType, int num) {
         if (CommonMethod.getUserType()
-                .equals(SysUserServiceImpl.USER_TYPE_SYS)) {
+                .equals(StaticConstant.USER_TYPE_SYS)) {
             return;
         }
         Long account = CommonMethod.getAccount();
-        Object o = RedisUtils.hGet(RedisKeys.getRuleUser(account), ruleType.toString());
+        String redisKey = RedisKeys.getRuleUser(account);
+        Object o = RedisUtils.hGet(redisKey, ruleType.toString());
         RuleUserRedisBO ruleUser;
         LocalDateTime now = LocalDateTime.now();
         List<RuleUser> value = list(Wrappers.lambdaQuery(RuleUser.class)
@@ -66,7 +146,24 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
                 .eq(RuleUser::getRuleType, ruleType)
                 .le(RuleUser::getStartedAt, now)
                 .ge(RuleUser::getExpiredAt, now)
-                .orderByAsc(RuleUser::getPriority, RuleUser::getExpiredAt));// 优先级+快过期的先用)
+                .orderByAsc(RuleUser::getPriority, RuleUser::getExpiredAt));// 优先级+快过期的先用
+        if (value.isEmpty()) {
+            // 非活跃用户
+            List<RuleTemplate> list = ruleTemplateService.list(Wrappers.lambdaQuery(RuleTemplate.class)
+                    .eq(RuleTemplate::getStatus, Boolean.TRUE)
+                    .eq(RuleTemplate::getRuleType, ruleType)
+                    .eq(RuleTemplate::getInterestsLevel, CommonMethod.getInterestsLevel()));
+            list.forEach(e -> {
+                RuleUser r = new RuleUser();
+                r.setRuleTemplateId(e.getId());
+                r.setSysUserId(CommonMethod.getUserId());
+                r.setName(e.getName());
+                r.setValue(e.getValue());
+                r.setPriority(e.getPriority());
+                setTime(r, e);
+                value.add(r);
+            });
+        }
         List<RuleUser> ruleUsers = new ArrayList<>();
         if (o != null) {
             ruleUser = JSONObject.parseObject((String) o, RuleUserRedisBO.class);
@@ -114,6 +211,49 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
             throw new DataException(DataEnums.USER_RESOURCE_ERROR);
         }
         updateBatchById(ruleUsers);
-        RedisUtils.hPut(RedisKeys.getRuleUser(account), ruleType.toString(), JSONObject.toJSONString(ruleUser));
+        RedisUtils.hPut(redisKey, ruleType.toString(), JSONObject.toJSONString(ruleUser));
+        setExpireTime(redisKey);
+    }
+
+    /**
+     * 过期时间设置为下一次4点
+     *
+     * @param redisKey redis_key
+     */
+    private static void setExpireTime(String redisKey) {
+        LocalTime now = LocalTime.now(); // 当前时间
+        LocalDateTime nextFour = getNextFour(now);
+        Duration duration = Duration.between(now, nextFour);
+        long seconds = duration.getSeconds();
+        RedisUtils.expire(redisKey, seconds, TimeUnit.SECONDS);
+    }
+
+    /**
+     * 获取下一次4点的时间
+     *
+     * @param now 当前时间
+     * @return 下一次4点时间
+     */
+    private static LocalDateTime getNextFour(LocalTime now) {
+        LocalDateTime nextFour = LocalDateTime.of(LocalDate.now(), LocalTime.of(4, 0)); // 下一天的4点
+        // 如果当前时间在4点之后，则取明天的4点；否则取今天的4点
+        if (now.getHour() > 4 || (now.getHour() == 4 && now.getMinute() > 0)) {
+            nextFour = nextFour.plusDays(1);
+        }
+        return nextFour;
+    }
+
+    /**
+     * 获取下个月的1号4点
+     *
+     * @param localDateTime 当前时间
+     * @return 下个月的1号4点
+     */
+    private static LocalDateTime getNextMonthOne(LocalDateTime localDateTime) {
+        return localDateTime.withDayOfMonth(1)
+                .withHour(4)
+                .withMinute(0)
+                .withSecond(0)
+                .plusMonths(1);
     }
 }

@@ -14,7 +14,13 @@ public class StaticConstant {
 
     public static final String USER_TYPE = "USER_TYPE";
 
+    public static final String INTERESTS_LEVEL = "INTERESTS_LEVEL";
+
     public static final String CACHE_10 = "cache10";
 
     public static final String CACHE_5 = "cache5";
+
+    public static final String USER_TYPE_SYS = "sys";
+
+    public static final String USER_TYPE_APP = "app";
 }

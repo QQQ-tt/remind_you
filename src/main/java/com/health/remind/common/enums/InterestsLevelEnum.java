@@ -6,7 +6,8 @@ package com.health.remind.common.enums;
  */
 public enum InterestsLevelEnum {
 
-    vip_0,
-    vip_1,
-    ad_boost,
+    VIP_0,
+    VIP_1,
+    VIP_2,
+    AD_BOOST,
 }

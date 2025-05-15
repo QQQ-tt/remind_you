@@ -4,8 +4,10 @@ import com.health.remind.common.enums.RuleTypeEnum;
 import com.health.remind.entity.RuleTemplate;
 import com.health.remind.entity.RuleUser;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.health.remind.pojo.bo.RuleUserRedisBO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -23,16 +25,16 @@ public interface RuleUserService extends IService<RuleUser> {
      * @param userId 用户id(用户id为空自动获取token用户id)
      * @return 用户规则
      */
-    List<RuleUser> getRuleUserByUserId(Long userId);
+    Map<RuleTypeEnum, RuleUserRedisBO> getRuleUserByUserId(Long userId);
 
     /**
      * 保存用户规则
      *
-     * @param userId 用户id(用户id为空自动获取token用户id)
-     * @param rules  用户规则
-     * @return 是否保存成功
+     * @param userId  用户id(用户id为空自动获取token用户id)
+     * @param rules   用户规则
+     * @param isRedis 是否保存到redis
      */
-    boolean saveRuleByUserId(Long userId, List<RuleTemplate> rules);
+    void saveRuleByUserId(Long userId, List<RuleTemplate> rules, Boolean isRedis);
 
     /**
      * 验证用户权益规则

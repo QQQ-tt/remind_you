@@ -3,6 +3,7 @@ package com.health.remind.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.health.remind.common.enums.InterestsLevelEnum;
 import com.health.remind.config.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -61,13 +64,17 @@ public class SysUser extends BaseEntity {
     @TableField("user_info")
     private String userInfo;
 
-    @Schema(description = "授权状态 0 拒绝 1 待同意 2 已同意")
+    @Schema(description = "用户头像授权状态 0 拒绝 1 待同意 2 已同意")
     @TableField("authorized")
     private Integer authorized;
 
     @Schema(description = "是否启用")
     @TableField("status")
     private Boolean status;
+
+    @Schema(description = "权益等级：vip_0,vip_1 ")
+    @TableField("interests_level")
+    private InterestsLevelEnum interestsLevel;
 
     @Schema(description = "用户类型")
     @TableField("user_type")
@@ -77,13 +84,19 @@ public class SysUser extends BaseEntity {
     @TableField("sys_role_id")
     private Long sysRoleId;
 
+    @Schema(description = "登录时间")
+    @TableField("login_time")
+    private LocalDateTime loginTime;
+
     @Builder
     public SysUser(Long id, String name, Long account, String password, String openId, String userInfo,
                    Integer authorized, Long telephone,
                    String encryptedTelephone,
                    Boolean status,
                    String userType,
-                   Long sysRoleId) {
+                   Long sysRoleId,
+                   LocalDateTime loginTime,
+                   InterestsLevelEnum interestsLevel) {
         super(id);
         this.name = name;
         this.account = account;
@@ -96,5 +109,7 @@ public class SysUser extends BaseEntity {
         this.userType = userType;
         this.sysRoleId = sysRoleId;
         this.authorized = authorized;
+        this.interestsLevel = interestsLevel;
+        this.loginTime = loginTime;
     }
 }

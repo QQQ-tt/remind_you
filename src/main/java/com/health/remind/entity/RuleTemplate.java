@@ -3,6 +3,7 @@ package com.health.remind.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.health.remind.common.enums.InterestsLevelEnum;
+import com.health.remind.common.enums.RuleExpiredEnum;
 import com.health.remind.common.enums.RuleTypeEnum;
 import com.health.remind.config.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -53,7 +54,7 @@ public class RuleTemplate extends BaseEntity {
 
     @Schema(description = "过期单位")
     @TableField("expired_period_unit")
-    private String expiredPeriodUnit;
+    private RuleExpiredEnum expiredPeriodUnit;
 
     @Schema(description = "过期时间类型：1累计时间，2指定时间")
     @TableField("expired_period_type")

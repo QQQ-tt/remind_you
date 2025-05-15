@@ -118,6 +118,11 @@ public class CommonMethod {
                 .get(UserInfo.USER_TYPE);
     }
 
+    public static String getInterestsLevel() {
+        return THREAD_LOCAL.get()
+                .get(UserInfo.INTERESTS_LEVEL);
+    }
+
     public static String getUserName() {
         return THREAD_LOCAL.get()
                 .get(UserInfo.USER_NAME);
@@ -209,10 +214,17 @@ public class CommonMethod {
         }
     }
 
-    public static void setAccount(String userId) {
-        if (StringUtils.isNotBlank(userId)) {
+    public static void setAccount(String account) {
+        if (StringUtils.isNotBlank(account)) {
             THREAD_LOCAL.get()
-                    .put(UserInfo.ACCOUNT, userId);
+                    .put(UserInfo.ACCOUNT, account);
+        }
+    }
+
+    public static void setInterestsLevel(String interestsLevel) {
+        if (StringUtils.isNotBlank(interestsLevel)) {
+            THREAD_LOCAL.get()
+                    .put(UserInfo.INTERESTS_LEVEL, interestsLevel);
         }
     }
 

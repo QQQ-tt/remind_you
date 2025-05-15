@@ -24,4 +24,15 @@ public class DateTest {
             log.info("时间:{}", startTime.toLocalDate());
         }
     }
+
+    @Test
+    public void test1() {
+        LocalDateTime localDateTime = LocalDateTime.now()
+                .withDayOfMonth(1)
+                .withHour(4)
+                .withMinute(0)
+                .withSecond(0)
+                .plusMonths(1);
+        log.info("时间:{}", localDateTime);
+    }
 }
