@@ -53,6 +53,10 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void verify(RuleTypeEnum ruleType, int num) {
+        if (CommonMethod.getUserType()
+                .equals(SysUserServiceImpl.USER_TYPE_SYS)) {
+            return;
+        }
         Long account = CommonMethod.getAccount();
         Object o = RedisUtils.hGet(RedisKeys.getRuleUser(account), ruleType.toString());
         RuleUserRedisBO ruleUser;

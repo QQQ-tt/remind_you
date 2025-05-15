@@ -49,9 +49,9 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
 
-    private static final String USER_TYPE_SYS = "sys";
+    public static final String USER_TYPE_SYS = "sys";
 
-    private static final String USER_TYPE_APP = "app";
+    public static final String USER_TYPE_APP = "app";
 
     private final PasswordEncoder passwordEncoder;
 

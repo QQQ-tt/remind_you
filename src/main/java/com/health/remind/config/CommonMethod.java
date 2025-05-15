@@ -113,6 +113,11 @@ public class CommonMethod {
                 .get(UserInfo.USER_ID));
     }
 
+    public static String getUserType() {
+        return THREAD_LOCAL.get()
+                .get(UserInfo.USER_TYPE);
+    }
+
     public static String getUserName() {
         return THREAD_LOCAL.get()
                 .get(UserInfo.USER_NAME);
@@ -158,6 +163,11 @@ public class CommonMethod {
             THREAD_LOCAL.get()
                     .put(UserInfo.USER_ID, userId);
         }
+    }
+
+    public static void setUserType(String userType) {
+        THREAD_LOCAL.get()
+                .put(UserInfo.USER_TYPE, userType);
     }
 
     public static void setMethod(String method) {

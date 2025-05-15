@@ -6,6 +6,7 @@ package com.health.remind.config.enums;
  */
 public enum UserInfo {
     USER_ID("user_id"),
+    USER_TYPE("user_type"),
     ACCOUNT("account"),
     USER_NAME("user_name"),
     TOKEN("Authorization"),
