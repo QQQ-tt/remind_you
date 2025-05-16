@@ -9,6 +9,7 @@ import com.health.remind.service.RuleUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,14 +43,14 @@ public class RuleUserController {
         return R.success(ruleUserService.getRuleUserByUserId(userId));
     }
 
-    @Operation(summary = "根据用户id查询用户权益详情")
+    @Operation(summary = "查询用户权益详情")
     @GetMapping("/getRuleUser")
     public R<Map<RuleTypeEnum, RuleUserRedisBO>> getRuleUser() {
         return R.success(ruleUserService.getRuleUser());
     }
 
     @Operation(summary = "保存用户权益详情")
-    @GetMapping("/saveRuleByUser")
+    @PutMapping("/saveRuleByUser")
     public R<Void> saveRuleByUser(@RequestBody SysUser sysUser) {
         ruleUserService.saveRuleByUser(sysUser);
         return R.success();

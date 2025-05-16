@@ -71,7 +71,7 @@ public class SysUserController {
         return R.success(sysUserService.pageSysUser(dto));
     }
 
-    @Operation(summary = "分页查询用户权益详情")
+    @Operation(summary = "分页查询用户权益")
     @PostMapping("/pageSysUserRule")
     public R<Page<SysUserRuleVO>> pageSysUserRule(@RequestBody SysUserRulePageDTO dto) {
         return R.success(sysUserService.pageSysUserRule(dto));
