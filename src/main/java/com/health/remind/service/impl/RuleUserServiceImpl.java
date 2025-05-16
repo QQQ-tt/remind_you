@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.health.remind.common.StaticConstant;
+import com.health.remind.common.enums.InterestsLevelEnum;
 import com.health.remind.common.enums.RuleTypeEnum;
 import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.CommonMethod;
@@ -12,11 +13,13 @@ import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
 import com.health.remind.entity.RuleTemplate;
 import com.health.remind.entity.RuleUser;
+import com.health.remind.entity.SysUser;
 import com.health.remind.mapper.RuleUserMapper;
 import com.health.remind.pojo.bo.RuleUserRedisBO;
 import com.health.remind.service.RuleTemplateService;
 import com.health.remind.service.RuleUserService;
 import com.health.remind.util.RedisUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,21 +52,44 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
     }
 
     @Override
-    public Map<RuleTypeEnum, RuleUserRedisBO> getRuleUserByUserId(Long userId) {
-        String ruleUser = RedisKeys.getRuleUser(CommonMethod.getAccount());
+    public List<RuleUser> getRuleUserByUserId(Long userId) {
+        String ruleUser = RedisKeys.getRuleUser(CommonMethod.getAccount(), StaticConstant.USER_TYPE_SYS);
         if (RedisUtils.hasKey(ruleUser)) {
             return RedisUtils.getObject(ruleUser, new TypeReference<>() {
             });
         }
-        Long l =
-                Optional.of(userId != null ? userId : CommonMethod.getUserId())
-                        .orElseThrow(() -> new DataException(
-                                DataEnums.USER_NOT_LOGIN));
         List<RuleUser> list = list(Wrappers.lambdaQuery(RuleUser.class)
-                .eq(RuleUser::getSysUserId, l)
+                .eq(RuleUser::getSysUserId, userId)
+                .le(RuleUser::getStartedAt, LocalDateTime.now())
+                .gt(RuleUser::getExpiredAt, LocalDateTime.now()));
+        RedisUtils.setObject(ruleUser, list);
+        setExpireTime(ruleUser);
+        return list;
+    }
+
+    @Override
+    public Map<RuleTypeEnum, RuleUserRedisBO> getRuleUser() {
+        String ruleUser = RedisKeys.getRuleUser(CommonMethod.getAccount(), StaticConstant.USER_TYPE_APP);
+        if (RedisUtils.hasKey(ruleUser)) {
+            return RedisUtils.getObject(ruleUser, new TypeReference<>() {
+            });
+        }
+        List<RuleUser> list = list(Wrappers.lambdaQuery(RuleUser.class)
+                .eq(RuleUser::getSysUserId, CommonMethod.getUserId())
                 .le(RuleUser::getStartedAt, LocalDateTime.now())
                 .gt(RuleUser::getExpiredAt, LocalDateTime.now()));
         return setRedis(list, ruleUser);
+    }
+
+    @Override
+    @Async("customExecutor")
+    @Transactional
+    public void saveRuleByUser(SysUser sysUser) {
+        List<RuleTemplate> list = ruleTemplateService.list(Wrappers.lambdaQuery(RuleTemplate.class)
+                .eq(RuleTemplate::getStatus, true)
+                .eq(RuleTemplate::getInterestsLevel, InterestsLevelEnum.VIP_0));
+        CommonMethod.setAccount(String.valueOf(sysUser.getAccount()));
+        saveRuleByUserId(sysUser.getId(), list, Boolean.TRUE);
     }
 
     @Override
@@ -85,23 +111,36 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
             list.add(ruleUser);
         });
         if (isRedis) {
-            setRedis(list, RedisKeys.getRuleUser(CommonMethod.getAccount()));
+            setRedis(list, RedisKeys.getRuleUser(CommonMethod.getAccount(), StaticConstant.USER_TYPE_APP));
         }
         saveBatch(list);
     }
 
-    private static Map<RuleTypeEnum, RuleUserRedisBO> setRedis(List<RuleUser> list, String ruleUser) {
-        Map<RuleTypeEnum, RuleUserRedisBO> map = list.stream()
-                .collect(Collectors.toMap(RuleUser::getRuleType, e -> {
-                    RuleUserRedisBO bo = new RuleUserRedisBO();
-                    bo.setName(e.getName());
-                    bo.setValue(e.getValue());
-                    bo.setUseValue(e.getUseValue());
-                    return bo;
-                }));
-        map.forEach((k, v) -> RedisUtils.hPut(ruleUser, k.toString(), JSONObject.toJSONString(v)));
+    private Map<RuleTypeEnum, RuleUserRedisBO> setRedis(List<RuleUser> list, String ruleUser) {
+        Map<RuleTypeEnum, RuleUserRedisBO> result = list.stream()
+                .collect(Collectors.groupingBy(
+                        RuleUser::getRuleType,
+                        Collectors.reducing(
+                                new RuleUserRedisBO(),
+                                ru -> {
+                                    RuleUserRedisBO bo = new RuleUserRedisBO();
+                                    bo.setName(ru.getName()); // 可选：取第一个的 name
+                                    bo.setValue(ru.getValue());
+                                    bo.setUseValue(ru.getUseValue());
+                                    return bo;
+                                },
+                                (bo1, bo2) -> {
+                                    RuleUserRedisBO merged = new RuleUserRedisBO();
+                                    merged.setName(bo1.getName()); // 或者根据需要选择
+                                    merged.setValue(bo1.getValue() + bo2.getValue());
+                                    merged.setUseValue(bo1.getUseValue() + bo2.getUseValue());
+                                    return merged;
+                                }
+                        )
+                ));
+        result.forEach((k, v) -> RedisUtils.hPut(ruleUser, k.toString(), JSONObject.toJSONString(v)));
         setExpireTime(ruleUser);
-        return map;
+        return result;
     }
 
 
@@ -147,7 +186,7 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
             return;
         }
         Long account = CommonMethod.getAccount();
-        String redisKey = RedisKeys.getRuleUser(account);
+        String redisKey = RedisKeys.getRuleUser(account, StaticConstant.USER_TYPE_APP);
         Object o = RedisUtils.hGet(redisKey, ruleType.toString());
         RuleUserRedisBO ruleUser;
         LocalDateTime now = LocalDateTime.now();

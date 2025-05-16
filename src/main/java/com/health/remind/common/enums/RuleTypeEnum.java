@@ -9,6 +9,10 @@ package com.health.remind.common.enums;
 public enum RuleTypeEnum {
 
     /**
+     * 每天创建任务数量
+     */
+    limit_create_task_day_num,
+    /**
      * 开启中任务数量
      */
     limit_open_task_num,
@@ -25,7 +29,7 @@ public enum RuleTypeEnum {
      */
     limit_remind_month_num,
     /**
-     * 插屏广告数量
+     * 播放广告次数
      */
     limit_ads_num,
 }

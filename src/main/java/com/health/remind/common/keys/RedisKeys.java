@@ -91,10 +91,10 @@ public class RedisKeys {
      * @param account 账号
      * @return rule:user:account
      */
-    public static String getRuleUser(Long account) {
+    public static String getRuleUser(Long account, String type) {
         if (account == null) {
             throw new DataException(DataEnums.DATA_NOT_EXIST);
         }
-        return "rule:user:" + account;
+        return "rule:user:" + account + ":" + type;
     }
 }

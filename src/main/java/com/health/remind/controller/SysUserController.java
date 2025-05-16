@@ -9,9 +9,11 @@ import com.health.remind.pojo.dto.LoginAppDTO;
 import com.health.remind.pojo.dto.SignDTO;
 import com.health.remind.pojo.dto.SysUserDTO;
 import com.health.remind.pojo.dto.SysUserPageDTO;
+import com.health.remind.pojo.dto.SysUserRulePageDTO;
 import com.health.remind.pojo.vo.LoginDTO;
 import com.health.remind.pojo.vo.LoginVO;
 import com.health.remind.pojo.vo.SignVO;
+import com.health.remind.pojo.vo.SysUserRuleVO;
 import com.health.remind.pojo.vo.SysUserVO;
 import com.health.remind.service.SysUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,6 +69,12 @@ public class SysUserController {
     @PostMapping("/pageSysUser")
     public R<Page<SysUserVO>> pageSysUser(@RequestBody @Valid SysUserPageDTO dto) {
         return R.success(sysUserService.pageSysUser(dto));
+    }
+
+    @Operation(summary = "分页查询用户权益详情")
+    @PostMapping("/pageSysUserRule")
+    public R<Page<SysUserRuleVO>> pageSysUserRule(@RequestBody SysUserRulePageDTO dto) {
+        return R.success(sysUserService.pageSysUserRule(dto));
     }
 
     @Operation(summary = "保存或编辑用户")

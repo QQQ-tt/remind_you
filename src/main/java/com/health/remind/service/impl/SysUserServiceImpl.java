@@ -12,7 +12,6 @@ import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
 import com.health.remind.config.lock.RedisLock;
-import com.health.remind.entity.RuleTemplate;
 import com.health.remind.entity.SysUser;
 import com.health.remind.mapper.SysUserMapper;
 import com.health.remind.pojo.dto.AppUserDTO;
@@ -20,10 +19,11 @@ import com.health.remind.pojo.dto.LoginAppDTO;
 import com.health.remind.pojo.dto.SignDTO;
 import com.health.remind.pojo.dto.SysUserDTO;
 import com.health.remind.pojo.dto.SysUserPageDTO;
+import com.health.remind.pojo.dto.SysUserRulePageDTO;
 import com.health.remind.pojo.vo.LoginVO;
 import com.health.remind.pojo.vo.SignVO;
+import com.health.remind.pojo.vo.SysUserRuleVO;
 import com.health.remind.pojo.vo.SysUserVO;
-import com.health.remind.service.RuleTemplateService;
 import com.health.remind.service.RuleUserService;
 import com.health.remind.service.SysRoleService;
 import com.health.remind.service.SysUserService;
@@ -39,7 +39,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -60,15 +59,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     private final WxApiService wxApiService;
 
-    private final RuleTemplateService ruleTemplateService;
-
     private final RuleUserService ruleUserService;
 
-    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysRoleService sysRoleService, WxApiService wxApiService, RuleTemplateService ruleTemplateService, RuleUserService ruleUserService) {
+    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysRoleService sysRoleService, WxApiService wxApiService, RuleUserService ruleUserService) {
         this.passwordEncoder = passwordEncoder;
         this.sysRoleService = sysRoleService;
         this.wxApiService = wxApiService;
-        this.ruleTemplateService = ruleTemplateService;
         this.ruleUserService = ruleUserService;
     }
 
@@ -144,11 +140,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     .build();
             save(user);
             one = user;
-            List<RuleTemplate> list = ruleTemplateService.list(Wrappers.lambdaQuery(RuleTemplate.class)
-                    .eq(RuleTemplate::getStatus, true)
-                    .eq(RuleTemplate::getInterestsLevel, InterestsLevelEnum.VIP_0));
-            CommonMethod.setAccount(String.valueOf(account));
-            ruleUserService.saveRuleByUserId(one.getId(), list, Boolean.TRUE);
+            ruleUserService.saveRuleByUser(one);
         }
         LoginVO loginVO = getLoginVO(one);
         loginVO.setAuthorized(one.getAuthorized() == 1);
@@ -204,6 +196,19 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                                 dto.getName())
                         .like(dto.getAccount() != null, SysUser::getAccount, dto.getAccount())
                         .like(StringUtils.isNotBlank(dto.getTelephone()), SysUser::getTelephone, dto.getTelephone()));
+    }
+
+    @Override
+    public Page<SysUserRuleVO> pageSysUserRule(SysUserRulePageDTO dto) {
+        return baseMapper.selectPageSysUserRule(dto.getPage(),
+                Wrappers.lambdaQuery(SysUser.class)
+                        .eq(SysUser::getUserType, StaticConstant.USER_TYPE_APP)
+                        .eq(BaseEntity::getDeleteFlag, false)
+                        .ge(SysUser::getLoginTime, LocalDateTime.now()
+                                .minusMonths(1))
+                        .like(StringUtils.isNotBlank(dto.getName()), SysUser::getName,dto.getName())
+                        .eq(dto.getInterestsLevel() != null, SysUser::getInterestsLevel, dto.getInterestsLevel())
+        );
     }
 
     @Override

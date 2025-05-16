@@ -8,8 +8,10 @@ import com.health.remind.pojo.dto.LoginAppDTO;
 import com.health.remind.pojo.dto.SignDTO;
 import com.health.remind.pojo.dto.SysUserDTO;
 import com.health.remind.pojo.dto.SysUserPageDTO;
+import com.health.remind.pojo.dto.SysUserRulePageDTO;
 import com.health.remind.pojo.vo.LoginVO;
 import com.health.remind.pojo.vo.SignVO;
+import com.health.remind.pojo.vo.SysUserRuleVO;
 import com.health.remind.pojo.vo.SysUserVO;
 
 /**
@@ -56,6 +58,14 @@ public interface SysUserService extends IService<SysUser> {
     Page<SysUserVO> pageSysUser(SysUserPageDTO dto);
 
     /**
+     * 分页查询用户权益
+     *
+     * @param dto 分页信息
+     * @return app用户集合
+     */
+    Page<SysUserRuleVO> pageSysUserRule(SysUserRulePageDTO dto);
+
+    /**
      * 用户创建和编辑
      *
      * @param dto 用户信息
@@ -70,6 +80,7 @@ public interface SysUserService extends IService<SysUser> {
      * @return 是否成功
      */
     boolean updateAppUser(AppUserDTO dto);
+
     /**
      * 取消角色
      *
