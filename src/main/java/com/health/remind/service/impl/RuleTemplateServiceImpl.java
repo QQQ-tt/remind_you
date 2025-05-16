@@ -1,5 +1,6 @@
 package com.health.remind.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -22,8 +23,11 @@ import org.springframework.stereotype.Service;
 public class RuleTemplateServiceImpl extends ServiceImpl<RuleTemplateMapper, RuleTemplate> implements RuleTemplateService {
 
     @Override
-    public Page<RuleTemplate> ruleTemplatePage(RuleTemplatePageDTO dto) {
+    public Page<RuleTemplate> pageRuleTemplate(RuleTemplatePageDTO dto) {
         return page(dto.getPage(), Wrappers.lambdaQuery(RuleTemplate.class)
+                .eq(dto.getStatus() != null, RuleTemplate::getStatus, dto.getStatus())
+                .like(StringUtils.isNotBlank(dto.getName()), RuleTemplate::getName, dto.getName())
+                .eq(dto.getInterestsLevel() != null, RuleTemplate::getInterestsLevel, dto.getInterestsLevel())
                 .orderByDesc(BaseEntity::getCreateTime));
     }
 
@@ -34,8 +38,9 @@ public class RuleTemplateServiceImpl extends ServiceImpl<RuleTemplateMapper, Rul
 
     @Override
     public boolean updateRuleTemplateStatus(Long id, Boolean status) {
-        return update(Wrappers.lambdaUpdate(RuleTemplate.class)
-                .eq(BaseEntity::getId, id)
-                .set(RuleTemplate::getStatus, status));
+        RuleTemplate ruleTemplate = new RuleTemplate();
+        ruleTemplate.setId(id);
+        ruleTemplate.setStatus(status);
+        return updateById(ruleTemplate);
     }
 }

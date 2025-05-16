@@ -9,10 +9,6 @@ package com.health.remind.common.enums;
 public enum RuleTypeEnum {
 
     /**
-     * 进行中任务数量
-     */
-    limit_continued_task_num,
-    /**
      * 开启中任务数量
      */
     limit_open_task_num,

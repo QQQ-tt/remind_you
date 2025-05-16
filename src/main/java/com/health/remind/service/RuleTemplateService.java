@@ -22,7 +22,7 @@ public interface RuleTemplateService extends IService<RuleTemplate> {
      * @param dto dto
      * @return Page<RuleTemplate>
      */
-    Page<RuleTemplate> ruleTemplatePage(RuleTemplatePageDTO dto);
+    Page<RuleTemplate> pageRuleTemplate(RuleTemplatePageDTO dto);
 
     /**
      * 保存或更新

@@ -28,7 +28,7 @@ public class DateTest {
     @Test
     public void test1() {
         LocalDateTime localDateTime = LocalDateTime.now()
-                .withDayOfMonth(1)
+                .withDayOfMonth(3)
                 .withHour(4)
                 .withMinute(0)
                 .withSecond(0)

@@ -108,19 +108,29 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
     private void setTime(RuleUser ruleUser, RuleTemplate ruleTemplate) {
         Optional.ofNullable(ruleTemplate.getExpiredPeriodValue())
                 .ifPresentOrElse(i -> {
-                    if (ruleTemplate.getExpiredPeriodType() == 1) {
-                        ruleUser.setStartedAt(LocalDateTime.now());
-                        switch (ruleTemplate.getExpiredPeriodUnit()) {
-                            case DAY -> ruleUser.setExpiredAt(LocalDateTime.now()
-                                    .plusDays(i));
-                            case MONTH -> ruleUser.setExpiredAt(LocalDateTime.now()
-                                    .plusMonths(i));
+                    switch (ruleTemplate.getExpiredPeriodType()) {
+                        case RELATIVE_TIME -> {
+                            ruleUser.setStartedAt(LocalDateTime.now());
+                            switch (ruleTemplate.getExpiredPeriodUnit()) {
+                                case DAY -> ruleUser.setExpiredAt(LocalDateTime.now()
+                                        .plusDays(i));
+                                case MONTH -> ruleUser.setExpiredAt(LocalDateTime.now()
+                                        .plusMonths(i));
+                            }
                         }
-                    } else {
-                        ruleUser.setStartedAt(LocalDateTime.now());
-                        switch (ruleTemplate.getExpiredPeriodUnit()) {
-                            case DAY -> ruleUser.setExpiredAt(getNextFour(LocalTime.now()));
-                            case MONTH -> ruleUser.setExpiredAt(getNextMonthOne(LocalDateTime.now()));
+                        case ABSOLUTE_TIME -> {
+                            switch (ruleTemplate.getExpiredPeriodUnit()) {
+                                case DAY -> {
+                                    ruleUser.setExpiredAt(getNextFour(LocalTime.now(), i));
+                                    ruleUser.setStartedAt(ruleUser.getExpiredAt()
+                                            .minusDays(1));
+                                }
+                                case MONTH -> {
+                                    ruleUser.setExpiredAt(getNextMonthOne(LocalDateTime.now(), i));
+                                    ruleUser.setStartedAt(ruleUser.getExpiredAt()
+                                            .minusMonths(1));
+                                }
+                            }
                         }
                     }
                 }, () -> {
@@ -222,7 +232,7 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
      */
     private static void setExpireTime(String redisKey) {
         LocalTime now = LocalTime.now(); // 当前时间
-        LocalDateTime nextFour = getNextFour(now);
+        LocalDateTime nextFour = getNextFour(now, 4);
         Duration duration = Duration.between(now, nextFour);
         long seconds = duration.getSeconds();
         RedisUtils.expire(redisKey, seconds, TimeUnit.SECONDS);
@@ -234,8 +244,8 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
      * @param now 当前时间
      * @return 下一次4点时间
      */
-    private static LocalDateTime getNextFour(LocalTime now) {
-        LocalDateTime nextFour = LocalDateTime.of(LocalDate.now(), LocalTime.of(4, 0)); // 下一天的4点
+    private static LocalDateTime getNextFour(LocalTime now, int i) {
+        LocalDateTime nextFour = LocalDateTime.of(LocalDate.now(), LocalTime.of(i, 0));
         // 如果当前时间在4点之后，则取明天的4点；否则取今天的4点
         if (now.getHour() > 4 || (now.getHour() == 4 && now.getMinute() > 0)) {
             nextFour = nextFour.plusDays(1);
@@ -244,16 +254,20 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
     }
 
     /**
-     * 获取下个月的1号4点
+     * 获取下一次的某日4点
      *
-     * @param localDateTime 当前时间
+     * @param now 当前时间
      * @return 下个月的1号4点
      */
-    private static LocalDateTime getNextMonthOne(LocalDateTime localDateTime) {
-        return localDateTime.withDayOfMonth(1)
+    private static LocalDateTime getNextMonthOne(LocalDateTime now, int i) {
+        LocalDateTime localDateTime = now.withDayOfMonth(i)
                 .withHour(4)
                 .withMinute(0)
-                .withSecond(0)
-                .plusMonths(1);
+                .withSecond(0);
+        if (now.getHour() > 4 || (now.getHour() == 4 && now.getMinute() > 0)) {
+            return localDateTime
+                    .plusMonths(1);
+        }
+        return localDateTime;
     }
 }

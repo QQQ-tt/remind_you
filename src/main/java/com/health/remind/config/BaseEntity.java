@@ -42,7 +42,6 @@ public class BaseEntity {
     @TableField(fill = FieldFill.UPDATE, value = "update_name")
     private String updateName;
 
-    @JsonIgnore
     @TableField(fill = FieldFill.UPDATE, value = "update_time")
     private LocalDateTime updateTime;
 

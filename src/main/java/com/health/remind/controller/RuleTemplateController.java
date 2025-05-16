@@ -7,6 +7,7 @@ import com.health.remind.pojo.dto.RuleTemplatePageDTO;
 import com.health.remind.service.RuleTemplateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,14 +34,14 @@ public class RuleTemplateController {
     }
 
     @Operation(summary = "分页查询规则模板")
-    @PostMapping("/ruleTemplatePage")
-    public R<Page<RuleTemplate>> ruleTemplatePage(@RequestBody RuleTemplatePageDTO dto) {
-        return R.success(ruleTemplateService.ruleTemplatePage(dto));
+    @PostMapping("/pageRuleTemplate")
+    public R<Page<RuleTemplate>> pageRuleTemplate(@RequestBody RuleTemplatePageDTO dto) {
+        return R.success(ruleTemplateService.pageRuleTemplate(dto));
     }
 
     @Operation(summary = "保存或更新规则模板")
     @PutMapping("/saveOrUpdateRuleTemplate")
-    public R<Boolean> saveOrUpdateRuleTemplate(@RequestBody RuleTemplate ruleTemplate) {
+    public R<Boolean> saveOrUpdateRuleTemplate(@RequestBody @Valid RuleTemplate ruleTemplate) {
         return R.success(ruleTemplateService.saveOrUpdateRuleTemplate(ruleTemplate));
     }
 
