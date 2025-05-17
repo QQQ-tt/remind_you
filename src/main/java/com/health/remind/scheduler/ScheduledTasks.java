@@ -48,7 +48,7 @@ public class ScheduledTasks {
     /**
      * 定时初始化用户权益
      */
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 10 0 * * *")
     public void initUserInterests() {
         List<SysUser> list = sysUserService.list(Wrappers.lambdaQuery(SysUser.class)
                 .eq(SysUser::getUserType, StaticConstant.USER_TYPE_APP)

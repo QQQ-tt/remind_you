@@ -35,4 +35,16 @@ public class DateTest {
                 .plusMonths(1);
         log.info("时间:{}", localDateTime);
     }
+
+    @Test
+    public void test2() {
+        int i = 4;
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextFour = LocalDateTime.of(LocalDate.now(), LocalTime.of(i, 0));
+        // 如果当前时间在4点之后，则取明天的4点；否则取今天的4点
+        if (now.getHour() > 4 || (now.getHour() == 4 && now.getMinute() > 0)) {
+            nextFour = nextFour.plusDays(1);
+        }
+        log.info("时间:{}", nextFour);
+    }
 }
