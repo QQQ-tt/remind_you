@@ -107,7 +107,7 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
             ruleUser.setName(e.getName());
             ruleUser.setValue(e.getValue());
             ruleUser.setPriority(e.getPriority());
-            setTime(ruleUser, e);
+            setTime(ruleUser, e, isRedis);
             list.add(ruleUser);
         });
         if (isRedis) {
@@ -144,7 +144,7 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
     }
 
 
-    private void setTime(RuleUser ruleUser, RuleTemplate ruleTemplate) {
+    private void setTime(RuleUser ruleUser, RuleTemplate ruleTemplate, Boolean init) {
         Optional.ofNullable(ruleTemplate.getExpiredPeriodValue())
                 .ifPresentOrElse(i -> {
                     switch (ruleTemplate.getExpiredPeriodType()) {
@@ -158,16 +158,29 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
                             }
                         }
                         case ABSOLUTE_TIME -> {
-                            switch (ruleTemplate.getExpiredPeriodUnit()) {
-                                case DAY -> {
-                                    ruleUser.setExpiredAt(getNextFour(LocalTime.now(), i));
-                                    ruleUser.setStartedAt(ruleUser.getExpiredAt()
-                                            .minusDays(1));
+                            if (init) {
+                                switch (ruleTemplate.getExpiredPeriodUnit()) {
+                                    case DAY -> {
+                                        ruleUser.setStartedAt(LocalDateTime.now());
+                                        ruleUser.setExpiredAt(getNextFour(LocalTime.now(), i));
+                                    }
+                                    case MONTH -> {
+                                        ruleUser.setStartedAt(LocalDateTime.now());
+                                        ruleUser.setExpiredAt(getNextMonthOne(LocalDateTime.now(), i));
+                                    }
                                 }
-                                case MONTH -> {
-                                    ruleUser.setExpiredAt(getNextMonthOne(LocalDateTime.now(), i));
-                                    ruleUser.setStartedAt(ruleUser.getExpiredAt()
-                                            .minusMonths(1));
+                            } else {
+                                switch (ruleTemplate.getExpiredPeriodUnit()) {
+                                    case DAY -> {
+                                        ruleUser.setStartedAt(getNextFour(LocalTime.now(), i));
+                                        ruleUser.setExpiredAt(ruleUser.getStartedAt()
+                                                .plusDays(1));
+                                    }
+                                    case MONTH -> {
+                                        ruleUser.setStartedAt(getNextMonthOne(LocalDateTime.now(), i));
+                                        ruleUser.setExpiredAt(ruleUser.getStartedAt()
+                                                .plusMonths(1));
+                                    }
                                 }
                             }
                         }
@@ -209,7 +222,7 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
                 r.setName(e.getName());
                 r.setValue(e.getValue());
                 r.setPriority(e.getPriority());
-                setTime(r, e);
+                setTime(r, e, true);
                 value.add(r);
             });
         }
@@ -278,15 +291,15 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
     }
 
     /**
-     * 获取下一次4点的时间
+     * 获取下一次i点的时间
      *
      * @param now 当前时间
      * @return 下一次4点时间
      */
     private static LocalDateTime getNextFour(LocalTime now, int i) {
         LocalDateTime nextFour = LocalDateTime.of(LocalDate.now(), LocalTime.of(i, 0));
-        // 如果当前时间在4点之后，则取明天的4点；否则取今天的4点
-        if (now.getHour() > 4 || (now.getHour() == 4 && now.getMinute() > 0)) {
+        // 如果当前时间在i点之后，则取明天的i点；否则取今天的i点
+        if (now.getHour() > i || (now.getHour() == i && now.getMinute() > 0)) {
             nextFour = nextFour.plusDays(1);
         }
         return nextFour;
