@@ -2,13 +2,18 @@ package com.health.remind.wx;
 
 import com.alibaba.fastjson.JSON;
 import com.health.remind.config.exception.DataException;
+import com.health.remind.wx.entity.AccessToken;
 import com.health.remind.wx.entity.Code2Session;
 import com.health.remind.wx.entity.WXUserInfo;
+import com.health.remind.wx.entity.WxMsg;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Pair;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+
+import java.util.Map;
 
 /**
  * @author qtx
@@ -52,4 +57,23 @@ public class WxApiService {
             throw new DataException("微信数据解密失败", 500);
         }
     }
+
+    public AccessToken getAccessToken() {
+        return restClient.get()
+                .uri("/cgi-bin/token?grant_type=client_credential&appid={appid}&secret={secret}",
+                        Map.of("appid", appId, "secret", secret))
+                .accept(MediaType.TEXT_PLAIN)
+                .retrieve()
+                .body(AccessToken.class);
+    }
+
+    public void sendMsg(WxMsg msg) {
+        restClient.post()
+                .uri("/cgi-bin/message/subscribe/send?access_token={access_token}",
+                        Map.of("access_token", getAccessToken().getAccess_token()))
+                .body(msg)
+                .retrieve()
+                .body(String.class);
+    }
+
 }
