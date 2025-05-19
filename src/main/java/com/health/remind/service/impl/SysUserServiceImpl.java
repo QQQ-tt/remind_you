@@ -140,6 +140,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     .build();
             save(user);
             one = user;
+            CommonMethod.setAccount(String.valueOf(one.getAccount()));
             ruleUserService.saveRuleByUser(one);
         }
         LoginVO loginVO = getLoginVO(one);

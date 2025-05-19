@@ -1,6 +1,7 @@
 package com.health.remind.service.impl;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -83,12 +84,11 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
 
     @Override
     @Async("customExecutor")
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void saveRuleByUser(SysUser sysUser) {
         List<RuleTemplate> list = ruleTemplateService.list(Wrappers.lambdaQuery(RuleTemplate.class)
                 .eq(RuleTemplate::getStatus, true)
                 .eq(RuleTemplate::getInterestsLevel, InterestsLevelEnum.VIP_0));
-        CommonMethod.setAccount(String.valueOf(sysUser.getAccount()));
         saveRuleByUserId(sysUser.getId(), list, Boolean.TRUE);
     }
 
@@ -104,6 +104,7 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
             RuleUser ruleUser = new RuleUser();
             ruleUser.setRuleTemplateId(e.getId());
             ruleUser.setSysUserId(l);
+            ruleUser.setRuleType(e.getRuleType());
             ruleUser.setName(e.getName());
             ruleUser.setValue(e.getValue());
             ruleUser.setPriority(e.getPriority());
@@ -120,20 +121,19 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
         Map<RuleTypeEnum, RuleUserRedisBO> result = list.stream()
                 .collect(Collectors.groupingBy(
                         RuleUser::getRuleType,
-                        Collectors.reducing(
-                                new RuleUserRedisBO(),
-                                ru -> {
-                                    RuleUserRedisBO bo = new RuleUserRedisBO();
-                                    bo.setName(ru.getName()); // 可选：取第一个的 name
-                                    bo.setValue(ru.getValue());
-                                    bo.setUseValue(ru.getUseValue());
-                                    return bo;
-                                },
-                                (bo1, bo2) -> {
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                ruleUsers -> {
                                     RuleUserRedisBO merged = new RuleUserRedisBO();
-                                    merged.setName(bo1.getName()); // 或者根据需要选择
-                                    merged.setValue(bo1.getValue() + bo2.getValue());
-                                    merged.setUseValue(bo1.getUseValue() + bo2.getUseValue());
+                                    for (RuleUser ru : ruleUsers) {
+                                        if (StringUtils.isNotBlank(ru.getName())) {
+                                            merged.setName(ru.getName());
+                                        }
+                                        merged.setValue(
+                                                (merged.getValue() == null ? 0 : merged.getValue()) + (ru.getValue() == null ? 0 : ru.getValue()));
+                                        merged.setUseValue(
+                                                (merged.getUseValue() == null ? 0 : merged.getUseValue()) + (ru.getUseValue() == null ? 0 : ru.getUseValue()));
+                                    }
                                     return merged;
                                 }
                         )
@@ -285,7 +285,7 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
     private static void setExpireTime(String redisKey) {
         LocalTime now = LocalTime.now(); // 当前时间
         LocalDateTime nextFour = getNextFour(now, 4);
-        Duration duration = Duration.between(now, nextFour);
+        Duration duration = Duration.between(LocalDateTime.now(), nextFour);
         long seconds = duration.getSeconds();
         RedisUtils.expire(redisKey, seconds, TimeUnit.SECONDS);
     }

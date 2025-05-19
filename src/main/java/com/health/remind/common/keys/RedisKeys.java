@@ -95,6 +95,6 @@ public class RedisKeys {
         if (account == null) {
             throw new DataException(DataEnums.DATA_NOT_EXIST);
         }
-        return "rule:user:" + account + ":" + type;
+        return "rule:user:" + type + ":" + account;
     }
 }
