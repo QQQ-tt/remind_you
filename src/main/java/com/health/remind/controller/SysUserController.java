@@ -65,6 +65,12 @@ public class SysUserController {
         return R.success(sysUserService.loginAppUser(dto));
     }
 
+    @Operation(summary = "刷新token",  description = StaticConstant.PERMISSION_KEY)
+    @GetMapping("/refreshToken")
+    public R<LoginVO> refreshToken(@RequestParam String token) {
+        return R.success(sysUserService.refreshToken(token));
+    }
+
     @Operation(summary = "分页查询")
     @PostMapping("/pageSysUser")
     public R<Page<SysUserVO>> pageSysUser(@RequestBody @Valid SysUserPageDTO dto) {

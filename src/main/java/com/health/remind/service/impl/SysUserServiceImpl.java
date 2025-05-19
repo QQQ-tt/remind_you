@@ -41,6 +41,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <p>
@@ -149,6 +150,25 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return loginVO;
     }
 
+    @Override
+    @RedisLock(lockParameter = "#token", autoUnlockTime = 6000)
+    public LoginVO refreshToken(String token) {
+        AtomicReference<LoginVO> vo = new AtomicReference<>();
+        Optional<String> bodyFromToken = Optional.ofNullable(JwtUtils.getBodyFromToken(token));
+        bodyFromToken.ifPresentOrElse(e -> {
+            update(Wrappers.lambdaUpdate(SysUser.class)
+                    .eq(SysUser::getAccount, e)
+                    .set(SysUser::getLoginTime,
+                            LocalDateTime.now()));
+            LoginVO loginVO = getLoginVO(getOne(Wrappers.lambdaQuery(SysUser.class)
+                    .eq(SysUser::getAccount, e)));
+            vo.set(loginVO);
+        }, () -> {
+            throw new DataException(DataEnums.DATA_IS_ABNORMAL, "token异常");
+        });
+        return vo.get();
+    }
+
     /**
      * 获取登录信息
      *
@@ -156,10 +176,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      * @return token
      */
     private LoginVO getLoginVO(SysUser sysUser) {
-        update(Wrappers.lambdaUpdate(SysUser.class)
-                .eq(BaseEntity::getId, sysUser.getId())
-                .set(SysUser::getLoginTime,
-                        LocalDateTime.now()));
         HashMap<String, Object> map = new HashMap<>();
         map.put(StaticConstant.USER_ID, sysUser.getId());
         map.put(StaticConstant.USER_TYPE, sysUser.getUserType());
@@ -207,7 +223,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                         .eq(BaseEntity::getDeleteFlag, false)
                         .ge(SysUser::getLoginTime, LocalDateTime.now()
                                 .minusMonths(1))
-                        .like(StringUtils.isNotBlank(dto.getName()), SysUser::getName,dto.getName())
+                        .like(StringUtils.isNotBlank(dto.getName()), SysUser::getName, dto.getName())
                         .eq(dto.getInterestsLevel() != null, SysUser::getInterestsLevel, dto.getInterestsLevel())
         );
     }

@@ -50,6 +50,14 @@ public interface SysUserService extends IService<SysUser> {
     LoginVO loginAppUser(LoginAppDTO dto);
 
     /**
+     * 刷新token
+     *
+     * @param token token
+     * @return 登录结果
+     */
+    LoginVO refreshToken(String token);
+
+    /**
      * 分页查询用户
      *
      * @param dto 分页信息
