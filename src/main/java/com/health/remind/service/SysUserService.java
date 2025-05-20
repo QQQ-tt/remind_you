@@ -62,7 +62,7 @@ public interface SysUserService extends IService<SysUser> {
      *
      * @return 添加结果
      */
-    Integer addMsg();
+    Integer increasePushCount();
 
     /**
      * 测试消息发送

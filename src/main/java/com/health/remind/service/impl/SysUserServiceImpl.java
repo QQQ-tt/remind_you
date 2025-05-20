@@ -175,7 +175,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public Integer addMsg() {
+    public Integer increasePushCount() {
         boolean update = update(Wrappers.lambdaUpdate(SysUser.class)
                 .eq(SysUser::getAccount, CommonMethod.getAccount())
                 .setSql("msg_num = msg_num + 1"));
@@ -229,7 +229,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         // 生成token
         String s = JwtUtils.generateToken(sysUser.getAccount()
                 .toString(), map);
-        LoginVO loginVO = new LoginVO(sysUser.getId(), sysUser.getName(), s, JwtUtils.EXPIRATION_TIME);
+        LoginVO loginVO = new LoginVO(sysUser.getId(), sysUser.getName(), sysUser.getMsgNum(), s,
+                JwtUtils.EXPIRATION_TIME);
         RedisUtils.delete(RedisKeys.getLoginKey(sysUser.getAccount()
                 .toString(), sysUser.getUserType()));
         Optional.ofNullable(sysUser.getTelephone())

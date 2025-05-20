@@ -65,16 +65,16 @@ public class SysUserController {
         return R.success(sysUserService.loginAppUser(dto));
     }
 
-    @Operation(summary = "刷新token",  description = StaticConstant.PERMISSION_KEY)
+    @Operation(summary = "刷新token")
     @GetMapping("/refreshToken")
     public R<LoginVO> refreshToken(@RequestParam String token) {
         return R.success(sysUserService.refreshToken(token));
     }
 
     @Operation(summary = "添加消息")
-    @GetMapping("/addMsg")
-    public R<Integer> addMsg() {
-        return R.success(sysUserService.addMsg());
+    @GetMapping("/increasePushCount")
+    public R<Integer> increasePushCount() {
+        return R.success(sysUserService.increasePushCount());
     }
 
     @Operation(summary = "测试消息")
