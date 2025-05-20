@@ -20,7 +20,14 @@
         from info ${ew.customSqlSegment}
     </select>
     <select id="selectPageSysUserRule" resultType="com.health.remind.pojo.vo.SysUserRuleVO">
-        select id, name, account, avatar, interests_level, open_id, login_time
+        select id,
+               name,
+               account,
+               avatar,
+               interests_level,
+               open_id,
+               login_time,
+               msg_num
         from sys_user ${ew.customSqlSegment}
     </select>
 </mapper>

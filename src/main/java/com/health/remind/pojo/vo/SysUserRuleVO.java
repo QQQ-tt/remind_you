@@ -30,6 +30,9 @@ public class SysUserRuleVO {
     @Schema(description = "权益等级：vip_0,vip_1 ")
     private InterestsLevelEnum interestsLevel;
 
+    @Schema(description = "可用消息数量")
+    private Integer msgNum;
+
     @Schema(description = "登录时间")
     private LocalDateTime loginTime;
 }

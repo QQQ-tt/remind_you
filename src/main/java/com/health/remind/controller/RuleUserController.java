@@ -1,6 +1,5 @@
 package com.health.remind.controller;
 
-import com.health.remind.common.enums.RuleTypeEnum;
 import com.health.remind.config.R;
 import com.health.remind.entity.RuleUser;
 import com.health.remind.entity.SysUser;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -45,7 +43,7 @@ public class RuleUserController {
 
     @Operation(summary = "查询用户权益详情")
     @GetMapping("/getRuleUser")
-    public R<Map<RuleTypeEnum, RuleUserRedisBO>> getRuleUser() {
+    public R<List<RuleUserRedisBO>> getRuleUser() {
         return R.success(ruleUserService.getRuleUser());
     }
 

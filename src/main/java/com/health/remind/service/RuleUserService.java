@@ -8,7 +8,6 @@ import com.health.remind.entity.SysUser;
 import com.health.remind.pojo.bo.RuleUserRedisBO;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -33,7 +32,7 @@ public interface RuleUserService extends IService<RuleUser> {
      *
      * @return 用户规则
      */
-    Map<RuleTypeEnum, RuleUserRedisBO> getRuleUser();
+    List<RuleUserRedisBO> getRuleUser();
 
     /**
      * 保存用户规则

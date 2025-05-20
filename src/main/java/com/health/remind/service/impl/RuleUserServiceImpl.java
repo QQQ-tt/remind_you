@@ -69,11 +69,17 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
     }
 
     @Override
-    public Map<RuleTypeEnum, RuleUserRedisBO> getRuleUser() {
+    public List<RuleUserRedisBO> getRuleUser() {
         String ruleUser = RedisKeys.getRuleUser(CommonMethod.getAccount(), StaticConstant.USER_TYPE_APP);
         if (RedisUtils.hasKey(ruleUser)) {
-            return RedisUtils.getObject(ruleUser, new TypeReference<>() {
-            });
+            Map<Object, Object> objectObjectMap = RedisUtils.hGetAll(ruleUser);
+            return new ArrayList<>(objectObjectMap.entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            entry -> RuleTypeEnum.valueOf((String) entry.getKey()), // 将 String 转为枚举
+                            entry -> JSONObject.parseObject((String) entry.getValue(), RuleUserRedisBO.class) // 反序列化值
+                    ))
+                    .values());
         }
         List<RuleUser> list = list(Wrappers.lambdaQuery(RuleUser.class)
                 .eq(RuleUser::getSysUserId, CommonMethod.getUserId())
@@ -117,7 +123,7 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
         saveBatch(list);
     }
 
-    private Map<RuleTypeEnum, RuleUserRedisBO> setRedis(List<RuleUser> list, String ruleUser) {
+    private List<RuleUserRedisBO> setRedis(List<RuleUser> list, String ruleUser) {
         Map<RuleTypeEnum, RuleUserRedisBO> result = list.stream()
                 .collect(Collectors.groupingBy(
                         RuleUser::getRuleType,
@@ -140,7 +146,7 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
                 ));
         result.forEach((k, v) -> RedisUtils.hPut(ruleUser, k.toString(), JSONObject.toJSONString(v)));
         setExpireTime(ruleUser);
-        return result;
+        return new ArrayList<>(result.values());
     }
 
 
