@@ -207,8 +207,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                             new MsgInfo(LocalDate.now()
                                     .toString())));
             wxApiService.sendMsg(wxMsg);
+            return msgNum - 1;
         }
-        return msgNum - 1;
+        return 0;
     }
 
     /**
