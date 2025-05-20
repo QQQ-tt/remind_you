@@ -47,4 +47,10 @@ public class DateTest {
         }
         log.info("时间:{}", nextFour);
     }
+
+    @Test
+    public void test3() {
+        log.info(LocalDate.now()
+                .toString());
+    }
 }

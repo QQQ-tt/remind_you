@@ -1,6 +1,7 @@
 package com.health.remind.wx;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.health.remind.config.exception.DataException;
 import com.health.remind.wx.entity.AccessToken;
 import com.health.remind.wx.entity.Code2Session;
@@ -10,9 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -37,11 +40,13 @@ public class WxApiService {
 
     public Code2Session getCode2Session(String code) {
         try {
-            return restClient.get()
+            Code2Session body = restClient.get()
                     .uri("/sns/jscode2session?appid={appId}&secret={secret}&js_code={code}&grant_type=authorization_code",
                             appId, secret, code)
                     .retrieve()
                     .body(Code2Session.class);
+            log.info("获取微信session成功: {}", body);
+            return body;
         } catch (Exception e) {
             log.error("获取微信session失败", e);
             throw new DataException("获取微信session失败", 500);
@@ -68,12 +73,19 @@ public class WxApiService {
     }
 
     public void sendMsg(WxMsg msg) {
-        restClient.post()
+        String jsonString = JSONObject.toJSONString(msg);
+        int length = jsonString.getBytes(StandardCharsets.UTF_8).length;
+        log.info("发送微信消息: {}", length);
+        ResponseEntity<Object> entity = restClient.post()
                 .uri("/cgi-bin/message/subscribe/send?access_token={access_token}",
                         Map.of("access_token", getAccessToken().getAccess_token()))
+                .headers(
+                        httpHeaders -> httpHeaders.setContentLength(length))
                 .body(msg)
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .body(String.class);
+                .toEntity(Object.class);
+        log.info("发送微信消息成功: {}", entity);
     }
 
 }

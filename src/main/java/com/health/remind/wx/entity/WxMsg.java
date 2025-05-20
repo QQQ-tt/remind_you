@@ -15,7 +15,9 @@ public class WxMsg {
 
     private String touser;
 
-    private String miniprogram_state;
+    private String miniprogram_state = "formal";
 
-    private Map<String, Map<String ,Object>> data;
+    private String lang = "zh_CN";
+
+    private Map<String, MsgInfo> data;
 }

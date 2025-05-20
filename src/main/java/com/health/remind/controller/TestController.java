@@ -15,6 +15,8 @@ import com.health.remind.scheduler.ScheduledBase;
 import com.health.remind.scheduler.enums.ScheduledEnum;
 import com.health.remind.service.TestService;
 import com.health.remind.util.RedisUtils;
+import com.health.remind.wx.WxApiService;
+import com.health.remind.wx.entity.WxMsg;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -49,9 +51,12 @@ public class TestController {
 
     private final MailService mailService;
 
-    public TestController(TestService testService, MailService mailService) {
+    private final WxApiService wxApiService;
+
+    public TestController(TestService testService, MailService mailService, WxApiService wxApiService) {
         this.testService = testService;
         this.mailService = mailService;
+        this.wxApiService = wxApiService;
     }
 
     @Operation(summary = "分页查询")
@@ -213,5 +218,11 @@ public class TestController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Operation(summary = "测试微信")
+    @PostMapping("/sendWxMsg")
+    public void sendWxMsg(@RequestBody WxMsg wxMsg) {
+        wxApiService.sendMsg(wxMsg);
     }
 }

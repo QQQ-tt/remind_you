@@ -71,6 +71,18 @@ public class SysUserController {
         return R.success(sysUserService.refreshToken(token));
     }
 
+    @Operation(summary = "添加消息")
+    @GetMapping("/addMsg")
+    public R<Integer> addMsg() {
+        return R.success(sysUserService.addMsg());
+    }
+
+    @Operation(summary = "测试消息")
+    @GetMapping("/testMsg")
+    public R<Integer> testMsg() {
+        return R.success(sysUserService.testMsg());
+    }
+
     @Operation(summary = "分页查询")
     @PostMapping("/pageSysUser")
     public R<Page<SysUserVO>> pageSysUser(@RequestBody @Valid SysUserPageDTO dto) {

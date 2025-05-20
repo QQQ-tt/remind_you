@@ -60,6 +60,10 @@ public class SysUser extends BaseEntity {
     @TableField("open_id")
     private String openId;
 
+    @Schema(description = "消息数量")
+    @TableField("msg_num")
+    private Integer msgNum;
+
     @Schema(description = "用户信息")
     @TableField("user_info")
     private String userInfo;

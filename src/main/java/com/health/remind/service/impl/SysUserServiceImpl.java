@@ -32,13 +32,18 @@ import com.health.remind.util.NumUtils;
 import com.health.remind.util.RedisUtils;
 import com.health.remind.wx.WxApiService;
 import com.health.remind.wx.entity.Code2Session;
+import com.health.remind.wx.entity.MsgInfo;
 import com.health.remind.wx.entity.WXUserInfo;
+import com.health.remind.wx.entity.WxMsg;
 import org.apache.commons.math3.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -167,6 +172,43 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new DataException(DataEnums.DATA_IS_ABNORMAL, "token异常");
         });
         return vo.get();
+    }
+
+    @Override
+    public Integer addMsg() {
+        boolean update = update(Wrappers.lambdaUpdate(SysUser.class)
+                .eq(SysUser::getAccount, CommonMethod.getAccount())
+                .setSql("msg_num = msg_num + 1"));
+        if (update) {
+            return getOne(Wrappers.lambdaQuery(SysUser.class)
+                    .eq(SysUser::getAccount, CommonMethod.getAccount())).getMsgNum();
+        }
+        return 0;
+    }
+
+    @Override
+    @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getAccount()", autoUnlockTime = 6000)
+    public Integer testMsg() {
+        SysUser one = getOne(Wrappers.lambdaQuery(SysUser.class)
+                .eq(SysUser::getAccount, CommonMethod.getAccount()));
+        Integer msgNum = one.getMsgNum();
+        if (msgNum > 0) {
+            update(Wrappers.lambdaUpdate(SysUser.class)
+                    .eq(SysUser::getAccount, CommonMethod.getAccount())
+                    .setSql("msg_num = msg_num - 1"));
+            WxMsg wxMsg = new WxMsg();
+            wxMsg.setTemplate_id("ahi62RYx-WStwOclzC26ZEBaSgZNaVWjs_eyuFefWzM");
+            wxMsg.setTouser(one.getOpenId());
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            wxMsg.setData(
+                    Map.of("thing7", new MsgInfo("测试消息"), "thing9", new MsgInfo("备注123"), "time11",
+                            new MsgInfo(pattern.format(now)), "date6",
+                            new MsgInfo(LocalDate.now()
+                                    .toString())));
+            wxApiService.sendMsg(wxMsg);
+        }
+        return msgNum - 1;
     }
 
     /**
