@@ -80,6 +80,10 @@ public class Frequency extends BaseEntity {
     @TableField("end_time")
     private LocalTime endTime;
 
+    @Schema(description = "跨天执行(手动类小时类型设置)")
+    @TableField("cross_day")
+    private Boolean crossDay;
+
     @TableField(exist = false)
     private List<FrequencyDetail> frequencyDetailList;
 

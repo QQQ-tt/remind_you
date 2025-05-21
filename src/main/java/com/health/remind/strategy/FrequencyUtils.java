@@ -30,8 +30,8 @@ public class FrequencyUtils {
         }
         Long frequencyId = task.getFrequencyId();
         FrequencyVO frequency = frequencyService.getFrequency(frequencyId);
-        LocalDateTime startTime = task.getStartTime();
-        LocalDateTime endTime = task.getEndTime();
+        LocalDateTime startTime = task.getStartTime() == null ? LocalDateTime.now() : task.getStartTime();
+        LocalDateTime endTime = task.getEndTime() == null ? startTime.plusHours(24) : task.getEndTime();
         if (typeEnum.equals(FrequencySqlTypeEnum.INSERT)) {
             for (; startTime.isBefore(endTime); startTime = startTime.plusDays(1)) {
                 task.setInitTime(startTime.toLocalDate());

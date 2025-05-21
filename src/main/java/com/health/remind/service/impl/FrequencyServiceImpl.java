@@ -89,6 +89,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
                     .status(frequency.getStatus())
                     .startTime(frequency.getStartTime())
                     .endTime(frequency.getEndTime())
+                    .crossDay(frequency.getCrossDay())
                     .frequencyDetailList(frequencyDetailService.getFrequencyDetail(id))
                     .build();
         }

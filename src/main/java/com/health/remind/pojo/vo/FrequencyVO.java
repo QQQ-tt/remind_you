@@ -60,6 +60,9 @@ public class FrequencyVO {
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
 
+    @Schema(description = "跨天执行(手动类小时类型设置)")
+    private Boolean crossDay;
+
     @Schema(description = "频次详情")
     private List<FrequencyDetailVO> frequencyDetailList;
 }

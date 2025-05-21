@@ -14,6 +14,7 @@ import com.health.remind.service.SysRoleResourceService;
 import com.health.remind.service.SysUserService;
 import com.health.remind.util.RedisUtils;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
  * @author QQQtx
  * @since 2025/2/19
  */
+@Slf4j
 @Component
 public class ScheduledTasks {
 
@@ -50,6 +52,7 @@ public class ScheduledTasks {
      */
     @Scheduled(cron = "0 10 0 * * *")
     public void initUserInterests() {
+        log.info("开始初始化用户权益");
         List<SysUser> list = sysUserService.list(Wrappers.lambdaQuery(SysUser.class)
                 .eq(SysUser::getUserType, StaticConstant.USER_TYPE_APP)
                 .eq(SysUser::getStatus, Boolean.TRUE)
@@ -62,6 +65,7 @@ public class ScheduledTasks {
                 .eq(RuleTemplate::getStatus, Boolean.TRUE)
                 .eq(RuleTemplate::getExpiredPeriodUnit, RuleExpiredUnitEnum.DAY)
                 .eq(RuleTemplate::getExpiredPeriodType, RuleExpiredTypeEnum.ABSOLUTE_TIME));
+        log.info("初始化用户数量:{},权益数量:{}", list.size(), templateList.size());
         Map<InterestsLevelEnum, List<RuleTemplate>> enumListMap = templateList.stream()
                 .collect(Collectors.groupingBy(RuleTemplate::getInterestsLevel));
         list.forEach(sysUser -> {
@@ -86,10 +90,15 @@ public class ScheduledTasks {
     /**
      * 定时初始化角色资源
      */
-    @Scheduled(cron = "0 0 1 * * *")
     @PostConstruct
+    @Scheduled(cron = "0 0 1 * * *")
     public void initRoleResource() {
         RedisUtils.delete(RedisUtils.keys(RedisKeys.getRoleResourceKey(null)));
         sysRoleResourceService.listRoleResourceByRoleId(new ArrayList<>());
+    }
+
+    @Scheduled(cron = "0 0 9 * * *")
+    public void sendSystemReports() {
+        log.info("开始发送系统报告");
     }
 }
