@@ -134,6 +134,11 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     }
 
     @Override
+    public boolean resetTask(Long id) {
+        return false;
+    }
+
+    @Override
     public Boolean updateStatus(Long id) {
         boolean update = update(Wrappers.lambdaUpdate(RemindTask.class)
                 .setSql("status = !status")

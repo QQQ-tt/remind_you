@@ -121,6 +121,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
                     .level(dto.getLevel())
                     .startTime(dto.getStartTime())
                     .endTime(dto.getEndTime())
+                    .crossDay(dto.getCrossDay())
                     .source(StringUtils.isNotBlank(dto.getSource()) ? dto.getSource() : CommonMethod.getAccount()
                             .toString())
                     .build();

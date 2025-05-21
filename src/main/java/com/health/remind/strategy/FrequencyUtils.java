@@ -5,6 +5,7 @@ import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.pojo.vo.FrequencyVO;
 import com.health.remind.service.FrequencyService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.util.List;
  * @author QQQtx
  * @since 2025/1/27 16:42
  */
+@Slf4j
 @Component
 public class FrequencyUtils {
 
@@ -44,6 +46,7 @@ public class FrequencyUtils {
         if (typeEnum.equals(FrequencySqlTypeEnum.SELECT)) {
             List<RemindTaskInfo> list = new ArrayList<>();
             while (list.size() < 10) {
+                log.info("开始时间:{}", startTime);
                 task.setInitTime(startTime.toLocalDate());
                 list.addAll(StrategyContext.getStrategy(frequency.getCycleUnit()
                                 .getValue() + "strategy")

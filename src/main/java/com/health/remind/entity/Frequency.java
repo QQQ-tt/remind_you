@@ -92,7 +92,7 @@ public class Frequency extends BaseEntity {
                      String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag,
                      String frequencyName, String frequencyCode, String frequencyDesc, Integer frequencyNumber,
                      Integer frequencyCycle, FrequencyEnum cycleUnit, FrequencyTypeEnum type, Boolean status,
-                     String source, Integer level,LocalTime startTime,LocalTime endTime) {
+                     String source, Integer level,LocalTime startTime,LocalTime endTime,Boolean crossDay) {
         super(id, createId, createName, createTime, updateId, updateName, updateTime, tenantId, deleteFlag);
         this.name = frequencyName;
         this.frequencyCode = frequencyCode;
@@ -106,5 +106,6 @@ public class Frequency extends BaseEntity {
         this.level = level;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.crossDay = crossDay;
     }
 }

@@ -36,8 +36,10 @@ public class HourManualStrategy extends AbstractStrategy {
         LocalTime now = LocalTime.now();
         while (list.size() < 10) {
             RemindTaskInfo taskInfo = getTaskInfo(task, frequency, now);
-            now = taskInfo.getActualTime()
+            now = taskInfo.getTime()
                     .toLocalTime();
+            task.setInitTime(task.getInitTime()
+                    .plusDays(1));
             list.add(taskInfo);
         }
         return list;
@@ -63,12 +65,18 @@ public class HourManualStrategy extends AbstractStrategy {
         LocalDateTime localDateTime = LocalDateTime.of(initTime, now);
         LocalDateTime executionTime = localDateTime.plusHours(frequency.getFrequencyCycle());
         if (frequency.getCrossDay()) {
-            if (executionTime.toLocalTime()
-                    .isAfter(frequency.getEndTime())) {
-                executionTime = LocalDateTime.of(initTime.plusDays(1), frequency.getStartTime());
+            if (frequency.getEndTime() != null && frequency.getStartTime() != null) {
+                if (executionTime.toLocalTime()
+                        .isBefore(frequency.getStartTime())) {
+                    executionTime = LocalDateTime.of(executionTime.toLocalDate(), frequency.getStartTime());
+                }
+                if (executionTime.toLocalTime()
+                        .isAfter(frequency.getEndTime())) {
+                    executionTime = LocalDateTime.of(executionTime.toLocalDate(), frequency.getEndTime());
+                }
             }
         } else {
-            if (executionTime.toLocalTime()
+            if (frequency.getEndTime() != null && executionTime.toLocalTime()
                     .isAfter(frequency.getEndTime())) {
                 executionTime = LocalDateTime.of(initTime, frequency.getEndTime());
             }

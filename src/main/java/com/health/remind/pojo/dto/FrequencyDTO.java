@@ -55,6 +55,9 @@ public class FrequencyDTO {
     @Schema(description = "结束时间(小时类型设置)")
     private LocalTime endTime;
 
+    @Schema(description = "是否跨天")
+    private Boolean crossDay;
+
     @Schema(description = "来源")
     private String source = "sys";
 

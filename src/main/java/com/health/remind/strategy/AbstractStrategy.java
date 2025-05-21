@@ -54,7 +54,7 @@ public abstract class AbstractStrategy implements FrequencyStrategy {
                 case DAY -> task.getAdvanceNum() * 24;
                 case WEEK -> task.getAdvanceNum() * 24 * 7;
                 case MONTH -> task.getAdvanceNum() * 24 * 30;
-                case HOUR -> task.getAdvanceNum();
+                case HOUR, HOUR_MANUAL -> task.getAdvanceNum();
             };
         }
         return time;

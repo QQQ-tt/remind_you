@@ -58,6 +58,14 @@ public interface RemindTaskService extends IService<RemindTask> {
     boolean saveOrUpdateTask(RemindTaskDTO task);
 
     /**
+     * 重置任务
+     *
+     * @param id 提醒任务id
+     * @return 是否重置成功
+     */
+    boolean resetTask(Long id);
+
+    /**
      * 更改任务状态
      *
      * @param id 任务id
