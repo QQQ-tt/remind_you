@@ -51,10 +51,11 @@ public abstract class AbstractStrategy implements FrequencyStrategy {
         int time = 0;
         if (task.getAdvanceNum() != null && task.getCycleUnit() != null) {
             return switch (task.getCycleUnit()) {
-                case DAY -> task.getAdvanceNum() * 24;
-                case WEEK -> task.getAdvanceNum() * 24 * 7;
-                case MONTH -> task.getAdvanceNum() * 24 * 30;
-                case HOUR, HOUR_MANUAL -> task.getAdvanceNum();
+                case DAY -> task.getAdvanceNum() * 24 * 60;
+                case WEEK -> task.getAdvanceNum() * 24 * 7 * 60;
+                case MONTH -> task.getAdvanceNum() * 24 * 30 * 60;
+                case HOUR, HOUR_MANUAL -> task.getAdvanceNum() * 60;
+                case MINUTE -> task.getAdvanceNum();
             };
         }
         return time;

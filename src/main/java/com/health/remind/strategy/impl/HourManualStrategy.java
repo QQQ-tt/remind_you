@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -51,7 +52,7 @@ public class HourManualStrategy extends AbstractStrategy {
         return RemindTaskInfo.builder()
                 .remindTaskId(task.getId())
                 .remindTaskName(task.getName())
-                .estimatedTime(executionTime.minusHours(i))
+                .estimatedTime(executionTime.minusMinutes(i))
                 .time(executionTime)
                 .isRemind(task.getIsRemind())
                 .remindType(task.getRemindType())
@@ -63,7 +64,9 @@ public class HourManualStrategy extends AbstractStrategy {
     private static LocalDateTime getExecutionTime(RemindTask task, FrequencyVO frequency, LocalTime now) {
         LocalDate initTime = task.getInitTime();
         LocalDateTime localDateTime = LocalDateTime.of(initTime, now);
-        LocalDateTime executionTime = localDateTime.plusHours(frequency.getFrequencyCycle());
+        int i = new BigDecimal(frequency.getFrequencyCycle()).multiply(new BigDecimal(60))
+                .intValue();
+        LocalDateTime executionTime = localDateTime.plusMinutes(i);
         if (frequency.getCrossDay()) {
             if (frequency.getEndTime() != null && frequency.getStartTime() != null) {
                 if (executionTime.toLocalTime()

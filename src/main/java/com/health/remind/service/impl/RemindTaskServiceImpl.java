@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.health.remind.common.enums.FrequencyEnum;
 import com.health.remind.common.enums.FrequencySqlTypeEnum;
 import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.BaseEntity;
@@ -135,6 +136,27 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
 
     @Override
     public boolean resetTask(Long id) {
+        RemindTask byId = getById(id);
+        if (frequencyService.getById(byId.getFrequencyId())
+                .getCycleUnit()
+                .equals(FrequencyEnum.HOUR_MANUAL)) {
+            List<RemindTaskInfo> list = remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
+                    .eq(RemindTaskInfo::getRemindTaskId, id)
+                    .eq(RemindTaskInfo::getIsSend, false));
+            if (!list.isEmpty()) {
+                remindTaskInfoService.update(Wrappers.lambdaUpdate(RemindTaskInfo.class)
+                        .setSql("status = !status")
+                        .in(BaseEntity::getId, list.stream()
+                                .map(BaseEntity::getId)
+                                .toList()));
+                list.forEach(e -> ScheduledBase.cancelTask(e.getId(), ScheduledEnum.DELAY_SCHEDULED, false));
+            }
+            frequencyUtils.splitTask(byId, FrequencySqlTypeEnum.INSERT);
+            remindTaskInfoService.putTask(byId);
+            Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), null));
+            RedisUtils.delete(keys);
+            return true;
+        }
         return false;
     }
 
@@ -145,9 +167,10 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .eq(BaseEntity::getId, id));
         remindTaskInfoService.update(Wrappers.lambdaUpdate(RemindTaskInfo.class)
                 .setSql("status = !status")
-                .eq(BaseEntity::getId, id));
+                .eq(RemindTaskInfo::getRemindTaskId, id));
         List<RemindTaskInfo> list = remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
-                .eq(BaseEntity::getId, id));
+                .eq(RemindTaskInfo::getRemindTaskId, id)
+                .eq(RemindTaskInfo::getIsSend, false));
         list.stream()
                 .findAny()
                 .ifPresent(i -> {

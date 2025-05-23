@@ -37,7 +37,7 @@ public class FrequencyVO {
     private Integer frequencyNumber;
 
     @Schema(description = "频次周期")
-    private Integer frequencyCycle;
+    private Double frequencyCycle;
 
     @Schema(description = "周期单位")
     private FrequencyEnum cycleUnit;

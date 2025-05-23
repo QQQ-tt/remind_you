@@ -25,6 +25,7 @@
                frequency_desc,
                frequency_cycle,
                frequency_number,
+               cycle_unit,
                type,
                status
         from frequency ${ew.customSqlSegment}

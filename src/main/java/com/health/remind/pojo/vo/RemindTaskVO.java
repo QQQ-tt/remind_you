@@ -52,6 +52,9 @@ public class RemindTaskVO {
     @Schema(description = "提前时间单位:分钟,小时,天,周")
     private FrequencyEnum cycleUnit;
 
+    @Schema(description = "提前时间单位:分钟,小时,天,周")
+    private FrequencyEnum frequencyCycleUnit;
+
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
 

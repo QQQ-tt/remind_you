@@ -33,9 +33,9 @@ public class FrequencyDTO {
     @Schema(description = "频次数目")
     private Integer frequencyNumber;
 
-    @Min(value = 1, message = "频次周期不能小于1")
+    @Min(value = 0, message = "频次周期不能小于0")
     @Schema(description = "频次周期")
-    private Integer frequencyCycle;
+    private Double frequencyCycle;
 
     @Schema(description = "周期单位")
     private FrequencyEnum cycleUnit;

@@ -50,7 +50,7 @@ public class Frequency extends BaseEntity {
 
     @Schema(description = "频次周期")
     @TableField("frequency_cycle")
-    private Integer frequencyCycle;
+    private Double frequencyCycle;
 
     @Schema(description = "周期单位")
     @TableField("cycle_unit")
@@ -91,7 +91,7 @@ public class Frequency extends BaseEntity {
     public Frequency(Long id, Long createId, String createName, LocalDateTime createTime, Long updateId,
                      String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag,
                      String frequencyName, String frequencyCode, String frequencyDesc, Integer frequencyNumber,
-                     Integer frequencyCycle, FrequencyEnum cycleUnit, FrequencyTypeEnum type, Boolean status,
+                     Double frequencyCycle, FrequencyEnum cycleUnit, FrequencyTypeEnum type, Boolean status,
                      String source, Integer level,LocalTime startTime,LocalTime endTime,Boolean crossDay) {
         super(id, createId, createName, createTime, updateId, updateName, updateTime, tenantId, deleteFlag);
         this.name = frequencyName;

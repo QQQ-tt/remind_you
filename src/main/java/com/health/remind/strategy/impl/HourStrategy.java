@@ -46,16 +46,16 @@ public class HourStrategy extends AbstractStrategy {
             startTime = frequency.getStartTime();
         }
         // 周期数
-        int i = new BigDecimal(num).divide(new BigDecimal(frequency.getFrequencyCycle()), 2, RoundingMode.FLOOR)
+        int i = new BigDecimal(num).divide(BigDecimal.valueOf(frequency.getFrequencyCycle()), 2, RoundingMode.FLOOR)
                 .intValue();
         List<LocalTime> localTimes = new ArrayList<>();
         List<RemindTaskInfo> list = new ArrayList<>();
         // 时间间隔
-        int length = 60 * frequency.getFrequencyCycle() / frequency.getFrequencyNumber();
+        int length = (int) (60 * frequency.getFrequencyCycle() / frequency.getFrequencyNumber());
         for (int j = 0; j <= i; j++) {
             for (int y = 0; y < frequency.getFrequencyNumber(); y++) {
                 localTimes.add(startTime
-                        .plusMinutes(j * frequency.getFrequencyCycle() * 60L + (long) y * length));
+                        .plusMinutes((long) (j * frequency.getFrequencyCycle() * 60L + (long) y * length)));
             }
         }
         if (task.getStartTime()
@@ -76,7 +76,7 @@ public class HourStrategy extends AbstractStrategy {
             list.add(RemindTaskInfo.builder()
                     .remindTaskId(task.getId())
                     .remindTaskName(task.getName())
-                    .estimatedTime(time.minusHours(i))
+                    .estimatedTime(time.minusMinutes(i))
                     .time(time)
                     .isRemind(task.getIsRemind())
                     .remindType(task.getRemindType())

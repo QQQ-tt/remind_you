@@ -55,7 +55,7 @@ public class MonthStrategy extends AbstractStrategy {
         taskInfos.add(RemindTaskInfo.builder()
                 .remindTaskId(task.getId())
                 .remindTaskName(task.getName())
-                .estimatedTime(time.minusHours(i))
+                .estimatedTime(time.minusMinutes(i))
                 .time(time)
                 .isRemind(task.getIsRemind())
                 .remindType(task.getRemindType())

@@ -10,6 +10,7 @@ import lombok.Getter;
  */
 @Getter
 public enum FrequencyEnum {
+    MINUTE("minute", "分钟"),
     HOUR("hour", "小时"),
     HOUR_MANUAL("hourmanual", "手动类小时"),
     DAY("day", "天"),

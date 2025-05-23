@@ -69,6 +69,12 @@ public class RemindTaskController {
         return R.success(remindTaskService.saveOrUpdateTask(task));
     }
 
+    @Operation(summary = "重置提醒任务（小时手动触发型任务）")
+    @GetMapping("/resetTask")
+    public R<Boolean> resetTask(@RequestParam Long id) {
+        return R.success(remindTaskService.resetTask(id));
+    }
+
     @Operation(summary = "修改提醒任务状态")
     @GetMapping("/updateStatus")
     public R<Boolean> updateStatus(@RequestParam Long id) {

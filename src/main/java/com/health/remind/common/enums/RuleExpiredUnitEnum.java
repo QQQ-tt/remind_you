@@ -6,5 +6,5 @@ package com.health.remind.common.enums;
  */
 public enum RuleExpiredUnitEnum {
 
-    UNKNOWN,DAY,MONTH
+    DAY,MONTH
 }
