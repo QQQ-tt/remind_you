@@ -16,6 +16,7 @@ import com.health.remind.config.lock.RedisLock;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.excel.ExcelTransfer;
+import com.health.remind.mail.MailService;
 import com.health.remind.mapper.RemindTaskMapper;
 import com.health.remind.pojo.dto.FrequencyDetailDTO;
 import com.health.remind.pojo.dto.RemindTaskDTO;
@@ -25,6 +26,7 @@ import com.health.remind.pojo.vo.RemindInfoExcelVO;
 import com.health.remind.pojo.vo.RemindTaskInfoVO;
 import com.health.remind.pojo.vo.RemindTaskVO;
 import com.health.remind.scheduler.ScheduledBase;
+import com.health.remind.scheduler.enums.RemindTypeEnum;
 import com.health.remind.scheduler.enums.ScheduledEnum;
 import com.health.remind.service.FrequencyDetailService;
 import com.health.remind.service.FrequencyService;
@@ -67,11 +69,14 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
 
     private final FrequencyUtils frequencyUtils;
 
-    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService, FrequencyUtils frequencyUtils) {
+    private final MailService mailService;
+
+    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService, FrequencyUtils frequencyUtils, MailService mailService) {
         this.remindTaskInfoService = remindTaskInfoService;
         this.frequencyService = frequencyService;
         this.frequencyDetailService = frequencyDetailService;
         this.frequencyUtils = frequencyUtils;
+        this.mailService = mailService;
     }
 
     @Override
@@ -107,6 +112,17 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 throw new DataException(DataEnums.DATA_NOT_EXIST);
             }
         }
+        if (task.getRemindType()
+                .equals(RemindTypeEnum.remind_email)) {
+            if (StringUtils.isBlank(task.getEmail())) {
+                throw new DataException(DataEnums.DATA_NOT_EXIST, "邮箱不存在。");
+            }
+            String emailCode = RedisKeys.getEmailCode(CommonMethod.getAccount(), task.getEmail());
+            String s = RedisUtils.get(emailCode);
+            if (StringUtils.isBlank(s) || !s.equals(task.getCaptchaCode())) {
+                throw new DataException(DataEnums.DATA_NOT_EXIST, "验证码错误。");
+            }
+        }
         saveFrequency(task);
         RemindTask build = RemindTask.builder()
                 .id(task.getId())
@@ -132,6 +148,11 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), null));
         RedisUtils.delete(keys);
         return b;
+    }
+
+    @Override
+    public void sendEmailCode(String email) {
+        mailService.sendCode(email);
     }
 
     @Override

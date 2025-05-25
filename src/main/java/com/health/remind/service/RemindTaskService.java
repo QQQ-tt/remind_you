@@ -58,6 +58,11 @@ public interface RemindTaskService extends IService<RemindTask> {
     boolean saveOrUpdateTask(RemindTaskDTO task);
 
     /**
+     * 发送邮箱验证码
+     */
+    void sendEmailCode(String email);
+
+    /**
      * 重置任务
      *
      * @param id 提醒任务id

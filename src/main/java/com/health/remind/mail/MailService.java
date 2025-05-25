@@ -1,5 +1,9 @@
 package com.health.remind.mail;
 
+import com.health.remind.common.keys.RedisKeys;
+import com.health.remind.config.CommonMethod;
+import com.health.remind.util.NumUtils;
+import com.health.remind.util.RedisUtils;
 import jakarta.mail.internet.MimeMessage;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author QQQtx
@@ -60,5 +66,19 @@ public class MailService {
         helper.setText(text, true);
         // 发送
         javaMailSender.send(message);
+    }
+
+    public void sendCode(String mail) {
+        log.debug("发送验证码");
+        String code = NumUtils.numRandom6(); // 生成6位验证码
+        String emailCode = RedisKeys.getEmailCode(CommonMethod.getAccount(), mail);
+        RedisUtils.set(emailCode, code, 5 * 60, TimeUnit.MINUTES);
+        String subject = "[Remind] 验证码";
+        String text = "<p>您好，</p>" +
+                "<p>您正在请求发送验证码，以下是您的验证码：</p>" +
+                "<h3 style=\"color: #007BFF;\">" + code + "</h3>" +
+                "<p>请勿将此验证码分享给他人。</p>" +
+                "<p>祝好，<br>Remind 团队</p>";
+        send(mail, subject, text);
     }
 }

@@ -19,6 +19,7 @@ public class RemindTaskDTO {
 
     private Long id;
 
+    @Size(max = 20, message = "备注长度不能超过20个字符")
     @Schema(description = "任务名称")
     private String name;
 
@@ -28,7 +29,7 @@ public class RemindTaskDTO {
     @Schema(description = "时间范围提醒:结束时间")
     private LocalDateTime endTime;
 
-    @Size(max = 500, message = "备注长度不能超过500个字符")
+    @Size(max = 50, message = "备注长度不能超过50个字符")
     @Schema(description = "备注")
     private String remark;
 
@@ -40,6 +41,10 @@ public class RemindTaskDTO {
 
     @Schema(description = "提醒方式")
     private RemindTypeEnum remindType = RemindTypeEnum.none;
+
+    @Size(max = 6, message = "验证码长度不能超过6个字符")
+    @Schema(description = "验证码")
+    private String captchaCode;
 
     @Size(max = 100, message = "邮箱长度不能超过100个字符")
     @Email(message = "邮箱格式不正确")

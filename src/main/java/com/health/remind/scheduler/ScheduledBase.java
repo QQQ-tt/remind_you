@@ -3,6 +3,7 @@ package com.health.remind.scheduler;
 import com.health.remind.scheduler.entity.DelayTask;
 import com.health.remind.scheduler.enums.ScheduledEnum;
 
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -64,6 +65,14 @@ public class ScheduledBase {
             case DELAY_SCHEDULED -> delayScheduledExecutorFutureMap.size();
             case DELAY_ATTENUATION_SCHEDULED -> delayAttenuationScheduledExecutorFutureMap.size();
             default -> 0;
+        };
+    }
+
+    public static List<Long> getTaskList(ScheduledEnum scheduledEnum) {
+        return switch (scheduledEnum) {
+            case DELAY_SCHEDULED -> List.copyOf(delayScheduledExecutorFutureMap.keySet());
+            case DELAY_ATTENUATION_SCHEDULED -> List.copyOf(delayAttenuationScheduledExecutorFutureMap.keySet());
+            default -> null;
         };
     }
 

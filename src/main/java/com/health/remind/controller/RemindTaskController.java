@@ -69,6 +69,13 @@ public class RemindTaskController {
         return R.success(remindTaskService.saveOrUpdateTask(task));
     }
 
+    @Operation(summary = "发送邮箱验证码")
+    @PostMapping("/sendEmailCode")
+    public R<Boolean> sendEmailCode(@RequestBody @Valid RemindTaskDTO task) {
+        remindTaskService.sendEmailCode(task.getEmail());
+        return R.success();
+    }
+
     @Operation(summary = "重置提醒任务（小时手动触发型任务）")
     @GetMapping("/resetTask")
     public R<Boolean> resetTask(@RequestParam Long id) {

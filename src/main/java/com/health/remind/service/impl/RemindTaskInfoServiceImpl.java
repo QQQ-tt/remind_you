@@ -22,7 +22,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -62,20 +65,19 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
     public void putTask(RemindTask task) {
         Map<UserInfo, String> map = CommonMethod.getMap();
         if (task.getIsRemind()) {
-            CompletableFuture.runAsync(() -> {
+            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+            scheduler.schedule(() -> {
                 CommonMethod.setMap(map);
                 List<RemindTaskInfo> list = list(Wrappers.lambdaQuery(RemindTaskInfo.class)
                         .eq(RemindTaskInfo::getRemindTaskId, task.getId())
                         .eq(RemindTaskInfo::getIsSend, false)
                         .orderByAsc(RemindTaskInfo::getEstimatedTime));
-                // 只放第一个任务
                 list.stream()
                         .findFirst()
-                        .ifPresent(e -> DelayScheduledExecutor.putRemindTask(e.getId(), task.getId(),
-                                e.getEstimatedTime(), e.getRemindType(), map,
-                                Map.of(RemindTypeEnum.remind_email.toString(), task.getEmail(), "NAME",
-                                        task.getName())));
-            }, threadPoolExecutor);
+                        .ifPresent(e -> DelayScheduledExecutor.putRemindTask(
+                                e.getId(), task.getId(), e.getEstimatedTime(), e.getRemindType(), map,
+                                Map.of(RemindTypeEnum.remind_email.toString(), task.getEmail(), "NAME", task.getName())));
+            }, 5, TimeUnit.SECONDS);
         }
     }
 

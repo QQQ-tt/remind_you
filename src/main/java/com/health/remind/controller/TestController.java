@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -123,6 +124,12 @@ public class TestController {
     @GetMapping("/getTaskSize")
     public R<Integer> getTaskSize(@RequestParam ScheduledEnum scheduledEnum) {
         return R.success(ScheduledBase.getTaskSize(scheduledEnum));
+    }
+
+    @Operation(summary = "获取安排任务详情")
+    @GetMapping("/getTaskList")
+    public R<List<Long>> getTaskList(@RequestParam ScheduledEnum scheduledEnum) {
+        return R.success(ScheduledBase.getTaskList(scheduledEnum));
     }
 
     @Operation(summary = "获取安排任务数量")

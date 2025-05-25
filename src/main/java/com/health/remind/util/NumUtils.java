@@ -27,6 +27,13 @@ public class NumUtils {
     }
 
     /**
+     * 6位随机数
+     */
+    public static String numRandom6() {
+        return String.valueOf(numRandom(6, 0, 9));
+    }
+
+    /**
      * 随机生成用户card
      *
      * @return 数字字符串

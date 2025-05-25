@@ -97,4 +97,18 @@ public class RedisKeys {
         }
         return "rule:user:" + type + ":" + account;
     }
+
+    /**
+     * 获取邮箱验证码key
+     *
+     * @param account 账号
+     * @param email   邮箱
+     * @return email:code:account:email
+     */
+    public static String getEmailCode(Long account, String email) {
+        if (email == null) {
+            throw new DataException(DataEnums.DATA_NOT_EXIST);
+        }
+        return "email:code:" + account + ":" + email;
+    }
 }
