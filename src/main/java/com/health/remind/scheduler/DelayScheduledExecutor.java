@@ -1,6 +1,7 @@
 package com.health.remind.scheduler;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.BaseEntity;
 import com.health.remind.config.CommonMethod;
@@ -156,17 +157,16 @@ public class DelayScheduledExecutor extends ScheduledBase {
     }
 
     private void remindWxTask(DelayTask task) {
-        boolean update = sysUserService.update(Wrappers.lambdaUpdate(SysUser.class)
-                .eq(SysUser::getAccount, CommonMethod.getAccount())
-                .ne(SysUser::getMsgNum, 0)
-                .setSql("msg_num = msg_num - 1"));
-        String taskKey = RedisKeys.getTaskKey(CommonMethod.getAccount(), Long.parseLong(task.getOtherId()));
+        Map<String, String> otherMap = task.getOtherMap();
+        String s = otherMap.get("ACCOUNT");
+        String taskKey = RedisKeys.getTaskKey(Long.parseLong(s), Long.parseLong(task.getOtherId()));
         RemindTask remindTask = RedisUtils.getObject(taskKey, RemindTask.class);
+        boolean flag = false;
         if (remindTask == null) {
+            flag = true;
             remindTask = remindTaskService.getById(Long.parseLong(task.getOtherId()));
             String openId = sysUserService.getOne(Wrappers.lambdaQuery(SysUser.class)
-                            .eq(SysUser::getAccount,
-                                    CommonMethod.getAccount()))
+                            .eq(SysUser::getAccount, s))
                     .getOpenId();
             if (openId == null) {
                 return;
@@ -176,6 +176,10 @@ public class DelayScheduledExecutor extends ScheduledBase {
         if (remindTask.getEndTime() == null) {
             remindTask.setEndTime(LocalDateTime.now());
         }
+        boolean update = sysUserService.update(Wrappers.lambdaUpdate(SysUser.class)
+                .eq(SysUser::getAccount, s)
+                .ne(SysUser::getMsgNum, 0)
+                .setSql("msg_num = msg_num - 1"));
         if (update) {
             WxMsg wxMsg = new WxMsg();
             wxMsg.setTemplate_id("ahi62RYx-WStwOclzC26ZEBaSgZNaVWjs_eyuFefWzM");
@@ -191,6 +195,13 @@ public class DelayScheduledExecutor extends ScheduledBase {
             wxApiService.sendMsg(wxMsg);
         } else {
             return;
+        }
+        if (flag) {
+            try {
+                remindTaskService.setRedis(remindTask);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
         // 发送消息
         updateStatus(task);

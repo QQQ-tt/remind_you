@@ -78,7 +78,8 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
                         .ifPresent(e -> DelayScheduledExecutor.putRemindTask(
                                 e.getId(), task.getId(), e.getEstimatedTime(), e.getRemindType(), map,
                                 Map.of(RemindTypeEnum.remind_email.toString(), task.getEmail(), "NAME",
-                                        task.getName())));
+                                        task.getName(), "ACCOUNT", e.getAccount()
+                                                .toString())));
             }, 5, TimeUnit.SECONDS);
         }
     }
@@ -125,7 +126,8 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
                             e.getEstimatedTime(),
                             e.getRemindType(), CommonMethod.getMap(),
                             Map.of(RemindTypeEnum.remind_email.toString(), e.getEmail(), "NAME",
-                                    e.getRemindTaskName()));
+                                    e.getRemindTaskName(), "ACCOUNT", e.getAccount()
+                                            .toString()));
                 }));
     }
 

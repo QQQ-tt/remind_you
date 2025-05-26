@@ -1,5 +1,6 @@
 package com.health.remind.strategy.impl;
 
+import com.health.remind.config.CommonMethod;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.pojo.vo.FrequencyVO;
@@ -82,6 +83,7 @@ public class HourStrategy extends AbstractStrategy {
                     .remindType(task.getRemindType())
                     .status(task.getStatus())
                     .email(task.getEmail())
+                    .account(CommonMethod.getAccount())
                     .build());
         });
     }

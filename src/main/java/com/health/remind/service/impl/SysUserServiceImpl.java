@@ -1,10 +1,11 @@
 package com.health.remind.service.impl;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.health.remind.common.StaticConstant;
 import com.health.remind.common.enums.InterestsLevelEnum;
 import com.health.remind.common.keys.RedisKeys;
@@ -36,6 +37,7 @@ import com.health.remind.wx.entity.Code2Session;
 import com.health.remind.wx.entity.MsgInfo;
 import com.health.remind.wx.entity.WXUserInfo;
 import com.health.remind.wx.entity.WxMsg;
+import lombok.SneakyThrows;
 import org.apache.commons.math3.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -71,12 +73,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     private final ScheduledExecutorService scheduler;
 
-    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysRoleService sysRoleService, WxApiService wxApiService, RuleUserService ruleUserService, ScheduledExecutorService scheduler) {
+    private final ObjectMapper objectMapper;
+
+    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysRoleService sysRoleService, WxApiService wxApiService, RuleUserService ruleUserService, ScheduledExecutorService scheduler, ObjectMapper objectMapper) {
         this.passwordEncoder = passwordEncoder;
         this.sysRoleService = sysRoleService;
         this.wxApiService = wxApiService;
         this.ruleUserService = ruleUserService;
         this.scheduler = scheduler;
+        this.objectMapper = objectMapper;
     }
 
     @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getIp()", autoUnlockTime = 6000)
@@ -223,6 +228,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      * @param sysUser 用户信息
      * @return token
      */
+    @SneakyThrows
     private LoginVO getLoginVO(SysUser sysUser) {
         HashMap<String, Object> map = new HashMap<>();
         map.put(StaticConstant.USER_ID, sysUser.getId());
@@ -250,7 +256,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 TimeUnit.MILLISECONDS);
 
         RedisUtils.set(RedisKeys.getUserKey(sysUser.getAccount(), sysUser.getUserType()),
-                JSONObject.toJSONString(sysUser));
+                objectMapper.writeValueAsString(sysUser));
         RedisUtils.persist(RedisKeys.getUserKey(sysUser.getAccount(), sysUser.getUserType()));
         return loginVO;
     }
@@ -367,8 +373,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         scheduler.schedule(() -> {
             SysUser one = getOne(Wrappers.lambdaQuery(SysUser.class)
                     .eq(SysUser::getAccount, account));
-            RedisUtils.set(RedisKeys.getUserKey(one.getAccount(), one.getUserType()),
-                    JSONObject.toJSONString(one));
+            try {
+                RedisUtils.set(RedisKeys.getUserKey(one.getAccount(), one.getUserType()),
+                        objectMapper.writeValueAsString(one));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }, 5, TimeUnit.SECONDS);
 
     }

@@ -65,6 +65,10 @@ public class RemindTaskInfo extends BaseEntity {
     @TableField("email")
     private String email;
 
+    @Schema(description = "用户账户")
+    @TableField("account")
+    private Long account;
+
     @Schema(description = "是否发送")
     @TableField("is_send")
     private Boolean isSend;

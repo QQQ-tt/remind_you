@@ -1,11 +1,12 @@
 package com.health.remind.service.impl;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.health.remind.common.StaticConstant;
 import com.health.remind.common.enums.FrequencyEnum;
 import com.health.remind.common.enums.FrequencySqlTypeEnum;
@@ -38,6 +39,7 @@ import com.health.remind.service.RemindTaskService;
 import com.health.remind.strategy.FrequencyUtils;
 import com.health.remind.util.RedisUtils;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -76,12 +78,15 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
 
     private final MailService mailService;
 
-    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService, FrequencyUtils frequencyUtils, MailService mailService) {
+    private final ObjectMapper objectMapper;
+
+    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService, FrequencyUtils frequencyUtils, MailService mailService, ObjectMapper objectMapper) {
         this.remindTaskInfoService = remindTaskInfoService;
         this.frequencyService = frequencyService;
         this.frequencyDetailService = frequencyDetailService;
         this.frequencyUtils = frequencyUtils;
         this.mailService = mailService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -108,6 +113,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         return baseMapper.selectOneById(id, CommonMethod.getAccount());
     }
 
+    @SneakyThrows
     @Override
     @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getAccount()")
     public boolean saveOrUpdateTask(RemindTaskDTO task) {
@@ -153,6 +159,12 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         }
         Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), null));
         RedisUtils.delete(keys);
+        setRedis(build);
+        return b;
+    }
+
+    @Override
+    public void setRedis(RemindTask build) throws JsonProcessingException {
         Boolean b1 = RedisUtils.hasKey(RedisKeys.getUserKey(CommonMethod.getAccount(), StaticConstant.USER_TYPE_APP));
         if (b1) {
             Optional.ofNullable(RedisUtils.getObject(
@@ -162,7 +174,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                     .ifPresent(object -> build.setOpenId(object.getOpenId()));
         }
         String taskKey = RedisKeys.getTaskKey(CommonMethod.getAccount(), build.getId());
-        RedisUtils.set(taskKey, JSONObject.toJSONString(build));
+        RedisUtils.set(taskKey, objectMapper.writeValueAsString(build));
         if (build.getEndTime() != null) {
             LocalDateTime endTime = build.getEndTime();
             Duration duration = Duration.between(LocalDateTime.now(), endTime);
@@ -170,7 +182,6 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         } else {
             RedisUtils.persist(taskKey);
         }
-        return b;
     }
 
     @Override

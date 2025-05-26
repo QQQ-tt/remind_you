@@ -2,6 +2,7 @@ package com.health.remind.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.pojo.dto.RemindTaskDTO;
 import com.health.remind.pojo.dto.RemindTaskIndoDTO;
@@ -56,6 +57,13 @@ public interface RemindTaskService extends IService<RemindTask> {
      * @return 是否保存成功
      */
     boolean saveOrUpdateTask(RemindTaskDTO task);
+
+    /**
+     * 设置任务缓存
+     *
+     * @param task 任务
+     */
+    void setRedis(RemindTask task) throws JsonProcessingException;
 
     /**
      * 发送邮箱验证码
