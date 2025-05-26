@@ -72,7 +72,7 @@ public class MailService {
         log.debug("发送验证码");
         String code = NumUtils.numRandom6(); // 生成6位验证码
         String emailCode = RedisKeys.getEmailCode(CommonMethod.getAccount(), mail);
-        RedisUtils.set(emailCode, code, 5 * 60, TimeUnit.MINUTES);
+        RedisUtils.set(emailCode, code, 5, TimeUnit.MINUTES);
         String subject = "[Remind] 验证码";
         String text = "<p>您好，</p>" +
                 "<p>您正在请求发送验证码，以下是您的验证码：</p>" +

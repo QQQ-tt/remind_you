@@ -30,7 +30,7 @@ public class NumUtils {
      * 6位随机数
      */
     public static String numRandom6() {
-        return String.valueOf(numRandom(6, 0, 9));
+        return String.valueOf(numRandom(1, 1, 9)) + numRandom(5, 0, 9);
     }
 
     /**

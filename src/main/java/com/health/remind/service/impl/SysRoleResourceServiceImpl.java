@@ -50,7 +50,7 @@ public class SysRoleResourceServiceImpl extends ServiceImpl<SysRoleResourceMappe
                         .map(m -> {
                             SysRoleResource sysRoleResource = new SysRoleResource();
                             sysRoleResource.setSysRoleId(sysRoleId);
-                            sysRoleResource.setSysResource(m);
+                            sysRoleResource.setSysResourceId(m);
                             return sysRoleResource;
                         })
                         .toList();

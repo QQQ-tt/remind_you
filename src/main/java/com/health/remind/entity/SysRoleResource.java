@@ -24,6 +24,6 @@ public class SysRoleResource extends BaseEntity {
     @TableField("sys_role_id")
     private Long sysRoleId;
 
-    @TableField("sys_resource")
-    private Long sysResource;
+    @TableField("sys_resource_id")
+    private Long sysResourceId;
 }

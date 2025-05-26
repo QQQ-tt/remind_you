@@ -122,6 +122,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
             if (StringUtils.isBlank(s) || !s.equals(task.getCaptchaCode())) {
                 throw new DataException(DataEnums.DATA_NOT_EXIST, "验证码错误。");
             }
+            RedisUtils.delete(emailCode);
         }
         saveFrequency(task);
         RemindTask build = RemindTask.builder()

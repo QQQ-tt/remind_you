@@ -6,7 +6,7 @@
     <select id="selectListRoleResourceByRoleId" resultType="java.lang.Long">
         select sr.id
         from sys_resource sr
-                 left join sys_role_resource srr on sr.id = srr.sys_resource
+                 left join sys_role_resource srr on sr.id = srr.sys_resource_id
         where sr.delete_flag = 0
           and srr.delete_flag = 0
           and sr.status = 1
@@ -16,7 +16,7 @@
         select srr.sys_role_id as sysRoleId,
                sr.url
         from sys_resource sr
-                 left join sys_role_resource srr on sr.id = srr.sys_resource and srr.delete_flag = 0
+                 left join sys_role_resource srr on sr.id = srr.sys_resource_id and srr.delete_flag = 0
         where sr.delete_flag = 0
           and sr.status = 1
           and sr.type = 'api'
