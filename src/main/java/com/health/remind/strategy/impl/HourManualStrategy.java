@@ -64,7 +64,8 @@ public class HourManualStrategy extends AbstractStrategy {
     private static LocalDateTime getExecutionTime(RemindTask task, FrequencyVO frequency, LocalTime now) {
         LocalDate initTime = task.getInitTime();
         LocalDateTime localDateTime = LocalDateTime.of(initTime, now);
-        int i = new BigDecimal(frequency.getFrequencyCycle()).multiply(new BigDecimal(60))
+        int i = BigDecimal.valueOf(frequency.getFrequencyCycle())
+                .multiply(new BigDecimal(60))
                 .intValue();
         LocalDateTime executionTime = localDateTime.plusMinutes(i);
         if (frequency.getCrossDay()) {

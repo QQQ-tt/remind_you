@@ -1,5 +1,6 @@
 package com.health.remind.service.impl;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -45,6 +46,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -67,11 +69,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     private final RuleUserService ruleUserService;
 
-    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysRoleService sysRoleService, WxApiService wxApiService, RuleUserService ruleUserService) {
+    private final ScheduledExecutorService scheduler;
+
+    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysRoleService sysRoleService, WxApiService wxApiService, RuleUserService ruleUserService, ScheduledExecutorService scheduler) {
         this.passwordEncoder = passwordEncoder;
         this.sysRoleService = sysRoleService;
         this.wxApiService = wxApiService;
         this.ruleUserService = ruleUserService;
+        this.scheduler = scheduler;
     }
 
     @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getIp()", autoUnlockTime = 6000)
@@ -243,6 +248,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                         .toString(), sysUser.getUserType()),
                 JwtUtils.EXPIRATION_TIME,
                 TimeUnit.MILLISECONDS);
+
+        RedisUtils.set(RedisKeys.getUserKey(sysUser.getAccount(), sysUser.getUserType()),
+                JSONObject.toJSONString(sysUser));
+        RedisUtils.persist(RedisKeys.getUserKey(sysUser.getAccount(), sysUser.getUserType()));
         return loginVO;
     }
 
@@ -303,6 +312,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 String loginKey = RedisKeys.getLoginKey(String.valueOf(byId.getAccount()), byId.getUserType());
                 RedisUtils.delete(loginKey);
             }
+            setRedis(sysUser.getAccount());
             return saveOrUpdate(sysUser);
         }
         throw new DataException(DataEnums.DATA_REPEAT, "手机号重复");
@@ -351,5 +361,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         } while (count(Wrappers.lambdaQuery(SysUser.class)
                 .eq(SysUser::getAccount, l)) > 0);
         return l;
+    }
+
+    public void setRedis(Long account) {
+        scheduler.schedule(() -> {
+            SysUser one = getOne(Wrappers.lambdaQuery(SysUser.class)
+                    .eq(SysUser::getAccount, account));
+            RedisUtils.set(RedisKeys.getUserKey(one.getAccount(), one.getUserType()),
+                    JSONObject.toJSONString(one));
+        }, 5, TimeUnit.SECONDS);
+
     }
 }

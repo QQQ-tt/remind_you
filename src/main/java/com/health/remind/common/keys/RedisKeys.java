@@ -28,17 +28,31 @@ public class RedisKeys {
     /**
      * 时间范围内查询
      *
-     * @param userId    用户id
      * @param startTime 开始时间
-     * @param endTime   结束时间
      * @return remind:info:userId:startTime-endTime
      */
-    public static String getRemindInfoKey(Long userId, LocalDate startTime) {
+    public static String getRemindInfoKey(Long account, LocalDate startTime) {
         DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         if (startTime == null) {
-            return "remind:info:" + userId + ":*";
+            return "remind:info:" + account + ":*";
         }
-        return "remind:info:" + userId + ":" + pattern.format(startTime);
+        return "remind:info:" + account + ":" + pattern.format(startTime);
+    }
+
+    /**
+     * 获取任务key
+     *
+     * @param account 账号
+     * @return remind:task:account
+     */
+    public static String getTaskKey(Long account, Long taskId) {
+        if (account == null) {
+            throw new DataException(DataEnums.DATA_NOT_EXIST);
+        }
+        if (taskId == null) {
+            return "remind:task:" + account + ":*";
+        }
+        return "remind:task:" + account + ":" + taskId;
     }
 
     /**
@@ -56,6 +70,13 @@ public class RedisKeys {
             return "login:" + type + ":*";
         }
         return "login:" + type + ":" + account;
+    }
+
+    public static String getUserKey(Long account, String type) {
+        if (account == null) {
+            throw new DataException(DataEnums.DATA_NOT_EXIST);
+        }
+        return "user:" + type + ":" + account;
     }
 
     /**

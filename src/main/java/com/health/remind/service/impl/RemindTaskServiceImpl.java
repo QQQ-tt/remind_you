@@ -1,10 +1,12 @@
 package com.health.remind.service.impl;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.health.remind.common.StaticConstant;
 import com.health.remind.common.enums.FrequencyEnum;
 import com.health.remind.common.enums.FrequencySqlTypeEnum;
 import com.health.remind.common.keys.RedisKeys;
@@ -15,6 +17,7 @@ import com.health.remind.config.exception.DataException;
 import com.health.remind.config.lock.RedisLock;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
+import com.health.remind.entity.SysUser;
 import com.health.remind.excel.ExcelTransfer;
 import com.health.remind.mail.MailService;
 import com.health.remind.mapper.RemindTaskMapper;
@@ -37,6 +40,7 @@ import com.health.remind.util.RedisUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -45,6 +49,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -148,6 +153,23 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         }
         Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), null));
         RedisUtils.delete(keys);
+        Boolean b1 = RedisUtils.hasKey(RedisKeys.getUserKey(CommonMethod.getAccount(), StaticConstant.USER_TYPE_APP));
+        if (b1) {
+            Optional.ofNullable(RedisUtils.getObject(
+                            RedisKeys.getUserKey(CommonMethod.getAccount(), StaticConstant.USER_TYPE_APP),
+                            new TypeReference<SysUser>() {
+                            }))
+                    .ifPresent(object -> build.setOpenId(object.getOpenId()));
+        }
+        String taskKey = RedisKeys.getTaskKey(CommonMethod.getAccount(), build.getId());
+        RedisUtils.set(taskKey, JSONObject.toJSONString(build));
+        if (build.getEndTime() != null) {
+            LocalDateTime endTime = build.getEndTime();
+            Duration duration = Duration.between(LocalDateTime.now(), endTime);
+            RedisUtils.expire(taskKey, duration.getSeconds(), TimeUnit.SECONDS);
+        } else {
+            RedisUtils.persist(taskKey);
+        }
         return b;
     }
 

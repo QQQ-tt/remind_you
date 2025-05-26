@@ -93,6 +93,9 @@ public class RemindTask extends BaseEntity {
     @TableField(exist = false)
     private LocalDate initTime;
 
+    @TableField(exist = false)
+    private String openId;
+
     @Builder
     public RemindTask(Long id, Long createId, String createName, LocalDateTime createTime, Long updateId,
                       String updateName, LocalDateTime updateTime, Long tenantId, Boolean deleteFlag, String name,

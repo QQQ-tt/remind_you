@@ -1,18 +1,25 @@
 package com.health.remind.scheduler;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.BaseEntity;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.UserInfo;
 import com.health.remind.config.lock.RedisLock;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
+import com.health.remind.entity.SysUser;
 import com.health.remind.mail.MailService;
 import com.health.remind.scheduler.entity.DelayTask;
 import com.health.remind.scheduler.enums.RemindTypeEnum;
 import com.health.remind.scheduler.enums.ScheduledEnum;
 import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RemindTaskService;
+import com.health.remind.service.SysUserService;
+import com.health.remind.util.RedisUtils;
+import com.health.remind.wx.WxApiService;
+import com.health.remind.wx.entity.MsgInfo;
+import com.health.remind.wx.entity.WxMsg;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,11 +58,17 @@ public class DelayScheduledExecutor extends ScheduledBase {
 
     private final MailService mailService;
 
-    public DelayScheduledExecutor(ScheduledExecutorService scheduler, RemindTaskService remindTaskService, RemindTaskInfoService remindTaskInfoService, MailService mailService) {
+    private final SysUserService sysUserService;
+
+    private final WxApiService wxApiService;
+
+    public DelayScheduledExecutor(ScheduledExecutorService scheduler, RemindTaskService remindTaskService, RemindTaskInfoService remindTaskInfoService, MailService mailService, SysUserService sysUserService, WxApiService wxApiService) {
         this.scheduler = scheduler;
         this.remindTaskService = remindTaskService;
         this.remindTaskInfoService = remindTaskInfoService;
         this.mailService = mailService;
+        this.sysUserService = sysUserService;
+        this.wxApiService = wxApiService;
     }
 
     @SneakyThrows
@@ -142,6 +156,42 @@ public class DelayScheduledExecutor extends ScheduledBase {
     }
 
     private void remindWxTask(DelayTask task) {
+        boolean update = sysUserService.update(Wrappers.lambdaUpdate(SysUser.class)
+                .eq(SysUser::getAccount, CommonMethod.getAccount())
+                .ne(SysUser::getMsgNum, 0)
+                .setSql("msg_num = msg_num - 1"));
+        String taskKey = RedisKeys.getTaskKey(CommonMethod.getAccount(), Long.parseLong(task.getOtherId()));
+        RemindTask remindTask = RedisUtils.getObject(taskKey, RemindTask.class);
+        if (remindTask == null) {
+            remindTask = remindTaskService.getById(Long.parseLong(task.getOtherId()));
+            String openId = sysUserService.getOne(Wrappers.lambdaQuery(SysUser.class)
+                            .eq(SysUser::getAccount,
+                                    CommonMethod.getAccount()))
+                    .getOpenId();
+            if (openId == null) {
+                return;
+            }
+            remindTask.setOpenId(openId);
+        }
+        if (remindTask.getEndTime() == null) {
+            remindTask.setEndTime(LocalDateTime.now());
+        }
+        if (update) {
+            WxMsg wxMsg = new WxMsg();
+            wxMsg.setTemplate_id("ahi62RYx-WStwOclzC26ZEBaSgZNaVWjs_eyuFefWzM");
+            wxMsg.setTouser(remindTask.getOpenId());
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            wxMsg.setData(
+                    Map.of("thing7", new MsgInfo(remindTask.getName()), "thing9", new MsgInfo(remindTask.getRemark()),
+                            "time11", new MsgInfo(pattern.format(now)),
+                            "date6", new MsgInfo(remindTask.getEndTime()
+                                    .toLocalDate()
+                                    .toString())));
+            wxApiService.sendMsg(wxMsg);
+        } else {
+            return;
+        }
         // 发送消息
         updateStatus(task);
     }
