@@ -210,7 +210,9 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
             remindTaskInfoService.putTask(byId);
             Set<String> keys = RedisUtils.keys(RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), null));
             RedisUtils.delete(keys);
-            return true;
+            return update(Wrappers.lambdaUpdate(RemindTask.class)
+                    .eq(BaseEntity::getId, id)
+                    .set(RemindTask::getIsFinish, false));
         }
         return false;
     }

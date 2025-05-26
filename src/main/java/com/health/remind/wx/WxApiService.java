@@ -1,12 +1,13 @@
 package com.health.remind.wx;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson2.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.health.remind.config.exception.DataException;
 import com.health.remind.wx.entity.AccessToken;
 import com.health.remind.wx.entity.Code2Session;
 import com.health.remind.wx.entity.WXUserInfo;
 import com.health.remind.wx.entity.WxMsg;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Pair;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,14 +29,17 @@ public class WxApiService {
 
     private final RestClient restClient;
 
+    private final ObjectMapper objectMapper;
+
     @Value("${wx.appId}")
     private String appId;
 
     @Value("${wx.secret}")
     private String secret;
 
-    public WxApiService(RestClient restClient) {
+    public WxApiService(RestClient restClient, ObjectMapper objectMapper) {
         this.restClient = restClient;
+        this.objectMapper = objectMapper;
     }
 
     public Code2Session getCode2Session(String code) {
@@ -72,8 +76,9 @@ public class WxApiService {
                 .body(AccessToken.class);
     }
 
+    @SneakyThrows
     public void sendMsg(WxMsg msg) {
-        String jsonString = JSONObject.toJSONString(msg);
+        String jsonString = objectMapper.writeValueAsString(msg);
         int length = jsonString.getBytes(StandardCharsets.UTF_8).length;
         log.info("发送微信消息: {}", length);
         ResponseEntity<Object> entity = restClient.post()

@@ -110,6 +110,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
         if (count == 0) {
             removeRedis();
             Frequency frequency = Frequency.builder()
+                    .id(dto.getId())
                     .frequencyName(dto.getFrequencyName())
                     .frequencyCode(dto.getFrequencyCode())
                     .frequencyDesc(dto.getFrequencyDesc())
