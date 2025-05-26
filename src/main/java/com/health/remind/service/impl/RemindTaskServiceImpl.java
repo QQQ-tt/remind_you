@@ -288,9 +288,13 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
                 .eq(BaseEntity::getCreateId, CommonMethod.getAccount())
                 .eq(RemindTask::getStatus, true)
                 .eq(RemindTask::getIsFinish, false)
-                .le(dto.getEndTime() == null && dto.getStartTime() == null, RemindTask::getStartTime, now)
-                .ge(dto.getStartTime() != null, RemindTask::getStartTime, dto.getStartTime())
-                .le(dto.getEndTime() != null, RemindTask::getEndTime, dto.getEndTime()));
+                .and(e -> e.le(dto.getEndTime() == null && dto.getStartTime() == null, RemindTask::getStartTime, now)
+                        .ge(dto.getStartTime() != null, RemindTask::getStartTime, dto.getStartTime())
+                        .le(dto.getEndTime() != null, RemindTask::getEndTime, dto.getEndTime())
+                        .or()
+                        .isNull(RemindTask::getStartTime)
+                        .isNull(RemindTask::getEndTime))
+        );
         if (list.isEmpty()) {
             return Map.of();
         }
