@@ -24,7 +24,7 @@ public enum DataEnums {
     /**
      * 用户角色异常
      */
-    USER_ROLE_ERROR("用户角色异常", 401),
+    USER_ROLE_ERROR("用户角色异常", 403),
     /**
      * 用户资源不足
      */
