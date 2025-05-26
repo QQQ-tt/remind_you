@@ -16,6 +16,7 @@ import com.health.remind.config.CommonMethod;
 import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
 import com.health.remind.config.lock.RedisLock;
+import com.health.remind.entity.Frequency;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.entity.SysUser;
@@ -192,8 +193,10 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     @Override
     public boolean resetTask(Long id) {
         RemindTask byId = getById(id);
-        if (frequencyService.getById(byId.getFrequencyId())
-                .getCycleUnit()
+        Frequency frequency =
+                Optional.ofNullable(frequencyService.getById(byId.getFrequencyId()))
+                        .orElseThrow(() -> new DataException(DataEnums.DATA_NOT_EXIST, "频率以下架"));
+        if (frequency.getCycleUnit()
                 .equals(FrequencyEnum.HOUR_MANUAL)) {
             List<RemindTaskInfo> list = remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
                     .eq(RemindTaskInfo::getRemindTaskId, id)

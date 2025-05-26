@@ -52,11 +52,11 @@ public enum DataEnums {
     /**
      * 数据重复
      */
-    DATA_REPEAT("数据重复", 409),
+    DATA_REPEAT("数据重复", 209),
     /**
      * 数据不存在
      */
-    DATA_NOT_EXIST("数据不存在", 404),
+    DATA_NOT_EXIST("数据不存在", 201),
     /**
      * 系统繁忙
      */
