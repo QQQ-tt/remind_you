@@ -1,5 +1,6 @@
 package com.health.remind.scheduler;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.health.remind.common.keys.RedisKeys;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -165,9 +167,12 @@ public class DelayScheduledExecutor extends ScheduledBase {
         if (remindTask == null) {
             flag = true;
             remindTask = remindTaskService.getById(Long.parseLong(task.getOtherId()));
-            String openId = sysUserService.getOne(Wrappers.lambdaQuery(SysUser.class)
-                            .eq(SysUser::getAccount, s))
-                    .getOpenId();
+            SysUser one = sysUserService.getOne(Wrappers.lambdaQuery(SysUser.class)
+                    .eq(SysUser::getAccount, s));
+            if (one == null) {
+                return;
+            }
+            String openId = one.getOpenId();
             if (openId == null) {
                 return;
             }
@@ -187,13 +192,15 @@ public class DelayScheduledExecutor extends ScheduledBase {
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             wxMsg.setData(
-                    Map.of("thing7", new MsgInfo(remindTask.getName()), "thing9", new MsgInfo(remindTask.getRemark()),
+                    Map.of("thing7", new MsgInfo(remindTask.getName()), "thing9",
+                            new MsgInfo(StringUtils.isBlank(remindTask.getRemark()) ? "无" : remindTask.getRemark()),
                             "time11", new MsgInfo(pattern.format(now)),
                             "date6", new MsgInfo(remindTask.getEndTime()
                                     .toLocalDate()
                                     .toString())));
             wxApiService.sendMsg(wxMsg);
         } else {
+            log.info("用户:{},没有消息次数", s);
             return;
         }
         if (flag) {
@@ -221,6 +228,13 @@ public class DelayScheduledExecutor extends ScheduledBase {
         info.setIsSend(true);
         info.setActualTime(LocalDateTime.now());
         remindTaskInfoService.updateById(info);
+        log.info("更新任务发送状态:{},任务类型:{}", task.getId(), task.getRemindTypeEnum());
+        Map<String, String> otherMap = task.getOtherMap();
+        String s = otherMap.get("ACCOUNT");
+        if (StringUtils.isNotBlank(s)) {
+            String remindInfoKey = RedisKeys.getRemindInfoKey(CommonMethod.getAccount(), LocalDate.now());
+            RedisUtils.delete(remindInfoKey);
+        }
         long count = remindTaskInfoService.count(Wrappers.lambdaQuery(RemindTaskInfo.class)
                 .eq(RemindTaskInfo::getRemindTaskId,
                         task.getOtherId())

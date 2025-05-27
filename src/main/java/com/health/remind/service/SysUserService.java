@@ -58,6 +58,13 @@ public interface SysUserService extends IService<SysUser> {
     LoginVO refreshToken(String token);
 
     /**
+     * 获取消息次数
+     *
+     * @return 消息次数
+     */
+    Integer getMsgNum();
+
+    /**
      * 添加消息次数
      *
      * @return 添加结果

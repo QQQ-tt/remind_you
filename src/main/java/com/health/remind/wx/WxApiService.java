@@ -79,18 +79,24 @@ public class WxApiService {
     @SneakyThrows
     public void sendMsg(WxMsg msg) {
         String jsonString = objectMapper.writeValueAsString(msg);
-        int length = jsonString.getBytes(StandardCharsets.UTF_8).length;
-        log.info("发送微信消息: {}", length);
-        ResponseEntity<Object> entity = restClient.post()
-                .uri("/cgi-bin/message/subscribe/send?access_token={access_token}",
-                        Map.of("access_token", getAccessToken().getAccess_token()))
-                .headers(
-                        httpHeaders -> httpHeaders.setContentLength(length))
-                .body(msg)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .toEntity(Object.class);
-        log.info("发送微信消息成功: {}", entity);
+        byte[] bytes = jsonString.getBytes(StandardCharsets.UTF_8);
+        int length = bytes.length;
+        log.info("发送微信消息: {},消息内容:{}", length, jsonString);
+        try {
+            ResponseEntity<Object> entity = restClient.post()
+                    .uri("/cgi-bin/message/subscribe/send?access_token={access_token}",
+                            Map.of("access_token", getAccessToken().getAccess_token()))
+                    .headers(
+                            httpHeaders -> httpHeaders.setContentLength(length))
+                    .body(bytes)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .toEntity(Object.class);
+            log.info("发送微信消息成功: {}", entity);
+        } catch (Exception e) {
+            log.error("发送微信消息失败", e);
+            throw new DataException("发送微信消息失败", 500);
+        }
     }
 
 }

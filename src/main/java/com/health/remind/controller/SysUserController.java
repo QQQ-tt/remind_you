@@ -71,6 +71,12 @@ public class SysUserController {
         return R.success(sysUserService.refreshToken(token));
     }
 
+    @Operation(summary = "消息数量")
+    @GetMapping("/getMsgNum")
+    public R<Integer> getMsgNum() {
+        return R.success(sysUserService.getMsgNum());
+    }
+
     @Operation(summary = "添加消息")
     @GetMapping("/increasePushCount")
     public R<Integer> increasePushCount() {

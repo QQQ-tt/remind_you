@@ -126,8 +126,9 @@ public class RemindTaskInfoServiceImpl extends ServiceImpl<RemindTaskInfoMapper,
                             e.getEstimatedTime(),
                             e.getRemindType(), CommonMethod.getMap(),
                             Map.of(RemindTypeEnum.remind_email.toString(), e.getEmail(), "NAME",
-                                    e.getRemindTaskName(), "ACCOUNT", e.getAccount()
-                                            .toString()));
+                                    e.getRemindTaskName(), "ACCOUNT", e.getAccount() != null ?
+                                            e.getAccount()
+                                                    .toString() : "0"));
                 }));
     }
 

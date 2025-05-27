@@ -185,6 +185,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    public Integer getMsgNum() {
+        SysUser one = getOne(Wrappers.lambdaQuery(SysUser.class)
+                .eq(SysUser::getAccount, CommonMethod.getAccount()));
+        return one == null ? 0 : one.getMsgNum();
+    }
+
+    @Override
     public Integer increasePushCount() {
         boolean update = update(Wrappers.lambdaUpdate(SysUser.class)
                 .eq(SysUser::getAccount, CommonMethod.getAccount())
