@@ -278,7 +278,7 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
         if (num > 0) {
             throw new DataException(DataEnums.USER_RESOURCE_ERROR);
         }
-        updateBatchById(ruleUsers);
+        saveOrUpdateBatch(ruleUsers);
         RedisUtils.hPut(redisKey, ruleType.toString(), JSONObject.toJSONString(ruleUser));
         setExpireTime(redisKey);
     }
