@@ -5,6 +5,7 @@ import com.health.remind.common.enums.FrequencyTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalTime;
@@ -25,6 +26,7 @@ public class FrequencyDTO {
     @Schema(description = "频次编码")
     private String frequencyCode;
 
+    @Size(max = 200, message = "频次描述不能超过200个字符")
     @Schema(description = "频次描述")
     private String frequencyDesc;
 

@@ -82,8 +82,11 @@ public class HourManualStrategy extends AbstractStrategy {
                 }
             }
         } else {
-            if (frequency.getEndTime() != null && executionTime.toLocalTime()
-                    .isAfter(frequency.getEndTime())) {
+            if (executionTime.toLocalDate()
+                    .isAfter(initTime)) {
+                executionTime = LocalDateTime.of(initTime, LocalTime.MAX);
+            }
+            if (frequency.getEndTime() != null && executionTime.toLocalTime().isAfter(frequency.getEndTime())) {
                 executionTime = LocalDateTime.of(initTime, frequency.getEndTime());
             }
         }
