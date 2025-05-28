@@ -105,8 +105,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
         }
         long count = count(Wrappers.lambdaQuery(Frequency.class)
                 .ne(dto.getId() != null, BaseEntity::getId, dto.getId())
-                .eq(Frequency::getSource,
-                        StringUtils.isNotBlank(dto.getSource()) ? dto.getSource() : CommonMethod.getAccount())
+                .in(Frequency::getSource, "system", CommonMethod.getAccount())
                 .and(w -> w.eq(Frequency::getName, dto.getFrequencyName())
                         .or()
                         .eq(Frequency::getFrequencyCode, dto.getFrequencyCode())));
