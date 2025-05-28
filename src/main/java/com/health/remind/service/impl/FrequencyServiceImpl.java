@@ -18,6 +18,7 @@ import com.health.remind.pojo.dto.FrequencyPageDTO;
 import com.health.remind.pojo.vo.FrequencyVO;
 import com.health.remind.service.FrequencyDetailService;
 import com.health.remind.service.FrequencyService;
+import com.health.remind.util.NumUtils;
 import com.health.remind.util.RedisUtils;
 import org.springframework.stereotype.Service;
 
@@ -104,6 +105,8 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
         }
         long count = count(Wrappers.lambdaQuery(Frequency.class)
                 .ne(dto.getId() != null, BaseEntity::getId, dto.getId())
+                .eq(Frequency::getSource,
+                        StringUtils.isNotBlank(dto.getSource()) ? dto.getSource() : CommonMethod.getAccount())
                 .and(w -> w.eq(Frequency::getName, dto.getFrequencyName())
                         .or()
                         .eq(Frequency::getFrequencyCode, dto.getFrequencyCode())));
@@ -112,7 +115,8 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
             Frequency frequency = Frequency.builder()
                     .id(dto.getId())
                     .frequencyName(dto.getFrequencyName())
-                    .frequencyCode(dto.getFrequencyCode())
+                    .frequencyCode(StringUtils.isBlank(dto.getFrequencyCode()) ? NumUtils.uuid() :
+                            dto.getFrequencyCode())
                     .frequencyDesc(dto.getFrequencyDesc())
                     .frequencyNumber(dto.getFrequencyNumber())
                     .frequencyCycle(dto.getFrequencyCycle())

@@ -22,7 +22,6 @@ public class FrequencyDTO {
     @Schema(description = "频次名称")
     private String frequencyName;
 
-    @NotBlank(message = "频次编码不能为空")
     @Schema(description = "频次编码")
     private String frequencyCode;
 
