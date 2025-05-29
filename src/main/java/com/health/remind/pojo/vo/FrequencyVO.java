@@ -63,6 +63,9 @@ public class FrequencyVO {
     @Schema(description = "跨天执行(手动类小时类型设置)")
     private Boolean crossDay;
 
+    @Schema(description = "来源")
+    private String source;
+
     @Schema(description = "频次详情")
     private List<FrequencyDetailVO> frequencyDetailList;
 }

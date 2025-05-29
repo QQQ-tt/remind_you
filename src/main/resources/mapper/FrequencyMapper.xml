@@ -27,7 +27,10 @@
                frequency_number,
                cycle_unit,
                type,
-               status
+               status,
+               start_time,
+               end_time,
+               source
         from frequency ${ew.customSqlSegment}
     </select>
 </mapper>

@@ -20,9 +20,9 @@ public class RedisKeys {
      */
     public static String getFrequencyAllKey(Long userId) {
         if (userId == null) {
-            return "frequency:frequency_all:*";
+            return "frequency:info:*";
         }
-        return "frequency:frequency_all:" + userId;
+        return "frequency:info:" + userId;
     }
 
     /**
