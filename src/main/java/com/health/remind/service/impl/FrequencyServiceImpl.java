@@ -99,10 +99,8 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
 
     @Override
     public boolean saveOrUpdateFrequency(FrequencyDTO dto) {
-        boolean b = StringUtils.isNotBlank(dto.getFrequencyCode()) && StringUtils.isNotBlank(dto.getFrequencyName());
-        if (!b) {
-            throw new DataException(DataEnums.DATA_IS_ABNORMAL);
-        }
+        String frequencyAllKey = RedisKeys.getFrequencyAllKey(CommonMethod.getAccount());
+        RedisUtils.delete(frequencyAllKey);
         long count = count(Wrappers.lambdaQuery(Frequency.class)
                 .ne(dto.getId() != null, BaseEntity::getId, dto.getId())
                 .in(Frequency::getSource, "system", CommonMethod.getAccount())
