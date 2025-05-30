@@ -6,8 +6,12 @@ import com.health.remind.common.enums.InterestsLevelEnum;
 import com.health.remind.common.enums.RuleExpiredTypeEnum;
 import com.health.remind.common.enums.RuleExpiredUnitEnum;
 import com.health.remind.common.keys.RedisKeys;
+import com.health.remind.config.BaseEntity;
+import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.entity.RuleTemplate;
 import com.health.remind.entity.SysUser;
+import com.health.remind.mail.MailService;
+import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RuleTemplateService;
 import com.health.remind.service.RuleUserService;
 import com.health.remind.service.SysRoleResourceService;
@@ -18,7 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,11 +46,17 @@ public class ScheduledTasks {
 
     private final RuleUserService ruleUserService;
 
-    public ScheduledTasks(SysRoleResourceService sysRoleResourceService, SysUserService sysUserService, RuleTemplateService ruleTemplateService, RuleUserService ruleUserService) {
+    private final MailService mailService;
+
+    private final RemindTaskInfoService remindTaskInfoService;
+
+    public ScheduledTasks(SysRoleResourceService sysRoleResourceService, SysUserService sysUserService, RuleTemplateService ruleTemplateService, RuleUserService ruleUserService, MailService mailService, RemindTaskInfoService remindTaskInfoService) {
         this.sysRoleResourceService = sysRoleResourceService;
         this.sysUserService = sysUserService;
         this.ruleTemplateService = ruleTemplateService;
         this.ruleUserService = ruleUserService;
+        this.mailService = mailService;
+        this.remindTaskInfoService = remindTaskInfoService;
     }
 
     /**
@@ -100,5 +112,31 @@ public class ScheduledTasks {
     @Scheduled(cron = "0 0 9 * * *")
     public void sendSystemReports() {
         log.info("开始发送系统报告");
+        LocalDateTime startTime = LocalDateTime.of(LocalDate.now()
+                .minusDays(1), LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(LocalDate.now()
+                .minusDays(1), LocalTime.MAX);
+        long count = sysUserService.count(Wrappers.lambdaQuery(SysUser.class)
+                .eq(SysUser::getUserType,
+                        StaticConstant.USER_TYPE_APP)
+                .between(BaseEntity::getCreateTime,
+                        startTime,
+                        endTime));
+        long count1 = remindTaskInfoService.count(Wrappers.lambdaQuery(RemindTaskInfo.class)
+                .between(RemindTaskInfo::getEstimatedTime, startTime, endTime));
+        long count2 = remindTaskInfoService.count(Wrappers.lambdaQuery(RemindTaskInfo.class)
+                .eq(RemindTaskInfo::getIsSend, true)
+                .between(RemindTaskInfo::getEstimatedTime, startTime, endTime));
+        log.info("新增用户数量:{},新增任务数量:{},已发送任务数量:{}", count, count1, count2);
+        String subject = "系统日报 - " + LocalDate.now().minusDays(1);
+        String content = String.format(
+                "以下是昨日（%s）的系统数据报告：<br><br>" +
+                        "新增用户数量：%d<br>" +
+                        "新增任务数量：%d<br>" +
+                        "已发送任务数量：%d<br><br>" +
+                        "感谢您的查看！",
+                LocalDate.now().minusDays(1), count, count1, count2);
+
+        mailService.send("1102214883@qq.com", subject, content);
     }
 }
