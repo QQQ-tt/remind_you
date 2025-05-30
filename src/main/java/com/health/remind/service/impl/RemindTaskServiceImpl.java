@@ -193,6 +193,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     }
 
     @Override
+    @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getAccount()")
     public void sendEmailCode(String email) {
         mailService.sendCode(email);
     }
