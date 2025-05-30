@@ -81,4 +81,10 @@ public class FrequencyController {
     public R<Boolean> removeFrequencyById(@RequestParam Long id) {
         return R.success(frequencyService.removeFrequencyById(id));
     }
+
+    @Operation(summary = "app删除")
+    @DeleteMapping("/removeAppFrequencyById")
+    public R<Boolean> removeAppFrequencyById(@RequestParam Long id) {
+        return R.success(frequencyService.removeAppFrequencyById(id));
+    }
 }

@@ -1,5 +1,6 @@
 package com.health.remind.scheduler;
 
+import com.health.remind.scheduler.entity.DelaySqlTask;
 import com.health.remind.scheduler.entity.DelayTask;
 import com.health.remind.scheduler.enums.ScheduledEnum;
 
@@ -30,6 +31,9 @@ public class ScheduledBase {
     // 衰减延时任务:存储任务ID和对应的ScheduledFuture
     protected final static ConcurrentHashMap<Long, ScheduledFuture<?>> delayAttenuationScheduledExecutorFutureMap =
             new ConcurrentHashMap<>();
+
+    // 存储任务队列
+    protected final static BlockingQueue<DelaySqlTask<?>> delaySqlScheduledExecutorQueue = new LinkedBlockingQueue<>();
 
     public static void cancelTask(Long taskId, ScheduledEnum scheduledEnum, boolean removeTaskAll) {
         switch (scheduledEnum) {

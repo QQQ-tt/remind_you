@@ -17,9 +17,11 @@ import com.health.remind.entity.RuleUser;
 import com.health.remind.entity.SysUser;
 import com.health.remind.mapper.RuleUserMapper;
 import com.health.remind.pojo.bo.RuleUserRedisBO;
+import com.health.remind.scheduler.DelaySqlScheduledExecutor;
 import com.health.remind.service.RuleTemplateService;
 import com.health.remind.service.RuleUserService;
 import com.health.remind.util.RedisUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +45,7 @@ import java.util.stream.Collectors;
  * @author QQQtx
  * @since 2025-05-14
  */
+@Slf4j
 @Service
 public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> implements RuleUserService {
 
@@ -201,86 +204,91 @@ public class RuleUserServiceImpl extends ServiceImpl<RuleUserMapper, RuleUser> i
     @Transactional(rollbackFor = Exception.class)
     public void verify(RuleTypeEnum ruleType, int num) {
         if (CommonMethod.getUserType()
-                .equals(StaticConstant.USER_TYPE_SYS)) {
-            return;
-        }
+                .equals(StaticConstant.USER_TYPE_SYS)) return;
+
         Long account = CommonMethod.getAccount();
         String redisKey = RedisKeys.getRuleUser(account, StaticConstant.USER_TYPE_APP);
-        Object o = RedisUtils.hGet(redisKey, ruleType.toString());
+        Object cached = RedisUtils.hGet(redisKey, ruleType.toString());
         RuleUserRedisBO ruleUser;
-        LocalDateTime now = LocalDateTime.now();
-        List<RuleUser> value = list(Wrappers.lambdaQuery(RuleUser.class)
+        List<RuleUser> ruleUsers = new ArrayList<>();
+        // Step 1：如果 Redis 有缓存，直接判断够不够用
+        if (cached != null) {
+            ruleUser = JSONObject.parseObject((String) cached, RuleUserRedisBO.class);
+            if (ruleUser.getUseValue() + num > ruleUser.getValue()) {
+                throw new DataException(DataEnums.USER_RESOURCE_ERROR);
+            }
+        }
+        // Step 2：获取数据库中的 RuleUser（按优先级升序）
+        List<RuleUser> dbRules = list(Wrappers.lambdaQuery(RuleUser.class)
                 .eq(RuleUser::getSysUserId, CommonMethod.getUserId())
                 .eq(RuleUser::getRuleType, ruleType)
-                .le(RuleUser::getStartedAt, now)
-                .ge(RuleUser::getExpiredAt, now)
-                .orderByAsc(RuleUser::getPriority, RuleUser::getExpiredAt));// 优先级+快过期的先用
-        if (value.isEmpty()) {
-            // 非活跃用户
-            List<RuleTemplate> list = ruleTemplateService.list(Wrappers.lambdaQuery(RuleTemplate.class)
+                .le(RuleUser::getStartedAt, LocalDateTime.now())
+                .ge(RuleUser::getExpiredAt, LocalDateTime.now())
+                .orderByAsc(RuleUser::getPriority, RuleUser::getExpiredAt));
+        // Step 3：如果 RuleUser 为空，才查 RuleTemplate 创建 RuleUser
+        if (dbRules.isEmpty()) {
+            List<RuleTemplate> templates = ruleTemplateService.list(Wrappers.lambdaQuery(RuleTemplate.class)
                     .eq(RuleTemplate::getStatus, Boolean.TRUE)
                     .eq(RuleTemplate::getRuleType, ruleType)
                     .eq(RuleTemplate::getInterestsLevel, CommonMethod.getInterestsLevel()));
-            list.forEach(e -> {
+            for (RuleTemplate tpl : templates) {
                 RuleUser r = new RuleUser();
-                r.setRuleTemplateId(e.getId());
+                r.setRuleTemplateId(tpl.getId());
                 r.setSysUserId(CommonMethod.getUserId());
-                r.setName(e.getName());
-                r.setValue(e.getValue());
-                r.setPriority(e.getPriority());
-                setTime(r, e, true);
-                value.add(r);
-            });
+                r.setName(tpl.getName());
+                r.setValue(tpl.getValue());
+                r.setUseValue(0);
+                r.setRuleType(ruleType);
+                r.setPriority(tpl.getPriority());
+                setTime(r, tpl, true);
+                dbRules.add(r);
+            }
         }
-        List<RuleUser> ruleUsers = new ArrayList<>();
-        if (o != null) {
-            ruleUser = JSONObject.parseObject((String) o, RuleUserRedisBO.class);
-            if (ruleUser.getUseValue() + num <= ruleUser.getValue()) {
-                ruleUser.setUseValue(ruleUser.getUseValue() + num);
-            } else {
-                throw new DataException(DataEnums.USER_RESOURCE_ERROR);
-            }
-            for (RuleUser rule : value) {
-                int available = rule.getValue() - rule.getUseValue();
-                if (available >= num) {
-                    rule.setUseValue(rule.getUseValue() + num);
-                    ruleUsers.add(rule);
-                    break;
-                } else {
-                    rule.setUseValue(rule.getValue());
-                    ruleUsers.add(rule);
-                    num -= available;
-                }
-            }
-        } else {
-            int allValue = 0;
-            int allUseValue = 0;
-            ruleUser = new RuleUserRedisBO();
-            for (RuleUser rule : value) {
-                ruleUser.setName(rule.getName());
-                allValue += rule.getValue();
-                int available = rule.getValue() - rule.getUseValue();
-                if (num > 0) {
-                    if (available >= num) {
-                        rule.setUseValue(rule.getUseValue() + num);
-                        num = 0;
-                    } else {
-                        rule.setUseValue(rule.getValue());
-                        num -= available;
-                    }
-                    ruleUsers.add(rule);
-                }
-                allUseValue += rule.getUseValue();
-            }
-            ruleUser.setValue(allValue);
-            ruleUser.setUseValue(allUseValue);
-        }
-        if (num > 0) {
+        // Step 4：从 RuleUser 中按优先级依次扣除
+        int remain = consumeRuleValue(dbRules, num, ruleUsers);
+        if (remain > 0) {
             throw new DataException(DataEnums.USER_RESOURCE_ERROR);
         }
-        saveOrUpdateBatch(ruleUsers);
+        // Step 5：构造并写入缓存
+        ruleUser = new RuleUserRedisBO();
+        ruleUser.setName(dbRules.get(0)
+                .getName());
+        ruleUser.setValue(dbRules.stream()
+                .mapToInt(RuleUser::getValue)
+                .sum());
+        ruleUser.setUseValue(dbRules.stream()
+                .mapToInt(RuleUser::getUseValue)
+                .sum());
+        try {
+            DelaySqlScheduledExecutor.putDelaySqlTask(this, ruleUsers, RuleUser.class);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         RedisUtils.hPut(redisKey, ruleType.toString(), JSONObject.toJSONString(ruleUser));
         setExpireTime(redisKey);
+    }
+
+    /**
+     * @param rules    规则
+     * @param num      使用数量
+     * @param usedList 使用的规则
+     * @return 剩余数量
+     */
+    private int consumeRuleValue(List<RuleUser> rules, int num, List<RuleUser> usedList) {
+        for (RuleUser rule : rules) {
+            int available = rule.getValue() - rule.getUseValue();
+            if (available <= 0) continue;
+            if (available >= num) {
+                rule.setUseValue(rule.getUseValue() + num);
+                usedList.add(rule);
+                return 0;
+            } else {
+                rule.setUseValue(rule.getValue());
+                usedList.add(rule);
+                num -= available;
+            }
+        }
+        return num;
     }
 
     /**

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.health.remind.common.StaticConstant;
 import com.health.remind.common.enums.FrequencyEnum;
 import com.health.remind.common.enums.FrequencySqlTypeEnum;
+import com.health.remind.common.enums.RuleTypeEnum;
 import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.BaseEntity;
 import com.health.remind.config.CommonMethod;
@@ -37,6 +38,7 @@ import com.health.remind.service.FrequencyDetailService;
 import com.health.remind.service.FrequencyService;
 import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RemindTaskService;
+import com.health.remind.service.RuleUserService;
 import com.health.remind.strategy.FrequencyUtils;
 import com.health.remind.util.RedisUtils;
 import jakarta.servlet.http.HttpServletResponse;
@@ -81,13 +83,16 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
 
     private final ObjectMapper objectMapper;
 
-    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService, FrequencyUtils frequencyUtils, MailService mailService, ObjectMapper objectMapper) {
+    private final RuleUserService ruleUserService;
+
+    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService, FrequencyUtils frequencyUtils, MailService mailService, ObjectMapper objectMapper, RuleUserService ruleUserService) {
         this.remindTaskInfoService = remindTaskInfoService;
         this.frequencyService = frequencyService;
         this.frequencyDetailService = frequencyDetailService;
         this.frequencyUtils = frequencyUtils;
         this.mailService = mailService;
         this.objectMapper = objectMapper;
+        this.ruleUserService = ruleUserService;
     }
 
     @Override
@@ -123,6 +128,8 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
             if (byId == null) {
                 throw new DataException(DataEnums.DATA_NOT_EXIST);
             }
+        } else {
+            ruleUserService.verify(RuleTypeEnum.limit_create_task_day_num, 1);
         }
         if (task.getRemindType()
                 .equals(RemindTypeEnum.remind_email)) {

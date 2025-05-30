@@ -60,7 +60,7 @@ public class FrequencyDTO {
     private Boolean crossDay;
 
     @Schema(description = "来源")
-    private String source = "sys";
+    private String source;
 
 
 }

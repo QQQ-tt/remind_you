@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.health.remind.common.enums.FrequencyTypeEnum;
+import com.health.remind.common.enums.RuleTypeEnum;
 import com.health.remind.common.keys.RedisKeys;
 import com.health.remind.config.BaseEntity;
 import com.health.remind.config.CommonMethod;
@@ -18,6 +19,7 @@ import com.health.remind.pojo.dto.FrequencyPageDTO;
 import com.health.remind.pojo.vo.FrequencyVO;
 import com.health.remind.service.FrequencyDetailService;
 import com.health.remind.service.FrequencyService;
+import com.health.remind.service.RuleUserService;
 import com.health.remind.util.NumUtils;
 import com.health.remind.util.RedisUtils;
 import org.springframework.stereotype.Service;
@@ -39,8 +41,11 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
 
     private final FrequencyDetailService frequencyDetailService;
 
-    public FrequencyServiceImpl(FrequencyDetailService frequencyDetailService) {
+    private final RuleUserService ruleUserService;
+
+    public FrequencyServiceImpl(FrequencyDetailService frequencyDetailService, RuleUserService ruleUserService) {
         this.frequencyDetailService = frequencyDetailService;
+        this.ruleUserService = ruleUserService;
     }
 
     @Override
@@ -99,6 +104,9 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
 
     @Override
     public boolean saveOrUpdateFrequency(FrequencyDTO dto) {
+        if (dto.getId() == null) {
+            ruleUserService.verify(RuleTypeEnum.limit_time_rule_num, 1);
+        }
         String frequencyAllKey = RedisKeys.getFrequencyAllKey(CommonMethod.getAccount());
         RedisUtils.delete(frequencyAllKey);
         long count = count(Wrappers.lambdaQuery(Frequency.class)
@@ -155,6 +163,22 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
     public boolean removeFrequencyById(Long id) {
         removeRedis();
         return removeById(id);
+    }
+
+    @Override
+    public boolean removeAppFrequencyById(Long id) {
+        Frequency byId =
+                Optional.ofNullable(getById(id))
+                        .orElseThrow(() -> new DataException(DataEnums.DATA_NOT_EXIST, "频率不存在"));
+        if (byId.getSource()
+                .equals(String.valueOf(CommonMethod.getAccount()))) {
+            ruleUserService.verify(RuleTypeEnum.limit_time_rule_num, -1);
+            String frequencyAllKey = RedisKeys.getFrequencyAllKey(CommonMethod.getAccount());
+            RedisUtils.delete(frequencyAllKey);
+            removeById(id);
+            return true;
+        }
+        return false;
     }
 
     private int getLevel() {
