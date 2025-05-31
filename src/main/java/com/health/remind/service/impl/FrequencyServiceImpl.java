@@ -53,6 +53,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
         return baseMapper.selectPageFrequency(dto.getPage(),
                 Wrappers.lambdaQuery(Frequency.class)
                         .eq(BaseEntity::getDeleteFlag, false)
+                        .eq(StringUtils.isNotBlank(dto.getSource()), Frequency::getSource, dto.getSource())
                         .eq(dto.getStatus() != null, Frequency::getStatus, dto.getStatus())
                         .eq(dto.getCycleUnit() != null, Frequency::getCycleUnit, dto.getCycleUnit())
                         .like(StringUtils.isNotBlank(dto.getName()),

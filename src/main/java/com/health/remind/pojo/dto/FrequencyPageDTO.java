@@ -23,4 +23,7 @@ public class FrequencyPageDTO extends PageDTO<Frequency> {
 
     @Schema(description = "周期单位")
     private FrequencyEnum cycleUnit;
+
+    @Schema(description = "频次来源")
+    private String source;
 }

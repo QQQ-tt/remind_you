@@ -212,6 +212,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
             if (!list.isEmpty()) {
                 remindTaskInfoService.update(Wrappers.lambdaUpdate(RemindTaskInfo.class)
                         .setSql("status = !status")
+                        .eq(RemindTaskInfo::getIsSend, Boolean.FALSE)
                         .in(BaseEntity::getId, list.stream()
                                 .map(BaseEntity::getId)
                                 .toList()));
@@ -309,6 +310,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         Map<Long, RemindTask> taskMap = list.stream()
                 .collect(Collectors.toMap(BaseEntity::getId, Function.identity()));
         List<RemindTaskInfoVO> taskInfoVOS = remindTaskInfoService.list(Wrappers.lambdaQuery(RemindTaskInfo.class)
+                        .eq(RemindTaskInfo::getStatus, Boolean.TRUE)
                         .in(RemindTaskInfo::getRemindTaskId,
                                 list.stream()
                                         .map(BaseEntity::getId)
