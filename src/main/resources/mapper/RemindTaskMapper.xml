@@ -21,7 +21,8 @@
                              rt.update_time,
                              rt.delete_flag,
                              rt.tenant_id,
-                             f.cycle_unit as frequency_cycle_unit
+                             f.cycle_unit as frequency_cycle_unit,
+                             f.name as frequency_name
                       from remind_task rt
                                left join remind_you.frequency f on rt.frequency_id = f.id)
         select *
