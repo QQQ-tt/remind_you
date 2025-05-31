@@ -18,4 +18,7 @@ public class LoginAppDTO {
 
     @Schema(description = "加密算法的初始向量")
     private String iv;
+
+    @Schema(description = "分享用户id")
+    private Long sharedUserId;
 }

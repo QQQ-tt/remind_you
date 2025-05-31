@@ -153,6 +153,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     .authorized(1)
                     .sysRoleId(1901928991601274882L)
                     .interestsLevel(InterestsLevelEnum.VIP_0)
+                    .sharedUserId(dto.getSharedUserId())
                     .build();
             save(user);
             one = user;

@@ -68,6 +68,10 @@ public class SysUser extends BaseEntity {
     @TableField("user_info")
     private String userInfo;
 
+    @Schema(description = "分享用户id")
+    @TableField("shared_user_id")
+    private Long sharedUserId;
+
     @Schema(description = "用户头像授权状态 0 拒绝 1 待同意 2 已同意")
     @TableField("authorized")
     private Integer authorized;
@@ -100,7 +104,8 @@ public class SysUser extends BaseEntity {
                    String userType,
                    Long sysRoleId,
                    LocalDateTime loginTime,
-                   InterestsLevelEnum interestsLevel) {
+                   InterestsLevelEnum interestsLevel,
+                   Long sharedUserId) {
         super(id);
         this.name = name;
         this.account = account;
@@ -115,5 +120,6 @@ public class SysUser extends BaseEntity {
         this.authorized = authorized;
         this.interestsLevel = interestsLevel;
         this.loginTime = loginTime;
+         this.sharedUserId = sharedUserId;
     }
 }
