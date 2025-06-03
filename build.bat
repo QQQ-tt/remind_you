@@ -14,6 +14,7 @@ set REMOTE_WORKDIR=/root/install
 set MAVEN_GOAL=clean package -DskipTests
 :: 项目名称
 set PROJECT_NAME=remind_you
+set ENV=prod
 
 :: 生成动态版本号（格式：1.0.20240615-0843）
 for /f "tokens=2 delims==" %%G in ('wmic os get localdatetime /value') do set datetime=%%G
@@ -57,7 +58,7 @@ echo [%COLOR_INFO%] Remote deployment is being performed...
 ssh root@%DEPLOY_HOST% ^
     "cd %REMOTE_WORKDIR%/deploy_temp && "^
     "docker build -t remind:%VERSION% --build-arg JAR_FILE=%PROJECT_NAME%.jar . && "^
-    "TAG=%VERSION% docker compose -f %REMOTE_WORKDIR%/docker-compose.yaml up -d app && "^
+    "TAG=%VERSION% ENV=%ENV% docker compose -f %REMOTE_WORKDIR%/docker-compose.yaml up -d app && "^
     "rm -rf %REMOTE_WORKDIR%/deploy_temp"
 
 if %ERRORLEVEL% neq 0 (
