@@ -1,5 +1,6 @@
 package com.health.remind.pojo.dto;
 
+import com.health.remind.common.enums.UserFeedbackEnum;
 import com.health.remind.config.PageDTO;
 import com.health.remind.entity.UserFeedback;
 import lombok.Data;
@@ -13,11 +14,9 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class UserFeedbackPageDTO extends PageDTO<UserFeedback> {
 
-    private String title;
+    private UserFeedbackEnum type;
 
-    private Integer type;
-
-    private String content;
+    private String problem;
 
     private Integer adopted;
 }

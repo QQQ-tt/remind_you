@@ -39,6 +39,7 @@ import com.health.remind.service.FrequencyService;
 import com.health.remind.service.RemindTaskInfoService;
 import com.health.remind.service.RemindTaskService;
 import com.health.remind.service.RuleUserService;
+import com.health.remind.service.SysUserService;
 import com.health.remind.strategy.FrequencyUtils;
 import com.health.remind.util.RedisUtils;
 import jakarta.servlet.http.HttpServletResponse;
@@ -85,7 +86,9 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
 
     private final RuleUserService ruleUserService;
 
-    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService, FrequencyUtils frequencyUtils, MailService mailService, ObjectMapper objectMapper, RuleUserService ruleUserService) {
+    private final SysUserService sysUserService;
+
+    public RemindTaskServiceImpl(RemindTaskInfoService remindTaskInfoService, FrequencyService frequencyService, FrequencyDetailService frequencyDetailService, FrequencyUtils frequencyUtils, MailService mailService, ObjectMapper objectMapper, RuleUserService ruleUserService, SysUserService sysUserService) {
         this.remindTaskInfoService = remindTaskInfoService;
         this.frequencyService = frequencyService;
         this.frequencyDetailService = frequencyDetailService;
@@ -93,6 +96,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
         this.mailService = mailService;
         this.objectMapper = objectMapper;
         this.ruleUserService = ruleUserService;
+        this.sysUserService = sysUserService;
     }
 
     @Override
@@ -136,12 +140,24 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
             if (StringUtils.isBlank(task.getEmail())) {
                 throw new DataException(DataEnums.DATA_NOT_EXIST, "邮箱不存在。");
             }
-            String emailCode = RedisKeys.getEmailCode(CommonMethod.getAccount(), task.getEmail());
-            String s = RedisUtils.get(emailCode);
-            if (StringUtils.isBlank(s) || !s.equals(task.getCaptchaCode())) {
-                throw new DataException(DataEnums.DATA_NOT_EXIST, "验证码错误。");
+            if (StringUtils.isBlank(task.getCaptchaCode())) {
+                SysUser appSysUserByAccount = sysUserService.getAppSysUserByAccount(CommonMethod.getAccount());
+                if (appSysUserByAccount == null) {
+                    throw new DataException(DataEnums.DATA_NOT_EXIST, "用户不存在。");
+                }
+                if (!appSysUserByAccount.getEmail()
+                        .equals(task.getEmail())) {
+                    throw new DataException(DataEnums.DATA_NOT_EXIST, "邮箱不匹配。");
+                }
+            } else {
+                String emailCode = RedisKeys.getEmailCode(StaticConstant.EMAIL_CODE_TASK, CommonMethod.getAccount(),
+                        task.getEmail());
+                String s = RedisUtils.get(emailCode);
+                if (StringUtils.isBlank(s) || !s.equals(task.getCaptchaCode())) {
+                    throw new DataException(DataEnums.DATA_NOT_EXIST, "验证码错误。");
+                }
+                RedisUtils.delete(emailCode);
             }
-            RedisUtils.delete(emailCode);
         }
         saveFrequency(task);
         RemindTask build = RemindTask.builder()
@@ -195,7 +211,7 @@ public class RemindTaskServiceImpl extends ServiceImpl<RemindTaskMapper, RemindT
     @Override
     @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getAccount()")
     public void sendEmailCode(String email) {
-        mailService.sendCode(email);
+        mailService.sendCode(StaticConstant.EMAIL_CODE_TASK, email);
     }
 
     @Override

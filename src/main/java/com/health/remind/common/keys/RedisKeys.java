@@ -126,10 +126,10 @@ public class RedisKeys {
      * @param email   邮箱
      * @return email:code:account:email
      */
-    public static String getEmailCode(Long account, String email) {
+    public static String getEmailCode(String type, Long account, String email) {
         if (email == null) {
             throw new DataException(DataEnums.DATA_NOT_EXIST);
         }
-        return "email:code:" + account + ":" + email;
+        return "email:code:" + type + ":" + account + ":" + email;
     }
 }

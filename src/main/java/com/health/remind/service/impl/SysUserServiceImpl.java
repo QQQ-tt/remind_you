@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.health.remind.common.StaticConstant;
 import com.health.remind.common.enums.InterestsLevelEnum;
@@ -15,6 +16,7 @@ import com.health.remind.config.enums.DataEnums;
 import com.health.remind.config.exception.DataException;
 import com.health.remind.config.lock.RedisLock;
 import com.health.remind.entity.SysUser;
+import com.health.remind.mail.MailService;
 import com.health.remind.mapper.SysUserMapper;
 import com.health.remind.pojo.dto.AppUserDTO;
 import com.health.remind.pojo.dto.LoginAppDTO;
@@ -75,13 +77,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     private final ObjectMapper objectMapper;
 
-    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysRoleService sysRoleService, WxApiService wxApiService, RuleUserService ruleUserService, ScheduledExecutorService scheduler, ObjectMapper objectMapper) {
+    private final MailService mailService;
+
+    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysRoleService sysRoleService, WxApiService wxApiService, RuleUserService ruleUserService, ScheduledExecutorService scheduler, ObjectMapper objectMapper, MailService mailService) {
         this.passwordEncoder = passwordEncoder;
         this.sysRoleService = sysRoleService;
         this.wxApiService = wxApiService;
         this.ruleUserService = ruleUserService;
         this.scheduler = scheduler;
         this.objectMapper = objectMapper;
+        this.mailService = mailService;
     }
 
     @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getIp()", autoUnlockTime = 6000)
@@ -333,6 +338,25 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    public boolean updateEmail(String email, String code) {
+        String emailCode = RedisKeys.getEmailCode(StaticConstant.EMAIL_CODE_USER, CommonMethod.getAccount(),
+                email);
+        String s = RedisUtils.get(emailCode);
+        if (StringUtils.isNotBlank(s) && s.equals(code)) {
+            return update(Wrappers.lambdaUpdate(SysUser.class)
+                    .eq(SysUser::getAccount, CommonMethod.getAccount())
+                    .set(SysUser::getEmail, email));
+        }
+        return false;
+    }
+
+    @Override
+    @RedisLock(lockParameter = "T(com.health.remind.config.CommonMethod).getAccount()")
+    public void sendEmailCode(String email) {
+        mailService.sendCode(StaticConstant.EMAIL_CODE_USER, email);
+    }
+
+    @Override
     public boolean updateAppUser(AppUserDTO dto) {
         return update(Wrappers.lambdaUpdate(SysUser.class)
                 .eq(SysUser::getAccount, CommonMethod.getAccount())
@@ -356,6 +380,20 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public SysUser getSysUserById(Long id) {
         return getById(id);
+    }
+
+    @Override
+    public SysUser getAppSysUserByAccount(Long account) {
+        String userKey = RedisKeys.getUserKey(account, StaticConstant.USER_TYPE_APP);
+        SysUser object = RedisUtils.getObject(userKey, new TypeReference<>() {
+        });
+        if (object != null) {
+            return object;
+        }
+        object = getOne(Wrappers.lambdaQuery(SysUser.class)
+                .eq(SysUser::getAccount, account)
+                .eq(SysUser::getUserType, StaticConstant.USER_TYPE_APP));
+        return object;
     }
 
     @Override

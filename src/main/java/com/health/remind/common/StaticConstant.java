@@ -23,4 +23,8 @@ public class StaticConstant {
     public static final String USER_TYPE_SYS = "sys";
 
     public static final String USER_TYPE_APP = "app";
+
+    public static final String EMAIL_CODE_TASK = "emailCodeTask";
+
+    public static final String EMAIL_CODE_USER = "emailCodeUser";
 }

@@ -2,9 +2,11 @@ package com.health.remind.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.health.remind.common.StaticConstant;
+import com.health.remind.config.CommonMethod;
 import com.health.remind.config.R;
 import com.health.remind.entity.SysUser;
 import com.health.remind.pojo.dto.AppUserDTO;
+import com.health.remind.pojo.dto.AppUserEmailDTO;
 import com.health.remind.pojo.dto.LoginAppDTO;
 import com.health.remind.pojo.dto.SignDTO;
 import com.health.remind.pojo.dto.SysUserDTO;
@@ -111,6 +113,27 @@ public class SysUserController {
     @PutMapping("/updateAppUser")
     public R<Boolean> updateAppUser(@RequestBody @Valid AppUserDTO dto) {
         return R.success(sysUserService.updateAppUser(dto));
+    }
+
+    @Operation(summary = "发送邮箱验证码")
+    @PostMapping("/sendEmailCode")
+    public R<Boolean> sendEmailCode(@RequestBody @Valid AppUserEmailDTO dto) {
+        sysUserService.sendEmailCode(dto.getEmail());
+        return R.success();
+    }
+
+    @Operation(summary = "修改邮箱")
+    @PutMapping("/updateEmail")
+    public R<String> updateEmail(@RequestBody @Valid AppUserEmailDTO dto) {
+        return sysUserService.updateEmail(dto.getEmail(), dto.getCaptchaCode()) ? R.success() : R.verifyFailed(
+                "修改邮箱失败");
+    }
+
+    @Operation(summary = "根据账号查询邮箱")
+    @GetMapping("/getAppSysUserByAccount")
+    public R<String> getAppSysUserByAccount() {
+        return R.success(sysUserService.getAppSysUserByAccount(CommonMethod.getAccount())
+                .getEmail());
     }
 
     @Operation(summary = "取消角色")

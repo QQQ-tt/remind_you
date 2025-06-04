@@ -42,6 +42,10 @@ public class SysUser extends BaseEntity {
     @TableField("account")
     private Long account;
 
+    @Schema(description = "邮箱")
+    @TableField("email")
+    private String email;
+
     @JsonIgnore
     @Schema(description = "密码")
     @TableField("password")

@@ -103,6 +103,22 @@ public interface SysUserService extends IService<SysUser> {
     boolean saveOrUpdateSysUser(SysUserDTO dto);
 
     /**
+     * 更新邮箱
+     *
+     * @param email 邮箱
+     * @param code  验证码
+     * @return 是否成功
+     */
+    boolean updateEmail(String email, String code);
+
+    /**
+     * 发送邮箱验证码
+     *
+     * @param email 邮箱
+     */
+    void sendEmailCode(String email);
+
+    /**
      * 编辑用户
      *
      * @param dto 用户信息
@@ -125,6 +141,14 @@ public interface SysUserService extends IService<SysUser> {
      * @return 用户信息
      */
     SysUser getSysUserById(Long id);
+
+    /**
+     * 根据account查询app用户
+     *
+     * @param account 用户id
+     * @return 用户信息
+     */
+    SysUser getAppSysUserByAccount(Long account);
 
     /**
      * 删除用户
