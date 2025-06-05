@@ -28,6 +28,7 @@ import com.health.remind.pojo.vo.LoginVO;
 import com.health.remind.pojo.vo.SignVO;
 import com.health.remind.pojo.vo.SysUserRuleVO;
 import com.health.remind.pojo.vo.SysUserVO;
+import com.health.remind.scheduler.DelaySqlScheduledExecutor;
 import com.health.remind.service.RuleUserService;
 import com.health.remind.service.SysRoleService;
 import com.health.remind.service.SysUserService;
@@ -47,6 +48,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -177,10 +179,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         AtomicReference<LoginVO> vo = new AtomicReference<>();
         Optional<String> bodyFromToken = Optional.ofNullable(JwtUtils.getBodyFromToken(token));
         bodyFromToken.ifPresentOrElse(e -> {
-            update(Wrappers.lambdaUpdate(SysUser.class)
-                    .eq(SysUser::getAccount, e)
-                    .set(SysUser::getLoginTime,
-                            LocalDateTime.now()));
             LoginVO loginVO = getLoginVO(getOne(Wrappers.lambdaQuery(SysUser.class)
                     .eq(SysUser::getAccount, e)));
             vo.set(loginVO);
@@ -243,6 +241,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      */
     @SneakyThrows
     private LoginVO getLoginVO(SysUser sysUser) {
+        setLoginTime(sysUser);
         HashMap<String, Object> map = new HashMap<>();
         map.put(StaticConstant.USER_ID, sysUser.getId());
         map.put(StaticConstant.USER_TYPE, sysUser.getUserType());
@@ -413,6 +412,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         } while (count(Wrappers.lambdaQuery(SysUser.class)
                 .eq(SysUser::getAccount, l)) > 0);
         return l;
+    }
+
+    @SneakyThrows
+    private void setLoginTime(SysUser sysUser) {
+        SysUser user = new SysUser();
+        user.setId(sysUser.getId());
+        user.setLoginTime(sysUser.getLoginTime());
+        DelaySqlScheduledExecutor.putDelaySqlTask(this, Collections.singletonList(user), SysUser.class);
     }
 
     public void setRedis(Long account) {
