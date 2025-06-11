@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalTime;
+import java.util.List;
 
 /**
  * @author QQQtx
@@ -62,5 +63,6 @@ public class FrequencyDTO {
     @Schema(description = "来源")
     private String source;
 
-
+    @Schema(description = "详情")
+    private List<FrequencyDetailDTO> frequencyDetailList;
 }

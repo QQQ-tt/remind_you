@@ -3,11 +3,13 @@ package com.health.remind.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.health.remind.common.enums.FrequencyTypeEnum;
 import com.health.remind.config.R;
+import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.pojo.dto.FrequencyDTO;
 import com.health.remind.pojo.dto.FrequencyPageDTO;
 import com.health.remind.pojo.vo.FrequencyVO;
 import com.health.remind.service.FrequencyService;
 import com.health.remind.service.impl.FrequencyServiceImpl;
+import com.health.remind.strategy.FrequencyUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -36,8 +38,11 @@ public class FrequencyController {
 
     private final FrequencyService frequencyService;
 
-    public FrequencyController(FrequencyServiceImpl frequencyService) {
+    private final FrequencyUtils frequencyUtils;
+
+    public FrequencyController(FrequencyServiceImpl frequencyService, FrequencyUtils frequencyUtils) {
         this.frequencyService = frequencyService;
+        this.frequencyUtils = frequencyUtils;
     }
 
     @Operation(summary = "分页查询")
@@ -60,8 +65,14 @@ public class FrequencyController {
 
     @Operation(summary = "新增或修改")
     @PostMapping("/saveOrUpdateFrequency")
-    public R<Boolean> saveOrUpdateFrequency(@RequestBody @Valid FrequencyDTO frequencyVO) {
-        return R.success(frequencyService.saveOrUpdateFrequency(frequencyVO));
+    public R<Boolean> saveOrUpdateFrequency(@RequestBody @Valid FrequencyDTO frequencyDTO) {
+        return R.success(frequencyService.saveOrUpdateFrequency(frequencyDTO));
+    }
+
+    @Operation(summary = "测试执行时间")
+    @GetMapping("/testTime")
+    public R<List<RemindTaskInfo>> test(@RequestBody @Valid FrequencyDTO frequencyDTO) {
+        return R.success(frequencyUtils.testSplitTask(frequencyDTO));
     }
 
     @Operation(summary = "修改状态")

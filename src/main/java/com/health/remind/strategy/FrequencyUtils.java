@@ -3,6 +3,7 @@ package com.health.remind.strategy;
 import com.health.remind.common.enums.FrequencySqlTypeEnum;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
+import com.health.remind.pojo.dto.FrequencyDTO;
 import com.health.remind.pojo.vo.FrequencyVO;
 import com.health.remind.service.FrequencyService;
 import lombok.extern.slf4j.Slf4j;
@@ -44,18 +45,51 @@ public class FrequencyUtils {
             }
         }
         if (typeEnum.equals(FrequencySqlTypeEnum.SELECT)) {
-            List<RemindTaskInfo> list = new ArrayList<>();
-            while (list.size() < 10) {
-                log.info("开始时间:{}", startTime);
-                task.setInitTime(startTime.toLocalDate());
-                list.addAll(StrategyContext.getStrategy(frequency.getCycleUnit()
-                                .getValue() + "strategy")
-                        .strategyTaskNumTen(task, frequency));
-                startTime = startTime.plusDays(1);
-            }
-            return list.size() > 10 ? list.subList(0, 10) : list;
+            return getRemindTaskInfos(task, startTime, frequency);
         }
         return List.of();
+    }
+
+    public List<RemindTaskInfo> testSplitTask(FrequencyDTO frequency) {
+        if (frequency == null) {
+            return List.of();
+        }
+        FrequencyVO vo = FrequencyVO.builder()
+                .name(frequency.getFrequencyName())
+                .frequencyCode(frequency.getFrequencyCode())
+                .frequencyDesc(frequency.getFrequencyDesc())
+                .frequencyNumber(frequency.getFrequencyNumber())
+                .frequencyCycle(frequency.getFrequencyCycle())
+                .startTime(frequency.getStartTime())
+                .endTime(frequency.getEndTime())
+                .crossDay(frequency.getCrossDay())
+                .cycleUnit(frequency.getCycleUnit())
+                .type(frequency.getType())
+                .build();
+        RemindTask task = RemindTask.builder()
+                .id(1L)
+                .name("测试任务")
+                .startTime(LocalDateTime.now())
+                .endTime(LocalDateTime.now()
+                        .plusDays(10))
+                .remark("测试任务")
+                .status(true)
+                .isRemind(true)
+                .build();
+        return getRemindTaskInfos(task, LocalDateTime.now(), vo);
+    }
+
+    private static List<RemindTaskInfo> getRemindTaskInfos(RemindTask task, LocalDateTime startTime, FrequencyVO frequency) {
+        List<RemindTaskInfo> list = new ArrayList<>();
+        while (list.size() < 10) {
+            log.info("开始时间:{}", startTime);
+            task.setInitTime(startTime.toLocalDate());
+            list.addAll(StrategyContext.getStrategy(frequency.getCycleUnit()
+                            .getValue() + "strategy")
+                    .strategyTaskNumTen(task, frequency));
+            startTime = startTime.plusDays(1);
+        }
+        return list.size() > 10 ? list.subList(0, 10) : list;
     }
 
     private RemindTask copyTask(RemindTask source) {

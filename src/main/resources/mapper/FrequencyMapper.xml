@@ -18,19 +18,35 @@
                update_time
         from frequency ${ew.customSqlSegment}
     </select>
-    <select id="selectListFrequency" resultType="com.health.remind.pojo.vo.FrequencyVO">
-        select id,
-               name,
-               frequency_code,
-               frequency_desc,
-               frequency_cycle,
-               frequency_number,
-               cycle_unit,
-               type,
-               status,
-               start_time,
-               end_time,
-               source
-        from frequency ${ew.customSqlSegment}
+    <resultMap id="fd" type="com.health.remind.pojo.vo.FrequencyVO" autoMapping="true">
+        <id property="id" column="id"/>
+        <collection property="frequencyDetailList" ofType="com.health.remind.pojo.vo.FrequencyDetailVO"
+                    autoMapping="true">
+            <id property="id" column="fd_id"/>
+        </collection>
+    </resultMap>
+    <select id="selectListFrequency" resultMap="fd">
+        with info as (select f.id,
+                             name,
+                             frequency_code,
+                             frequency_desc,
+                             frequency_cycle,
+                             frequency_number,
+                             cycle_unit,
+                             type,
+                             status,
+                             start_time,
+                             end_time,
+                             source,
+                             level,
+                             f.delete_flag,
+                             f.tenant_id,
+                             fd.id as fd_id,
+                             fd.frequency_weekday,
+                             fd.frequency_time
+                      from frequency f
+                               left join frequency_detail fd on f.id = fd.frequency_id)
+        select *
+        from info ${ew.customSqlSegment}
     </select>
 </mapper>

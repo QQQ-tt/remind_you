@@ -137,6 +137,11 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
                             .toString())
                     .build();
             boolean savedOrUpdate = saveOrUpdate(frequency);
+            dto.getFrequencyDetailList()
+                    .forEach(e -> {
+                        e.setFrequencyId(frequency.getId());
+                        frequencyDetailService.saveOrUpdateFrequencyDetail(e);
+                    });
             dto.setId(frequency.getId());
             return savedOrUpdate;
         }
