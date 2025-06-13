@@ -1,5 +1,6 @@
 package com.health.remind.strategy.impl;
 
+import com.health.remind.common.enums.FrequencyTypeEnum;
 import com.health.remind.config.CommonMethod;
 import com.health.remind.entity.RemindTask;
 import com.health.remind.entity.RemindTaskInfo;
@@ -45,7 +46,7 @@ public class WeekStrategy extends AbstractStrategy {
         List<RemindTaskInfo> taskInfos = new ArrayList<>();
         if (detailList != null && !detailList.isEmpty()) {
             List<FrequencyDetailVO> collect = filter(task, frequency);
-            if (frequency.getStatus()) {
+            if (frequency.getType() == FrequencyTypeEnum.LOGIC_WEEK) {
                 Optional<Integer> first = collect.stream()
                         .map(FrequencyDetailVO::getFrequencyWeekday)
                         .findFirst();
@@ -56,7 +57,8 @@ public class WeekStrategy extends AbstractStrategy {
                         addExecutionTask(task, e, taskInfos);
                     }
                 }));
-            } else {
+            }
+            if (frequency.getType() == FrequencyTypeEnum.NATURAL_WEEK) {
                 for (final FrequencyDetailVO e : collect) {
                     boolean b = e.getFrequencyWeekday() == initTime.getDayOfWeek()
                             .getValue();

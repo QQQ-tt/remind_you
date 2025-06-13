@@ -3,7 +3,6 @@ package com.health.remind.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.health.remind.common.enums.FrequencyTypeEnum;
 import com.health.remind.config.R;
-import com.health.remind.entity.RemindTaskInfo;
 import com.health.remind.pojo.dto.FrequencyDTO;
 import com.health.remind.pojo.dto.FrequencyPageDTO;
 import com.health.remind.pojo.vo.FrequencyVO;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -70,8 +70,8 @@ public class FrequencyController {
     }
 
     @Operation(summary = "测试执行时间")
-    @GetMapping("/testTime")
-    public R<List<RemindTaskInfo>> test(@RequestBody @Valid FrequencyDTO frequencyDTO) {
+    @PostMapping("/testTime")
+    public R<List<LocalDateTime>> test(@RequestBody @Valid FrequencyDTO frequencyDTO) {
         return R.success(frequencyUtils.testSplitTask(frequencyDTO));
     }
 
