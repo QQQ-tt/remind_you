@@ -109,7 +109,7 @@ public class ScheduledTasks {
         sysRoleResourceService.listRoleResourceByRoleId(new ArrayList<>());
     }
 
-    @Scheduled(cron = "0 0 9 * * *")
+//    @Scheduled(cron = "0 0 9 * * *")
     public void sendSystemReports() {
         log.info("开始发送系统报告");
         LocalDateTime startTime = LocalDateTime.of(LocalDate.now()
@@ -136,7 +136,6 @@ public class ScheduledTasks {
                         "已发送任务数量：%d<br><br>" +
                         "感谢您的查看！",
                 LocalDate.now().minusDays(1), count, count1, count2);
-
         mailService.send("1102214883@qq.com", subject, content);
     }
 }
