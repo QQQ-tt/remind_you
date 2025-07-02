@@ -55,3 +55,6 @@ cd remindyou
 | `StrategyContext`     | 策略上下文           |
 | `ScheduledBase`       | 线程基础文件          |
 
+## 🎡 体验小程序
+
+![RemindYou 小程序](static/qrCode.jpg)
