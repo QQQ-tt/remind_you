@@ -5,7 +5,6 @@
 ## 🧠 项目特性
 
 - ✅ 多种提醒频率支持（按天、按周、按月等）
-- 🔁 支持规则过期时间和单位定义（分钟、小时、天、周、月）
 - ⚙️ 枚举驱动设计，支持高度扩展的提醒规则配置
 - 🗃️ 内置 Java 缓存模块，提升系统响应速度
 - 📦 统一返回结构体（R<T>），便于前后端联调
@@ -38,7 +37,7 @@ main/
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-username/remindyou.git
+git clone https://github.com/QQQ-tt/remind_you.git
 cd remindyou
 
 # 使用 IDE 启动 RemindYouApplication.java 即可
