@@ -16,9 +16,12 @@ import com.health.remind.scheduler.enums.ScheduledEnum;
 import com.health.remind.service.TestService;
 import com.health.remind.util.RedisUtils;
 import com.health.remind.wx.WxApiService;
+import com.health.remind.wx.entity.QrCode;
 import com.health.remind.wx.entity.WxMsg;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
@@ -231,5 +235,27 @@ public class TestController {
     @PostMapping("/sendWxMsg")
     public void sendWxMsg(@RequestBody WxMsg wxMsg) {
         wxApiService.sendMsg(wxMsg);
+    }
+
+    /**
+     * {
+     * "page": "pages/index/index",
+     * "scene": "userId=123456"
+     * }
+     *
+     * @param response
+     * @param qrCode
+     * @throws IOException
+     */
+    @Operation(summary = "测试微信二维码")
+    @PostMapping("/getQrCode")
+    public void getQrCode(HttpServletResponse response, @RequestBody QrCode qrCode) throws IOException {
+        byte[] qrCode1 = wxApiService.getQrCode(qrCode);
+        response.setHeader("Content-Disposition", "attachment; filename=qrCode.jpg");
+        response.setContentType("image/jpeg");
+        ServletOutputStream outputStream = response.getOutputStream();
+        outputStream.write(qrCode1, 0, qrCode1.length);
+        outputStream.flush();
+        outputStream.close();
     }
 }

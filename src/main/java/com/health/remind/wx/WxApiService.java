@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.health.remind.config.exception.DataException;
 import com.health.remind.wx.entity.AccessToken;
 import com.health.remind.wx.entity.Code2Session;
+import com.health.remind.wx.entity.QrCode;
 import com.health.remind.wx.entity.WXUserInfo;
 import com.health.remind.wx.entity.WxMsg;
 import lombok.SneakyThrows;
@@ -97,6 +98,23 @@ public class WxApiService {
             log.error("发送微信消息失败", e);
             throw new DataException("发送微信消息失败", 500);
         }
+    }
+
+    @SneakyThrows
+    public byte[] getQrCode(QrCode qrCode) {
+        String jsonString = objectMapper.writeValueAsString(qrCode);
+        byte[] bytes = jsonString.getBytes(StandardCharsets.UTF_8);
+        int length = bytes.length;
+        return restClient.post()
+                .uri("/wxa/getwxacodeunlimit?access_token={access_token}",
+                        Map.of("access_token", getAccessToken().getAccess_token()))
+                .headers(
+                        httpHeaders -> httpHeaders.setContentLength(length))
+                .body(qrCode)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .toEntity(byte[].class)
+                .getBody();
     }
 
 }
