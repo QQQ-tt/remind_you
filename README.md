@@ -38,9 +38,8 @@ main/
 ```bash
 # 克隆项目
 git clone https://github.com/QQQ-tt/remind_you.git
-cd remindyou
-
-# 使用 IDE 启动 RemindYouApplication.java 即可
+# 需要配置好 Redis 和 MySQL 数据库
+# 使用 IDE 启动 RemindYouApplication.java 
 ```
 
 ## 🧩 关键模块说明
