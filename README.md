@@ -21,7 +21,7 @@ main/
 │   ├── RemindYouApplication.java   # Spring Boot 启动类
 │   ├── common/                     # 常量、缓存、枚举等通用模块
 │   ├── config/                     # 全局配置和基础类
-│   └── Generator.java              # 工具类
+│   └── Generator.java              # mybatis 代码生成器
 ```
 
 ## 🚀 快速开始
@@ -30,7 +30,8 @@ main/
 
 - JDK 17 或以上
 - Maven 3.6+
-- Redis（如启用缓存）
+- Redis
+- MySQL 8.0+
 - IDE 推荐 IntelliJ IDEA
 
 ### 启动方式
